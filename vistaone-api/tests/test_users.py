@@ -60,3 +60,17 @@ class TestUser(unittest.TestCase):
         response = self.client.post('/users/login', json=credentials)
         self.assertEqual(response.status_code, 400)
         self.assertIn('password', response.json)
+
+    def test_login_rate_limited(self):
+        credentials = {
+            "email": "bad_email@email.com",
+            "password": "bad_pw"
+        }
+
+        response = None
+        for _ in range(11):
+            response = self.client.post('/users/login', json=credentials)
+
+        self.assertIsNotNone(response)
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(response.json['message'], 'Too many requests. Please try again later.')

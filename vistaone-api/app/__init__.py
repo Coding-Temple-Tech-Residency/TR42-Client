@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from .extensions import ma, limiter
 from .models import db
 from .blueprints.users import users_bp
@@ -27,5 +27,9 @@ def create_app(config_name):
     # Register blueprints
     app.register_blueprint(users_bp, url_prefix='/users')
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
+    @app.errorhandler(429)
+    def handle_rate_limit(_):
+        return jsonify({'message': 'Too many requests. Please try again later.'}), 429
     
     return app
