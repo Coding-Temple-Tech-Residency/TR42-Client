@@ -1,0 +1,5 @@
+/* flex layout so sidebar and dashboard sit next to each other */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}

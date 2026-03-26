@@ -1,0 +1,172 @@
+/* login page is split into two halves side by side */
+.login-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* left side navy branding panel */
+.login-brand {
+  width: 45%;
+  background-color: #0a1f3b;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px;
+  color: #ffffff;
+}
+
+.login-brand-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+}
+
+.login-brand-subtitle {
+  font-size: 16px;
+  color: #8facc4;
+  margin: 0 0 32px 0;
+}
+
+.login-brand-tagline {
+  font-size: 18px;
+  color: #c0d4e8;
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+/* right side form area */
+.login-form-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eef1f5 0%, #e6e9f0 50%, #eef2f3 100%);
+  padding: 40px;
+}
+
+/* the actual form card - glass effect */
+.login-form-container {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.login-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 4px 0;
+}
+
+.login-subheading {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 28px 0;
+}
+
+/* error message shown when login fails */
+.login-error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+/* disabled state for the button while loading */
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.login-input {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 18px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.7);
+  transition: all 0.2s ease;
+}
+
+/* highlight border when user clicks into the input */
+.login-input:focus {
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.12);
+  background: #ffffff;
+}
+
+.login-options {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.login-forgot {
+  font-size: 13px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.login-forgot:hover {
+  text-decoration: underline;
+}
+
+/* sign in button - navy to match the brand */
+.login-button {
+  padding: 12px;
+  background-color: #0a1f3b;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(10, 31, 59, 0.25);
+}
+
+.login-button:hover {
+  background-color: #112d4e;
+  box-shadow: 0 4px 12px rgba(10, 31, 59, 0.35);
+  transform: translateY(-1px);
+}
+
+/* register link at the bottom */
+.login-register-text {
+  text-align: center;
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 24px;
+}
+
+.login-register-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-register-link:hover {
+  text-decoration: underline;
+}
