@@ -1,0 +1,172 @@
+import React from 'react';
+
+function App() {
+  const containerStyle = {
+    display: 'flex',
+    minHeight: '100vh',
+    backgroundColor: '#f0f2f5',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  };
+
+  const leftPanelStyle = {
+    flex: '1',
+    backgroundColor: '#000',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  };
+
+  const logoStyle = {
+    color: '#fff',
+    fontSize: '24px',
+    fontWeight: 'bold',
+  };
+
+  const loginCardStyle = {
+    width: '400px',
+    backgroundColor: '#fff',
+    borderRadius: '12px',
+    boxShadow: '0 5px 15px rgba(0, 0, 0, 0.1)',
+    padding: '32px',
+    margin: '20px',
+  };
+
+  const titleStyle = {
+    fontSize: '24px',
+    fontWeight: 'bold',
+    marginBottom: '8px',
+    color: '#333',
+  };
+
+  const subtitleStyle = {
+    fontSize: '14px',
+    color: '#777',
+    marginBottom: '24px',
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '12px',
+    marginBottom: '16px',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    fontSize: '16px',
+  };
+
+  const forgotPasswordStyle = {
+    fontSize: '14px',
+    color: '#007bff',
+    textAlign: 'right',
+    marginBottom: '24px',
+    textDecoration: 'none',
+    display: 'block',
+  };
+
+  const buttonStyle = {
+    backgroundColor: '#1976d2',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    padding: '12px 24px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    width: '100%',
+    marginBottom: '16px',
+  };
+
+  const orStyle = {
+    textAlign: 'center',
+    color: '#777',
+    marginBottom: '16px',
+  };
+
+  const termsStyle = {
+    fontSize: '12px',
+    color: '#777',
+    textAlign: 'center',
+    marginBottom: '24px',
+  };
+
+  const termsLinkStyle = {
+    color: '#007bff',
+    textDecoration: 'none',
+  };
+
+  const requestAccessStyle = {
+    backgroundColor: '#f5f5f5',
+    border: 'none',
+    color: '#007bff',
+    padding: '12px 24px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    width: '100%',
+  };
+  
+  const fieldForceStyle = {
+      color: '#fff',
+      fontSize: '16px',
+      textAlign: 'center'
+  }
+  
+  const logoContainerStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+  }
+  
+  const logoImageStyle = {
+      width: '80px',
+      height: '80px',
+      marginBottom: '10px'
+  }
+  
+    const fieldPortalStyle = {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '20px',
+      color: '#333'
+    };
+  
+    const portalIconStyle = {
+        fontSize: '20px',
+        marginRight: '8px',
+        color: '#1976d2'
+    };
+
+  return (
+    <div style={containerStyle}>
+      <div style={leftPanelStyle}>
+        <div style={logoContainerStyle}>
+            <svg style={logoImageStyle} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v4.5h-2.25a.75.75 0 000 1.5H11.25v2.25a.75.75 0 001.5 0V12h2.25a.75.75 0 000-1.5H12.75V6z" clipRule="evenodd"></path>
+            </svg>
+            <div style={fieldForceStyle}>FIELD</div>
+            <div style={fieldForceStyle}>FORCE</div>
+        </div>
+      </div>
+      <div style={{ flex: '1', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={loginCardStyle}>
+            <div style={fieldPortalStyle}>
+                <i style={portalIconStyle}>🏠</i>
+                <div>FieldPortal</div>
+            </div>
+          <h2 style={titleStyle}>Welcome back</h2>
+          <p style={subtitleStyle}>Sign in to your account to continue</p>
+          <input type="email" placeholder="Email address" style={inputStyle} />
+          <input type="password" placeholder="Password" style={inputStyle} />
+          <a href="#" style={forgotPasswordStyle}>Forgot password?</a>
+          <button style={buttonStyle}>Sign in</button>
+          <div style={orStyle}>or</div>
+          <p style={termsStyle}>
+            By signing in you agree to the <a href="#" style={termsLinkStyle}>Terms of Service</a> and{' '}
+            <a href="#" style={termsLinkStyle}>Privacy Policy</a>
+          </p>
+          <button style={requestAccessStyle}>Don't have an account? Request access</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
