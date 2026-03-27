@@ -19,3 +19,4 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 user_schema =UserSchema()
 users_schema = UserSchema(many=True)
 login_schema = UserSchema(only=['email', 'password'])
+register_schema = UserSchema(only=['first_name', 'last_name', 'email', 'password'])
