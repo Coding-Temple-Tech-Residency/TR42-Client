@@ -1,13 +1,33 @@
 import { useState } from 'react'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
 import '../styles/login.css'
 
 const Login = () => {
+    const navigate = useNavigate()
+    const { login, isLoading, error, clearError } = useAuth()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const [formError, setFormError] = useState('')
 
-    const handleSubmit = () => {
+    const handleSubmit = async (event) => {
+        event.preventDefault()
+
+        if (!email.trim() || !password.trim()) {
+            setFormError('Please enter your email and password.')
+            return
+        }
+
+        setFormError('')
+        clearError()
+
+        const result = await login({ email, password })
+
+        if (result) {
+            navigate('/dashboard', { replace: true })
+        }
     }
 
     return (
@@ -33,7 +53,12 @@ const Login = () => {
                                     <input
                                         type="email"
                                         value={email}
-                                        onChange={(event) => setEmail(event.target.value)}
+                                        onChange={(event) => {
+                                            setEmail(event.target.value)
+                                            if (formError) {
+                                                setFormError('')
+                                            }
+                                        }}
                                         className="form-control"
                                         placeholder="name@company.com"
                                     />
@@ -49,7 +74,12 @@ const Login = () => {
                                     <input
                                         type={showPassword ? 'text' : 'password'}
                                         value={password}
-                                        onChange={(event) => setPassword(event.target.value)}
+                                        onChange={(event) => {
+                                            setPassword(event.target.value)
+                                            if (formError) {
+                                                setFormError('')
+                                            }
+                                        }}
                                         className="form-control"
                                         placeholder="Enter password"
                                     />
@@ -70,7 +100,17 @@ const Login = () => {
                                 </button>
                             </div>
 
-                            <button type="submit" className="btn login-submit-btn w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                            {(formError || error) && (
+                                <div className="alert alert-danger login-alert mb-4" role="alert">
+                                    {formError || error}
+                                </div>
+                            )}
+
+                            <button
+                                type="submit"
+                                className="btn login-submit-btn w-100 d-inline-flex align-items-center justify-content-center gap-2"
+                                disabled={isLoading}
+                            >
                                 Enter dashboard
                                 <ArrowRight size={16} />
                             </button>
