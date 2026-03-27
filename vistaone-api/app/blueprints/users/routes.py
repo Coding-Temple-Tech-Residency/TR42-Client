@@ -6,10 +6,14 @@ from app.models import db, User
 from app.extensions import limiter
 from app.utils.util import encode_token
 from .schemas import login_schema
+import logging
+
+logger = logging.getLogger(__name__)
 
 @users_bp.route("/login", methods=['POST'])
 @limiter.limit("10 per minute")
 def login():
+    logger.info("Login attempt received")
     try:
         credentials = login_schema.load(request.json)
         email = credentials['email']
@@ -21,6 +25,7 @@ def login():
     user = db.session.execute(query).scalars().first()
 
     if user and user.check_password(password):
+        logger.info(f"User {email} logged in successfully")
         token = encode_token(user.id)
 
         response = {
@@ -31,4 +36,5 @@ def login():
         
         return jsonify(response), 200
     else:
+        logger.error(f"Failed login attempt for email: {email}")
         return jsonify({'message': "Invalid email or password"}), 401

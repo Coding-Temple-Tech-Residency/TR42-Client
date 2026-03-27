@@ -3,6 +3,13 @@ from .extensions import ma, limiter
 from .models import db
 from .blueprints.users import users_bp
 from flask_swagger_ui import get_swaggerui_blueprint
+import logging
+import os
+from dotenv import load_dotenv
+
+
+# Load .env file
+load_dotenv()
 
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = '/static/swagger.yaml'  # Our API URL (can of course be a local resource)
@@ -31,5 +38,26 @@ def create_app(config_name):
     @app.errorhandler(429)
     def handle_rate_limit(_):
         return jsonify({'message': 'Too many requests. Please try again later.'}), 429
+    
+
+    # Get log level and file name from .env
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+    log_file = os.getenv("LOG_FILE", "client-web.log")
+    format_env = os.getenv("FORMAT","%(asctime)s - %(levelname)s - %(name)s - %(message)s")
+
+    # Configure logging
+    logging.basicConfig(
+        filename=log_file,
+        level=log_level,
+        format=format_env
+    )
+    
+
+    # Optional: Also log to console
+    console = logging.StreamHandler()
+    console.setLevel(log_level)
+    formatter = logging.Formatter(format_env)
+    console.setFormatter(formatter)
+    logging.getLogger("").addHandler(console)
     
     return app
