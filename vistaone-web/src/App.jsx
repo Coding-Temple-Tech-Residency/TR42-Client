@@ -1,12 +1,11 @@
 import './App.css'
+import Login from './components/Login'
 
 function App() {
 
-  return (
-    <>
-        <h1>Client Web Dashboard</h1>
-    </>
-  )
+    return (
+        <Login></Login>
+    )
 }
 
 export default App
