@@ -11,6 +11,11 @@ export const useAuth = () => {
 
         try {
             const response = await authService.login({ email, password });
+
+            if (response?.token) {
+                localStorage.setItem('authToken', response.token);
+            }
+
             return response;
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Login failed. Please try again.';
@@ -25,10 +30,16 @@ export const useAuth = () => {
         setError('');
     }, []);
 
+    const logout = useCallback(() => {
+        localStorage.removeItem('authToken');
+        setError('');
+    }, []);
+
     return {
         isLoading,
         error,
         login,
+        logout,
         clearError,
     };
 };
