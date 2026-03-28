@@ -5,18 +5,12 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, date
 from typing import List, Optional
-
 import sqlalchemy as sa
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
-    relationship,
-    DeclarativeBase,
-)
+from sqlalchemy.orm import (Mapped,mapped_column,relationship,
+DeclarativeBase,)
 
-# Base
 class Base(DeclarativeBase):
     pass
 
@@ -49,23 +43,7 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-class User(Base):
-    __tablename__ = 'users'
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    first_name: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    last_name: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    email: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    role_id: Mapped[int] = mapped_column(nullable=False)
-    company_id: Mapped[int] = mapped_column(nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    def set_password(self, raw_password: str) -> None:
-        self.password_hash = generate_password_hash(raw_password)
-
-    def check_password(self, raw_password: str) -> bool:
-        return check_password_hash(self.password_hash, raw_password)
 
 # ---------- Models ----------
 class User(Base):
@@ -81,16 +59,29 @@ class User(Base):
     contractor_id: Mapped[Optional[str]] = mapped_column(sa.String, sa.ForeignKey('contractors.contractor_id', ondelete='SET NULL'), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[Optional[datetime]] = mapped_column(sa.DateTime(timezone=True), onupdate=func.now())
-
+    
     # relationships
     roles: Mapped[List["Role"]] = relationship('Role', secondary=user_roles_table, back_populates='users')
     activity_logs: Mapped[List["ActivityLog"]] = relationship('ActivityLog', back_populates='actor', cascade='all, delete-orphan')
+    profile: Mapped["UserProfile"] = relationship("UserProfile",back_populates="user",uselist=False,cascade="all, delete-orphan")
 
     def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)
 
     def check_password(self, raw_password: str) -> bool:
         return check_password_hash(self.password_hash, raw_password)
+
+
+class LoginAttempt(Base):
+    __tablename__ = "login_attempts"
+    attempt_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
+    user_id: Mapped[[uuid.UUID]] = mapped_column(PG_UUID(as_uuid=True),sa.ForeignKey("users.user_id", ondelete="SET NULL") # pyright: ignore[reportInvalidTypeForm]))
+    email_used: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+    success: Mapped[bool] = mapped_column(sa.Boolean, nullable=False)
+    ip_address: Mapped[Optional[str]] = mapped_column(sa.String(50))
+    user_agent: Mapped[Optional[str]] = mapped_column(sa.String(500))
+    attempted_at: Mapped[datetime] = mapped_column(sa.DateTime(timezone=True),server_default=func.now())
+    user: Mapped[Optional["User"]] = relationship(back_populates="login_attempts")
 
 
 class Role(Base):
@@ -388,9 +379,7 @@ class Invoice(Base):
     lines: Mapped[List["InvoiceLine"]] = relationship('InvoiceLine', back_populates='invoice', cascade='all, delete-orphan')
     approvals: Mapped[List["InvoiceApproval"]] = relationship('InvoiceApproval', back_populates='invoice', cascade='all, delete-orphan')
     submissions: Mapped[List["InvoiceSubmission"]] = relationship('InvoiceSubmission', back_populates='invoice', cascade='all, delete-orphan')
-    payments: Mapped[List["Payment"]] = relationship('Payment', back_populates='invoice', cascade='all, delete-orphan')
-
-
+    
 class InvoiceLine(Base):
     __tablename__ = 'invoice_lines'
 
@@ -434,19 +423,64 @@ class InvoiceSubmission(Base):
     submitter: Mapped[Optional[User]] = relationship('User')
 
 
-class Payment(Base):
-    __tablename__ = 'payments'
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
 
-    payment_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    invoice_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), sa.ForeignKey('invoices.invoice_id', ondelete='CASCADE'), nullable=False, index=True)
-    amount: Mapped[Optional[float]] = mapped_column(sa.Numeric)
-    currency: Mapped[Optional[str]] = mapped_column(sa.String(8))
-    payment_method: Mapped[Optional[str]] = mapped_column(sa.String)
-    transaction_reference: Mapped[Optional[str]] = mapped_column(sa.String)
-    paid_at: Mapped[Optional[datetime]] = mapped_column(sa.DateTime(timezone=True))
-    status: Mapped[Optional[str]] = mapped_column(sa.String)
+    profile_id: Mapped[uuid.UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
 
-    invoice: Mapped[Invoice] = relationship('Invoice', back_populates='payments')
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        sa.ForeignKey("users.user_id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False
+    )
+
+    first_name: Mapped[Optional[str]] = mapped_column(sa.String(100))
+    last_name: Mapped[Optional[str]] = mapped_column(sa.String(100))
+    phone: Mapped[Optional[str]] = mapped_column(sa.String(20))
+    avatar_url: Mapped[Optional[str]] = mapped_column(sa.String(500))
+
+    updated_at: Mapped[datetime] = mapped_column(
+        sa.DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now()
+    )
+
+    user: Mapped["User"] = relationship(back_populates="profile")
+
+class DashboardWidget(Base):
+    __tablename__ = "dashboard_widgets"
+
+    widget_id: Mapped[uuid.UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
+        sa.ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    widget_type: Mapped[str] = mapped_column(sa.String(100), nullable=False)
+    position: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    config: Mapped[dict] = mapped_column(sa.JSON, default=dict)
+
+    user: Mapped["User"] = relationship()
+class DashboardMetrics(Base):
+    __tablename__ = "dashboard_metrics"
+    __table_args__ = {"info": {"is_view": True}}
+
+    total_users: Mapped[int] = mapped_column(primary_key=True)
+    total_vendors: Mapped[int] = mapped_column()
+    total_workorders: Mapped[int] = mapped_column()
+    pending_invoices: Mapped[int] = mapped_column()
+    refreshed_at: Mapped[datetime] = mapped_column()
 
 
 class ActivityLog(Base):
