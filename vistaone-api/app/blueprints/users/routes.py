@@ -36,5 +36,5 @@ def login():
         
         return jsonify(response), 200
     else:
-        logger.error(f"Failed login attempt for email: {email}")
+        logger.error(f"Failed login attempt")
         return jsonify({'message': "Invalid email or password"}), 401
