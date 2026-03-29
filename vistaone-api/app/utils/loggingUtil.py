@@ -4,7 +4,7 @@ import functools
 from flask import current_app
 from logging.handlers import RotatingFileHandler
 
-def login_setup():
+def logging_setup():
 
     if not os.path.exists("logs"):
         os.mkdir("logs")

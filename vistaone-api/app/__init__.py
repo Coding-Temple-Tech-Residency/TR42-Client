@@ -3,7 +3,7 @@ from .extensions import ma, limiter
 from .models import db
 from .blueprints.users import users_bp
 from flask_swagger_ui import get_swaggerui_blueprint
-from app.utils.loggingUtil import login_setup
+from app.utils.loggingUtil import logging_setup
 
 from dotenv import load_dotenv
 
@@ -31,7 +31,7 @@ def create_app(config_name):
     db.init_app(app)
     limiter.init_app(app)
 
-    login_setup()
+    logging_setup()
     
     # Register blueprints
     app.register_blueprint(users_bp, url_prefix='/users')
