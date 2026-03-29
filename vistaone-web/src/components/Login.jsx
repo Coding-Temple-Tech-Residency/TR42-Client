@@ -12,6 +12,15 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false)
     const [formError, setFormError] = useState('')
 
+    const previewCards = [
+        { label: 'Active Service Orders', value: '142', trend: '+8 today' },
+        { label: 'Approved Vendors', value: '38', trend: '2 pending review' },
+        { label: 'Pending Invoices', value: '27', trend: '$124k outstanding' },
+        { label: 'Fraud Alerts', value: '4', trend: 'High priority' },
+        { label: 'Compliance Score', value: '96%', trend: 'On target' },
+        { label: 'Anomaly Detections', value: '11', trend: 'Last 7 days' },
+    ]
+
     const handleSubmit = async (event) => {
         event.preventDefault()
 
@@ -52,9 +61,21 @@ const Login = () => {
                                 <h1 className="login-hero-title fw-semibold mb-4">
                                     Sign in to monitor vendors, fraud risk, and service delivery.
                                 </h1>
-                                <p className="login-hero-text mb-0">
+                                <p className="login-hero-text mb-4">
                                     Access the client control surface for vendor approval, compliance monitoring, invoice review, and anomaly analytics.
                                 </p>
+
+                                <div className="login-preview-carousel">
+                                    <div className="login-preview-track">
+                                        {[...previewCards, ...previewCards].map((card, i) => (
+                                            <div key={i} className="login-preview-card">
+                                                <p className="login-preview-card-label">{card.label}</p>
+                                                <p className="login-preview-card-value">{card.value}</p>
+                                                <p className="login-preview-card-trend">{card.trend}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>

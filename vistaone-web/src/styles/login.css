@@ -49,7 +49,7 @@
 	max-width: 28rem;
 	border-radius: 1.75rem;
 	padding: 2rem;
-    color: #0f172a;
+	color: #0f172a;
 }
 
 .login-panel-text {
@@ -93,4 +93,59 @@
 	background-color: #94a3b8 !important;
 	color: #020617 !important;
 	border-color: #64748b !important;
+}
+
+/* Preview carousel */
+.login-preview-carousel {
+	overflow: hidden;
+	-webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+	mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+}
+
+.login-preview-track {
+	display: flex;
+	gap: 0.75rem;
+	width: max-content;
+	animation: login-carousel-scroll 30s linear infinite;
+}
+
+.login-preview-track:hover {
+	animation-play-state: paused;
+}
+
+@keyframes login-carousel-scroll {
+	from { transform: translateX(0); }
+	to   { transform: translateX(-50%); }
+}
+
+.login-preview-card {
+	min-width: 10.5rem;
+	flex-shrink: 0;
+	border: 1px solid rgba(203, 213, 225, 0.9);
+	background: rgba(255, 255, 255, 0.72);
+	backdrop-filter: blur(8px);
+	border-radius: 0.875rem;
+	padding: 0.875rem 1rem;
+}
+
+.login-preview-card-label {
+	font-size: 0.68rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #94a3b8;
+	margin-bottom: 0.25rem;
+}
+
+.login-preview-card-value {
+	font-size: 1.4rem;
+	font-weight: 700;
+	color: #1e293b;
+	line-height: 1;
+	margin-bottom: 0.25rem;
+}
+
+.login-preview-card-trend {
+	font-size: 0.72rem;
+	color: #64748b;
+	margin-bottom: 0;
 }
