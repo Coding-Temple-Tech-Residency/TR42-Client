@@ -148,7 +148,7 @@ const Login = () => {
                                 </div>
 
                                 {(formError || error) && (
-                                    <div className="alert alert-danger mb-4" role="alert">
+                                    <div className="alert alert-danger login-alert mb-4" role="alert">
                                         {formError || error}
                                     </div>
                                 )}

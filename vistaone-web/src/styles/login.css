@@ -13,6 +13,7 @@
 .login-badge {
 	border: 1px solid #dbe2ea;
 	background: #ffffff;
+	animation: login-fade-drop 0.5s both;
 }
 
 .login-badge-icon {
@@ -30,17 +31,23 @@
 	font-size: 0.69rem;
 }
 
+.login-hero-overline {
+	animation: login-fade-left 0.5s 0.15s both;
+}
+
 .login-hero-title {
 	max-width: 44rem;
 	font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 	font-size: 3.75rem;
 	line-height: 1.1;
+	animation: login-fade-left 0.65s 0.28s both;
 }
 
 .login-hero-text {
 	max-width: 36rem;
 	font-size: 1.05rem;
 	line-height: 1.75;
+	animation: login-fade-left 0.5s 0.42s both;
 }
 
 .login-panel {
@@ -50,6 +57,7 @@
 	border-radius: 1.75rem;
 	padding: 2rem;
 	color: #0f172a;
+	animation: login-fade-right 0.65s 0.2s both;
 }
 
 .login-panel-text {
@@ -80,6 +88,7 @@
 	border: 1px solid #cbd5e1 !important;
 	font-weight: 700;
 	box-shadow: 0 8px 20px rgba(148, 163, 184, 0.35);
+	transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .login-submit-btn:hover,
@@ -87,6 +96,8 @@
 	background-color: #cbd5e1 !important;
 	color: #020617 !important;
 	border-color: #94a3b8 !important;
+	transform: translateY(-2px) scale(1.01);
+	box-shadow: 0 12px 28px rgba(148, 163, 184, 0.45) !important;
 }
 
 .login-submit-btn:active {
@@ -95,11 +106,16 @@
 	border-color: #64748b !important;
 }
 
+.login-alert {
+	animation: login-fade-up 0.3s both;
+}
+
 /* Preview carousel */
 .login-preview-carousel {
 	overflow: hidden;
 	-webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
 	mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+	animation: login-fade-up 0.5s 0.55s both;
 }
 
 .login-preview-track {
@@ -148,4 +164,25 @@
 	font-size: 0.72rem;
 	color: #64748b;
 	margin-bottom: 0;
+}
+
+/* ── Keyframes ────────────────────────────────────── */
+@keyframes login-fade-left {
+	from { opacity: 0; transform: translateX(-1.5rem); }
+	to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes login-fade-right {
+	from { opacity: 0; transform: translateX(1.5rem); }
+	to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes login-fade-drop {
+	from { opacity: 0; transform: translateY(-0.75rem); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes login-fade-up {
+	from { opacity: 0; transform: translateY(0.75rem); }
+	to   { opacity: 1; transform: translateY(0); }
 }
