@@ -32,3 +32,11 @@ def login():
         return jsonify(response), 200
     else:
         return jsonify({'message': "Invalid email or password"}), 401
+    
+    from marshmallow import Schema, fields, validate
+
+class RegisterSchema(Schema):
+    username = fields.String(required=True, validate=validate.Length(min=3, max=255))
+    email = fields.Email(required=True)
+    password = fields.String(required=True, validate=validate.Length(min=6))
+    user_type = fields.String(required=True, validate=validate.OneOf(["operator", "vendor", "contractor"]))

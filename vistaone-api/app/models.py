@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, String, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
-from __future__ import annotations
+from datetime import datetime
 import uuid
 from datetime import datetime, date
 from typing import List, Optional
@@ -9,7 +10,7 @@ import sqlalchemy as db
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import (Mapped,mapped_column,relationship,
-DeclarativeBase,)
+DeclarativeBase)
 
 class Base(DeclarativeBase):
     pass
@@ -63,25 +64,13 @@ class User(Base):
     roles: Mapped[List["Role"]] = relationship('Role', secondary=user_roles_table, back_populates='users')
     activity_logs: Mapped[List["ActivityLog"]] = relationship('ActivityLog', back_populates='actor', cascade='all, delete-orphan')
     profile: Mapped[List["UserProfile"]] = relationship("UserProfile",back_populates="user",uselist=False,cascade="all, delete-orphan")
-    login: Mapped[List["LoginAttempt"]] = relationship('LoginAttempt', back_populates='user', cascade='all, delete-orphan') 
-    
+    dashboard_config: Mapped[List["DashboardConfig"]] = relationship("DashboardConfig", back_populates="user", uselist=False, cascade="all, delete-orphan") 
     def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)
 
     def check_password(self, raw_password: str) -> bool:
         return check_password_hash(self.password_hash, raw_password)
 
-
-class LoginAttempt(Base):
-    __tablename__ = "login_attempts"
-    attempt_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
-    user_id: Mapped[[uuid.UUID]] = mapped_column(PG_UUID(as_uuid=True),db.ForeignKey("users.user_id", ondelete="SET NULL"))# pyright: ignore[reportInvalidTypeForm]))
-    email_used: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    success: Mapped[bool] = mapped_column(db.Boolean, nullable=False)
-    ip_address: Mapped[str] = mapped_column(db.String(50))
-    user_agent: Mapped[str] = mapped_column(db.String(500))
-    attempted_at: Mapped[datetime] = mapped_column(db.DateTime(timezone=True),server_default=func.now())
-    user: Mapped[List["User"]] = relationship(back_populates="login_attempts")
 
 
 class Role(Base):
@@ -402,36 +391,6 @@ class InvoiceSubmission(Base):
     submitter: Mapped[List[User]] = relationship('User')
 
 
-class UserProfile(Base):
-    __tablename__ = "user_profiles"
-    profile_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True),db.ForeignKey("users.user_id", ondelete="CASCADE"),unique=True,nullable=False)
-    first_name: Mapped[str] = mapped_column(db.String(100))
-    last_name: Mapped[str] = mapped_column(db.String(100))
-    phone: Mapped[str] = mapped_column(db.String(20))
-    avatar_url: Mapped[str] = mapped_column(db.String(500))
-    updated_at: Mapped[datetime] = mapped_column(db.DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
-
-    user: Mapped["User"] = relationship(back_populates="profile")
-
-class DashboardWidget(Base):
-    __tablename__ = "dashboard_widgets"
-    widget_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True),db.ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
-    widget_type: Mapped[str] = mapped_column(db.String(100), nullable=False)
-    position: Mapped[int] = mapped_column(db.Integer, nullable=False)
-    config: Mapped[dict] = mapped_column(db.JSON, default=dict)
-    user: Mapped["User"] = relationship()
-
-class DashboardMetrics(Base):
-    __tablename__ = "dashboard_metrics"
-    __table_args__ = {"info": {"is_view": True}}
-    total_users: Mapped[int] = mapped_column(primary_key=True)
-    total_vendors: Mapped[int] = mapped_column()
-    total_workorders: Mapped[int] = mapped_column()
-    pending_invoices: Mapped[int] = mapped_column()
-    refreshed_at: Mapped[datetime] = mapped_column()
-
 
 class ActivityLog(Base):
     __tablename__ = 'activity_logs'
@@ -454,3 +413,38 @@ class Notification(Base):
     status: Mapped[str] = mapped_column(db.String)
 
     user: Mapped[List[User]] = relationship('User')
+
+class RefreshToken(Base):
+    __tablename__ = "refresh_tokens"
+
+    token_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), db.ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
+    token: Mapped[str] = mapped_column(db.String(512), nullable=False, unique=True)
+    created_at: Mapped[datetime] = mapped_column(db.DateTime(timezone=True), server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column(db.DateTime(timezone=True), nullable=False)
+
+    user: Mapped["User"] = relationship("User")
+    
+    
+    class UserProfile(Base):
+        __tablename___= "user_profiles"
+        id: Mapped[int] = mapped_column(Integer, primary_key=True)
+        user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
+        first_name: Mapped[str | None] = mapped_column(String(100))
+        last_name: Mapped[str | None] = mapped_column(String(100))
+        avatar_url: Mapped[str | None] = mapped_column(String(500))
+        bio: Mapped[str | None] = mapped_column(String(500))
+        updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+        user: Mapped["User"] = relationship("User", back_populates="profile")
+
+class DashboardItem(Base):
+    __tablename__ = "dashboard_items"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    widget_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    config_json: Mapped[str | None] = mapped_column(String)  # or JSON if using PostgreSQL
+    position: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user: Mapped["User"] = relationship("User", back_populates="dashboard_items")
