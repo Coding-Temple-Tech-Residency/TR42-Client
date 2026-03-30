@@ -56,7 +56,6 @@ class User(Base):
     user_type: Mapped[str] = mapped_column(UserType, nullable=False)
     client_id: Mapped[str] = mapped_column(db.String, db.ForeignKey('clients.client_id', ondelete='SET NULL'), nullable=True, index=True)
     vendor_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), db.ForeignKey('vendors.vendor_id', ondelete='SET NULL'), nullable=True, index=True)
-    contractor_id: Mapped[str] = mapped_column(db.String, db.ForeignKey('contractors.contractor_id', ondelete='SET NULL'), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[List[datetime]] = mapped_column(db.DateTime(timezone=True), onupdate=func.now())
     
@@ -139,17 +138,11 @@ class Contractor(Base):
     __tablename__ = 'contractors'
 
     contractor_id: Mapped[str] = mapped_column(db.String, primary_key=True)
-    employee_number: Mapped[str] = mapped_column(db.String, nullable=False)
     vendor_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), db.ForeignKey('vendors.vendor_id', ondelete='CASCADE'), nullable=False, index=True)
     vendor_manager_id: Mapped[List[uuid.UUID]] = mapped_column(PG_UUID(as_uuid=True), db.ForeignKey('users.user_id', ondelete='SET NULL'), nullable=True)
-    first_name: Mapped[str] = mapped_column(db.String(80))
-    last_name: Mapped[str] = mapped_column(db.String(80))
-    middle_name: Mapped[str] = mapped_column(db.String(80))
-    contact_number: Mapped[str] = mapped_column(db.String(20))
-    alternate_number: Mapped[str] = mapped_column(db.String(20))
+    name: Mapped[str] = mapped_column(db.String(80))
     date_of_birth: Mapped[List[datetime]] = mapped_column(db.DateTime)
     ssn_last_four: Mapped[str] = mapped_column(db.String(4))
-    email: Mapped[str] = mapped_column(db.String(100), unique=True)
     role: Mapped[str] = mapped_column(db.String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[List[datetime]] = mapped_column(db.DateTime(timezone=True), onupdate=func.now())
@@ -246,7 +239,6 @@ class InsurancePolicy(Base):
     policy_number: Mapped[str] = mapped_column(db.String)
     coverage_start: Mapped[date] = mapped_column(db.Date)
     coverage_end: Mapped[date]= mapped_column(db.Date, index=True)
-    limit_amount: Mapped[float] = mapped_column(db.Numeric)
     document_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), db.ForeignKey('documents.document_id', ondelete='SET NULL'), nullable=True)
 
     vendor: Mapped[Vendor] = relationship('Vendor', back_populates='insurance_policies')
@@ -444,15 +436,13 @@ class DashboardMetrics(Base):
 class ActivityLog(Base):
     __tablename__ = 'activity_logs'
     activity_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    actor_id: Mapped[uuid.UUID]= mapped_column(PG_UUID(as_uuid=True), db.ForeignKey('users.user_id', ondelete='SET NULL'), nullable=True, index=True)
     action: Mapped[str]= mapped_column(db.String)
     target_type: Mapped[str] = mapped_column(db.String)
     target_id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True))
     metadata: Mapped[dict] = mapped_column(db.JSON)
     created_at: Mapped[datetime] = mapped_column(db.DateTime(timezone=True), nullable=False, server_default=func.now())
 
-    actor: Mapped[List[User]] = relationship('User', back_populates='activity_logs')
-
+    users: Mapped[List[User]] = relationship('User', back_populates='activity_logs')
 
 class Notification(Base):
     __tablename__ = 'notifications'
