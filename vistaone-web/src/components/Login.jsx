@@ -44,7 +44,7 @@ const Login = () => {
 
             <div className="container-fluid position-relative">
                 <div className="row min-vh-100 g-0">
-                    <section className="col-lg-7 d-flex flex-column justify-content-between px-4 px-lg-5 py-4 py-lg-5 login-hero">
+                    <section className="col-lg-7 order-2 order-md-1 d-flex flex-column justify-content-between px-4 px-lg-5 py-4 py-lg-5 login-hero">
                         <div>
                             <div className="login-badge d-inline-flex align-items-center gap-3 rounded-pill px-3 py-2">
                                 <div className="login-badge-icon d-inline-flex align-items-center justify-content-center rounded-3">
@@ -80,7 +80,7 @@ const Login = () => {
                         </div>
                     </section>
 
-                    <section className="col-lg-5 d-flex align-items-center justify-content-center px-4 px-lg-5 py-5">
+                    <section className="col-lg-5 order-1 order-md-2 d-flex align-items-center justify-content-center px-4 px-lg-5 py-5">
                         <div className="login-panel w-100 shadow-lg">
                             <div className="mb-4">
                                 <p className="login-panel-overline mb-2 text-uppercase">Secure access</p>

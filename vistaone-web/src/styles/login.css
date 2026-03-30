@@ -186,3 +186,115 @@
 	from { opacity: 0; transform: translateY(0.75rem); }
 	to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Responsive breakpoints ───────────────────────── */
+@media (max-width: 768px) {
+	.login-hero {
+		padding-bottom: 1.25rem;
+	}
+
+	.login-hero-title {
+		font-size: 2.8rem;
+		line-height: 1.12;
+		max-width: 100%;
+	}
+
+	.login-hero-text {
+		font-size: 1rem;
+		line-height: 1.65;
+		max-width: 100%;
+	}
+
+	.login-panel {
+		max-width: 100%;
+		border-radius: 1.25rem;
+		padding: 1.5rem;
+	}
+
+	.login-preview-track {
+		gap: 0.6rem;
+	}
+
+	.login-preview-card {
+		min-width: 9.25rem;
+		padding: 0.75rem 0.875rem;
+	}
+
+	.login-preview-card-value {
+		font-size: 1.2rem;
+	}
+
+	.login-submit-btn {
+		min-height: 3rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.login-page {
+		min-height: auto;
+	}
+
+	.login-badge {
+		padding: 0.4rem 0.75rem !important;
+	}
+
+	.login-badge-icon {
+		width: 2.15rem;
+		height: 2.15rem;
+	}
+
+	.login-badge-overline,
+	.login-hero-overline,
+	.login-panel-overline {
+		letter-spacing: 0.18em;
+		font-size: 0.62rem;
+	}
+
+	.login-hero-title {
+		font-size: 2.25rem;
+		line-height: 1.15;
+	}
+
+	.login-hero-text,
+	.login-panel-text {
+		font-size: 0.95rem;
+		line-height: 1.6;
+	}
+
+	.login-panel {
+		padding: 1.25rem;
+		border-radius: 1rem;
+	}
+
+	.login-input-group,
+	.login-submit-btn {
+		border-radius: 0.8rem;
+	}
+
+	.login-preview-carousel {
+		-webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+		mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+	}
+
+	.login-preview-track {
+		gap: 0.5rem;
+		animation-duration: 24s;
+	}
+
+	.login-preview-card {
+		min-width: 8.25rem;
+		padding: 0.65rem 0.75rem;
+	}
+
+	.login-preview-card-label {
+		font-size: 0.58rem;
+	}
+
+	.login-preview-card-value {
+		font-size: 1.05rem;
+	}
+
+	.login-preview-card-trend {
+		font-size: 0.64rem;
+	}
+}
