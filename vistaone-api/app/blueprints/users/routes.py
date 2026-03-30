@@ -6,8 +6,14 @@ from app.models import db, User
 from app.extensions import limiter
 from app.utils.util import encode_token
 from .schemas import login_schema
+from app.utils.loggingUtil import log_function_call
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 @users_bp.route("/login", methods=['POST'])
+@log_function_call
 @limiter.limit("10 per minute")
 def login():
     try:
@@ -21,6 +27,7 @@ def login():
     user = db.session.execute(query).scalars().first()
 
     if user and user.check_password(password):
+        logger.info("User logged in successfully")
         token = encode_token(user.id)
 
         response = {
@@ -33,10 +40,6 @@ def login():
     else:
         return jsonify({'message': "Invalid email or password"}), 401
     
-    from marshmallow import Schema, fields, validate
 
-class RegisterSchema(Schema):
-    username = fields.String(required=True, validate=validate.Length(min=3, max=255))
-    email = fields.Email(required=True)
-    password = fields.String(required=True, validate=validate.Length(min=6))
-    user_type = fields.String(required=True, validate=validate.OneOf(["operator", "vendor", "contractor"]))
+
+
