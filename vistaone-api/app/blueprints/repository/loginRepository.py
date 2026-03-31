@@ -7,6 +7,5 @@ class LoginRepository:
 
         query = select(User).where(User.email == email)
         user = db.session.execute(query).scalars().first()
-        print(f"Queried user: {user}")
 
         return user
