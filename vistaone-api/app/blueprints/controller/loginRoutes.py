@@ -1,10 +1,7 @@
 from . import users_bp
 from flask import request, jsonify
 from marshmallow import ValidationError
-from sqlalchemy import select
-from app.models import db, User
 from app.extensions import limiter
-from app.utils.util import encode_token
 from app.blueprints.schema.userSchema import login_schema
 from app.blueprints.services.loginService import LoginService
 

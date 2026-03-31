@@ -1,6 +1,5 @@
 from app.utils.util import encode_token
 from app.blueprints.repository.loginRepository import LoginRepository
-from app.models import db, User
 
 class LoginService:
     @staticmethod
