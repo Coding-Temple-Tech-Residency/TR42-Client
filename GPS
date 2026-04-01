@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gas & Oil Map</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+  function initMap() {
+    const center = { lat: 24.7136, lng: 46.6753 }; // Example: oil region
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 6,
+      center: center,
+      mapTypeId: "terrain"
+    });
+
+    // Example marker (oil field)
+    const marker = new google.maps.Marker({
+      position: center,
+      map: map,
+      title: "Oil Field Location"
+    });
+  }
+
+  window.onload = initMap;
+</script>
+
+</body>
+</html>
+
+const locations = [
+  { name: "Well A", lat: 24.7, lng: 46.6 },
+  { name: "Refinery B", lat: 25.0, lng: 47.0 },
+  { name: "Gas Station C", lat: 24.5, lng: 46.9 }
+];
+
+locations.forEach(loc => {
+  new google.maps.Marker({
+    position: { lat: loc.lat, lng: loc.lng },
+    map: map,
+    title: loc.name
+  });
+});
+
+const locations = [
+  { name: "Well A", lat: 24.7, lng: 46.6 },
+  { name: "Refinery B", lat: 25.0, lng: 47.0 },
+  { name: "Gas Station C", lat: 24.5, lng: 46.9 }
+];
+
+locations.forEach(loc => {
+  new google.maps.Marker({
+    position: { lat: loc.lat, lng: loc.lng },
+    map: map,
+    title: loc.name
+  });
+});
+
+
+const pipelinePath = [
+  { lat: 24.7, lng: 46.6 },
+  { lat: 24.8, lng: 46.8 },
+  { lat: 25.0, lng: 47.0 }
+];
+
+const pipeline = new google.maps.Polyline({
+  path: pipelinePath,
+  geodesic: true,
+  strokeColor: "#FF0000",
+  strokeOpacity: 1.0,
+  strokeWeight: 3
+});
+
+pipeline.setMap(map);
+
+
+const marker = new google.maps.Marker({
+  position: center,
+  map: map
+});
+
+const infoWindow = new google.maps.InfoWindow({
+  content: "<h3>Oil Well A</h3><p>Production: 5000 bpd</p>"
+});
+
+
+
+
+marker.addListener("click", () => {
+  infoWindow.open(map, marker);
+});
+
+function updateVehicle(marker) {
+  setInterval(() => {
+    const newLat = marker.getPosition().lat() + (Math.random() - 0.5) * 0.01;
+    const newLng = marker.getPosition().lng() + (Math.random() - 0.5) * 0.01;
+
+    marker.setPosition({ lat: newLat, lng: newLng });
+  }, 3000);
+}
