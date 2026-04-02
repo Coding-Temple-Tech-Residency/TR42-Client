@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>Gas & Oil Map</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+  <script src="https://www.googlemaps.com"></script>
   <style>
     #map {
       height: 100vh;
