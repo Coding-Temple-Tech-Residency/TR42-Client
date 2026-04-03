@@ -22,7 +22,6 @@ def login():
     email = credentials["email"]
     password = credentials["password"]
 
-    print(f"Login attempt for email: {email}")
     logger.info(f"Login attempt for email: {email}")
 
     response, status_code = LoginService.login_user(email, password)

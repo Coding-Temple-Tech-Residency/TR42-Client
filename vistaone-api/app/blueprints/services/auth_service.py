@@ -2,7 +2,7 @@ from app.utils.util import encode_token, token_required
 from app.blueprints.repository.auth_repository import LoginRepository
 from app.utils.token_blacklist import blacklist
 import os
-from flask import request, jsonify
+from flask import request
 from jose import jwt
 import logging
 
@@ -18,7 +18,6 @@ class LoginService:
         user = LoginRepository.get_user_by_email(email)
 
         if user and user.check_password(password): # ensure password hash check
-
             
             token = encode_token(user.id)
 
@@ -38,16 +37,20 @@ class LoginService:
         token = None
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split(" ")[1]
-        
+
         if not token:
-            return jsonify({'message': 'Token is missing!'}), 400
-        
+            return ({'message': 'Token is missing!'}), 401 
 
-
-        if token:
+        try:
             data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            jti = data.get("jti")
-            if jti:
+        except Exception:
+            return {"message": "Invalid token!"}, 401
+        
+        jti = data.get("jti")
+        if jti:
+                if jti in blacklist:
+                    logger.warning(f"Attempted logout with already revoked token: {jti}")
+                    return {"message": "Token has already been revoked!"}, 401
                 blacklist.add(jti)
                 logger.info(f"Token revoked for user {user_id}: token revoked {jti}")
 
