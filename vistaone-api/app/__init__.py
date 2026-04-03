@@ -2,6 +2,8 @@ from flask import Flask, app, jsonify
 from .extensions import ma, limiter
 from app.models import db
 from app.blueprints.controller import users_bp
+from app.blueprints.controller import workorder_bp
+from app.utils.loggingUtil import logging_setup
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.utils.loggingUtil import logging_setup
 
@@ -35,6 +37,7 @@ def create_app(config_name):
 
     # Register blueprints
     app.register_blueprint(users_bp, url_prefix='/users')
+     app.register_blueprint(workorder_bp, url_prefix='/workorders')
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     @app.errorhandler(429)
