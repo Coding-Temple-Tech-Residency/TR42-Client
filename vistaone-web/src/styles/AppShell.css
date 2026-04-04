@@ -1,0 +1,21 @@
+/* shell layout: sidebar fixed left, main area fills the rest */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* main column: top bar + scrollable content */
+.app-shell-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* page content area below the top bar */
+.app-shell-content {
+  flex: 1;
+  padding: 32px 40px;
+  background-color: #f3f4f6;
+  overflow-y: auto;
+}

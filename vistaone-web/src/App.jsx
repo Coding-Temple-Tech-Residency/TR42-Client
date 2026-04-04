@@ -1,16 +1,17 @@
-// App.jsx - teammate's login + our dashboard and protected routes
+// App.jsx - routes wrapped in AppShell for authenticated pages
 import "./styles/forms.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
-// teammate's login from main
+// public pages
 import Login from "./components/Login";
-
-// our pages
 import Register from "./pages/Register/Register";
+
+// app shell layout (sidebar + top bar + content area)
+import AppShell from "./layouts/AppShell/AppShell";
+
+// authenticated pages
 import Dashboard from "./pages/Dashboard/Dashboard";
-import Sidebar from "./layouts/Sidebar/Sidebar";
-import { sidebarNav } from "./data/dashboardData";
 
 function App() {
   return (
@@ -20,18 +21,17 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* protected route - teammate's login saves token, our dashboard shows after */}
+      {/* all authenticated pages share the AppShell layout */}
       <Route
-        path="/dashboard"
         element={
           <ProtectedRoute>
-            <div className="app-layout">
-              <Sidebar navData={sidebarNav} />
-              <Dashboard />
-            </div>
+            <AppShell />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        {/* add new pages here — they all get sidebar + top bar automatically */}
+      </Route>
 
       {/* catch-all */}
       <Route path="*" element={<Navigate to="/login" replace />} />
