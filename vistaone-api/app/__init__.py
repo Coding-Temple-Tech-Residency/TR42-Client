@@ -1,12 +1,11 @@
 from flask import Flask, jsonify
 from .extensions import ma, limiter
-from app.models import db
-from app.blueprints.controller import users_bp
+from app.blueprints.controller import users_bp, vendor_bp
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.utils.loggingUtil import logging_setup
-
+from app import create_app
 from dotenv import load_dotenv
-
+from  app.models import db
 
 # Load .env file
 load_dotenv()
@@ -36,7 +35,7 @@ def create_app(config_name):
     # Register blueprints
     app.register_blueprint(users_bp, url_prefix='/users')
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-
+    app.register_blueprint(vendor_bp, url_prefix='/vendor')
     @app.errorhandler(429)
     def handle_rate_limit(_):
         return jsonify({'message': 'Too many requests. Please try again later.'}), 429

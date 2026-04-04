@@ -1,7 +1,12 @@
-from flask import Blueprint
 
-users_bp = Blueprint("users_bp", __name__)
+# app/controllers/__init__.py
 
-#workorder_bp = Blueprint("workorder", __name__)
+from .auth_routes import auth_bp
+from .vendor_routes import vendor_bp
+from .workorder_routes import workorder_bp
 
-from . import auth_routes
+__all__ = [
+    "auth_bp",
+    "vendor_bp",
+    "workorder_bp",
+]

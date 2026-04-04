@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify ,vendors_bp
 from app import db
-from app.models.vendors import Vendor, VendorCompliance, VendorStatusAudit
-from schema import vendor_schema, vendors_schema
+from app.models.vendor import Vendor, VendorCompliance, VendorStatusAudit
+from app.blueprints.schemas import vendor_schema, vendors_schema
 from datetime import datetime
 
 

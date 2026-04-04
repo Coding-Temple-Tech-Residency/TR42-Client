@@ -1,16 +1,17 @@
-from . import users_bp
-from flask import request, jsonify
+
+from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from app.extensions import limiter
 from app.blueprints.schema.auth_schema import login_schema
 from app.blueprints.services.auth_service import LoginService
 
-@users_bp.route("/login", methods=['POST'])
+auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+@auth_bp.route("/login", methods=['POST'])
 @limiter.limit("10 per minute")
 def login():
     try:
         credentials = login_schema.load(request.json)
-
     except ValidationError as e:
         return jsonify(e.messages), 400
 
@@ -18,8 +19,4 @@ def login():
     password = credentials["password"]
 
     response, status_code = LoginService.login_user(email, password)
-
     return jsonify(response), status_code
-    
-
-    
