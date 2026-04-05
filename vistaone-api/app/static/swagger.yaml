@@ -92,6 +92,31 @@ paths:
             application/json:
               message: "Invalid token!"
 
+  /users/logout:
+    post:
+      tags:
+      - Users
+      summary: "Logout endpoint (revokes JWT token)"
+      description: "Revokes the token sent in the Authorization header."
+      security:
+      - bearerAuth: []
+      responses:
+        200:
+          description: "Logout Successful"
+          schema:
+            $ref: "#/definitions/LogoutResponse"
+          examples:
+            application/json:
+              status: "success"
+              message: "Successfully logged out"
+        401:
+          description: "Unauthorized / Token revoked"
+          schema:
+            $ref: "#/definitions/LogoutError"
+          examples:
+            application/json:
+              message: "Token has been revoked!"
+
 definitions:
 
   VerifyTokenResponse:
