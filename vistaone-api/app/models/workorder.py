@@ -1,40 +1,81 @@
 from sqlalchemy import String, Integer, Date, Time, Boolean, Enum as SQLEnum, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import mapped_column,relationship
 from sqlalchemy.sql import func
 from . import Base, db
-from .enums import PriorityEnum, FrequencyEnum, JobTypeEnum, LocationTypeEnum, VendorEnum
+from .enums import PriorityEnum, StatusEnum, FrequencyEnum, LocationTypeEnum
+from datetime import datetime
+import uuid
 
-class WorkOrder(Base):
+
+
+##  I will create the work order model so my refernce to create client, vendor and service type models. I will also create the relationships between these models. this is my reference to understand the relationships between the models. 
+class Client(db.Model):
+    __tablename__ = "clients"
+
+    client_id = mapped_column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = mapped_column(db.String(255), nullable=False)
+    created_at = mapped_column(db.DateTime, default=datetime.utcnow)
+    workorders = relationship("WorkOrder", back_populates="client")
+
+class Vendor(db.Model):
+    __tablename__ = "vendors"
+
+    vendor_id = mapped_column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = mapped_column(db.String(255), nullable=False)
+    created_at = mapped_column(db.DateTime, default=datetime.utcnow)
+    workorders = relationship("WorkOrder", back_populates="vendor")
+
+
+class ServiceType(db.Model):
+    __tablename__ = "service_types"
+
+    service_type_id = mapped_column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = mapped_column(db.String(255), nullable=False)
+    workorders = relationship("WorkOrder", back_populates="service_type")
+
+
+
+class WorkOrder(db.Model):
     __tablename__ = "work_orders"
 
-    work_order_id: Mapped[str] = mapped_column(String(50), primary_key=True)  # String primary key
+    work_order_id = mapped_column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
 
-    job_type: Mapped[JobTypeEnum] = mapped_column(SQLEnum(JobTypeEnum), nullable=False)
-    units: Mapped[int] = mapped_column(Integer, nullable=True)
+    client_id = mapped_column(db.String(36), db.ForeignKey("clients.client_id"), nullable=False)
+    vendor_id = mapped_column(db.String(36), db.ForeignKey("vendors.vendor_id"), nullable=False)
+    service_type_id = mapped_column(db.String(36), db.ForeignKey("service_types.service_type_id"), nullable=False)
 
-    vendor_id: Mapped[VendorEnum] = mapped_column(SQLEnum(VendorEnum), nullable=False)
-    description: Mapped[str] = mapped_column(String(255), nullable=False)
-    location_type: Mapped[LocationTypeEnum] = mapped_column(SQLEnum(LocationTypeEnum))
-    well_number: Mapped[str] = mapped_column(String(20), nullable=True)
-    coordinates: Mapped[str] = mapped_column(String(50), nullable=True)
+    description = mapped_column(db.String(500))
 
-    address: Mapped[str] = mapped_column(String(255), nullable=True)
-    city: Mapped[str] = mapped_column(String(100), nullable=True)
-    state: Mapped[str] = mapped_column(String(50), nullable=True)
-    zip: Mapped[str] = mapped_column(String(10), nullable=True)
+    location_type = mapped_column(db.Enum(LocationTypeEnum), nullable=False)
+    well_number = mapped_column(db.String(50))
+    coordinates = mapped_column(db.String(100))
+    address_line1 = mapped_column(db.String(255))
+    address_line2 = mapped_column(db.String(255))
+    city = mapped_column(db.String(100))
+    state = mapped_column(db.String(100))
+    county = mapped_column(db.String(100))
+    zip = mapped_column(db.String(20))
 
-    begin_date: Mapped[Date] = mapped_column(Date, nullable=False)
-    begin_time: Mapped[Time] = mapped_column(Time, nullable=False)
-    priority: Mapped[PriorityEnum] = mapped_column(SQLEnum(PriorityEnum), nullable=False)
+    metrics = mapped_column(db.String(100))
+    volume = mapped_column(db.Float)
 
-    recursion: Mapped[Boolean] = mapped_column(Boolean, default=False)
-    frequency: Mapped[FrequencyEnum] = mapped_column(SQLEnum(FrequencyEnum), nullable=True)
-    #start_service: Mapped[Date] = mapped_column(Date, nullable=True)
-    end_service: Mapped[Date] = mapped_column(Date, nullable=True)
+    priority = mapped_column(db.Enum(PriorityEnum), nullable=False)
 
-    client_id: Mapped[str] = mapped_column(String(50), nullable=True)
+    status = mapped_column(db.Enum(StatusEnum), default=StatusEnum.CREATED)
 
-    created_by: Mapped[str] = mapped_column(String(50), nullable=False)
-    created_date: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    last_modified_by: Mapped[str] = mapped_column(String(50), nullable=True)
-    last_modified_date: Mapped[DateTime] = mapped_column(DateTime(timezone=True), onupdate=func.now())
+    recursion = mapped_column(db.Boolean, default=False)
+    frequency = mapped_column(db.Enum(FrequencyEnum))
+
+    start_service = mapped_column(db.DateTime)
+    end_service = mapped_column(db.DateTime)
+
+    created_by = mapped_column(db.String(100))
+    created_date = mapped_column(db.DateTime, default=datetime.utcnow)
+    last_modified_by = mapped_column(db.String(100))
+
+    last_modified_date = mapped_column(db.DateTime)
+
+    # # Relationships
+    client = relationship("Client", back_populates="workorders")
+    vendor = relationship("Vendor", back_populates="workorders")
+    service_type = relationship("ServiceType", back_populates="workorders")

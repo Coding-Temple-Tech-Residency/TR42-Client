@@ -8,3 +8,4 @@ db = SQLAlchemy(model_class=Base)
 
 # Import models so SQLAlchemy registers them
 from .user import User
+from .workorder import WorkOrder
