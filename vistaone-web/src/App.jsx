@@ -1,21 +1,33 @@
-import Login from './components/Login'
-import Dashboard from './components/Dashboard'
-import { Route, Routes, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './routes/ProtectedRoute'
 
-function App() {
+import Login from './components/Login'
 
+import AppShell from './layouts/AppShell/AppShell'
+
+import Dashboard from './pages/Dashboard/Dashboard'
+import VendorDirectory from './pages/Vendors/VendorDirectory'
+import VendorDetail from './pages/Vendors/VendorDetail'
+import AddVendor from './pages/Vendors/AddVendor'
+
+const App = () => {
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
+
             <Route
-                path="/dashboard"
                 element={
                     <ProtectedRoute>
-                        <Dashboard />
+                        <AppShell />
                     </ProtectedRoute>
                 }
-            />
+            >
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/vendors" element={<VendorDirectory />} />
+                <Route path="/vendors/:vendorId" element={<VendorDetail />} />
+                <Route path="/vendors/add" element={<AddVendor />} />
+            </Route>
+
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

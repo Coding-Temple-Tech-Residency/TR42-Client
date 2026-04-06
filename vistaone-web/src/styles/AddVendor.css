@@ -1,0 +1,151 @@
+/* ── Add Vendor ───────────────────────────────────── */
+.add-vendor {
+	width: 100%;
+	max-width: 48rem;
+}
+
+.add-vendor-title {
+	font-size: 1.75rem;
+	color: #0f172a;
+}
+
+.add-vendor-sub {
+	font-size: 0.8125rem;
+	color: #64748b;
+}
+
+/* ── Form cards ──────────────────────────────────── */
+.add-vendor-card {
+	background: rgba(255, 255, 255, 0.65);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border: 1px solid rgba(255, 255, 255, 0.5);
+	border-radius: 0.875rem;
+	padding: 1.5rem;
+	margin-bottom: 1rem;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.add-vendor-section-title {
+	font-size: 0.9375rem;
+	font-weight: 700;
+	color: #0f172a;
+	margin-bottom: 1rem;
+}
+
+/* ── Form inputs ─────────────────────────────────── */
+.add-vendor-label {
+	font-size: 0.8125rem;
+	font-weight: 500;
+	color: #334155;
+}
+
+.add-vendor-input {
+	border: 1px solid #cbd5e1;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	padding: 0.5rem 0.75rem;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-vendor-input:focus {
+	border-color: #94a3b8;
+	box-shadow: 0 0 0 0.2rem rgba(148, 163, 184, 0.2);
+}
+
+.add-vendor-input::placeholder {
+	color: #94a3b8;
+}
+
+/* ── Service toggle buttons ──────────────────────── */
+.add-vendor-service-btn {
+	padding: 0.375rem 0.75rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 1.25rem;
+	background-color: #ffffff;
+	color: #475569;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.add-vendor-service-btn:hover {
+	border-color: #94a3b8;
+	background-color: #f8fafc;
+}
+
+.add-vendor-service-btn.selected {
+	background-color: #0f172a;
+	color: #ffffff;
+	border-color: #0f172a;
+}
+
+.add-vendor-service-btn.selected:hover {
+	background-color: #1e293b;
+}
+
+/* ── Action buttons ──────────────────────────────── */
+.add-vendor-btn-primary {
+	padding: 0.625rem 1.5rem;
+	border-radius: 0.75rem;
+	border: 1px solid #0f172a;
+	background-color: #0f172a;
+	color: #ffffff;
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.add-vendor-btn-primary:hover {
+	background-color: #1e293b;
+	transform: translateY(-1px);
+}
+
+.add-vendor-btn-secondary {
+	padding: 0.625rem 1.5rem;
+	border-radius: 0.75rem;
+	border: 1px solid #cbd5e1;
+	background-color: #ffffff;
+	color: #334155;
+	font-size: 0.875rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.add-vendor-btn-secondary:hover {
+	background-color: #f8fafc;
+}
+
+/* ── Alert ───────────────────────────────────────── */
+.add-vendor-alert {
+	border-radius: 0.75rem;
+	font-size: 0.875rem;
+}
+
+/* ── Success state ───────────────────────────────── */
+.add-vendor-success-icon {
+	width: 3rem;
+	height: 3rem;
+	border-radius: 50%;
+	background-color: #ecfdf5;
+	color: #065f46;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 576px) {
+	.add-vendor-card {
+		padding: 1.25rem;
+	}
+
+	.add-vendor-btn-primary,
+	.add-vendor-btn-secondary {
+		width: 100%;
+		text-align: center;
+	}
+}

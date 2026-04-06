@@ -1,0 +1,35 @@
+/* ── Shell layout ────────────────────────────────── */
+.app-shell {
+	min-height: 100vh;
+}
+
+.app-shell-main {
+	flex: 1;
+	min-height: 100vh;
+}
+
+/* ── Page content area ───────────────────────────── */
+.app-shell-content {
+	flex: 1;
+	padding: 2rem 2.5rem;
+	background-color: #f1f5f9;
+	overflow-y: auto;
+}
+
+/* override full-height on child pages so they fit inside the shell */
+.app-shell-content .min-vh-100 {
+	min-height: auto !important;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 768px) {
+	.app-shell-content {
+		padding: 1.5rem 1.25rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.app-shell-content {
+		padding: 1rem;
+	}
+}
