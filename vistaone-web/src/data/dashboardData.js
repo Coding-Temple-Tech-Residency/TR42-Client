@@ -127,3 +127,18 @@ export const sidebarNav = {
     { label: "Contracts / MSA", icon: "folder", active: false },
   ],
 };
+
+export const initialNotifications = [
+    {
+        id: 'n1',
+        title: 'High fraud risk detected for SandCore Transport',
+        time: '5 min ago',
+        isRead: false,
+    },
+    {
+        id: 'n2',
+        title: 'Invoice INV-8231 is pending your approval',
+        time: '22 min ago',
+        isRead: false,
+    },
+];
