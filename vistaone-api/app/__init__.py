@@ -1,11 +1,12 @@
 from flask import Flask, jsonify
-from .extensions import ma, limiter
-from app.blueprints.controller import users_bp, vendor_bp
+from .extensions import ma, limiter,db
+from .blueprints.controller.auth_routes import users_bp
+from .blueprints.controller.vendor_routes import vendor_bp
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.utils.loggingUtil import logging_setup
-from app import create_app
 from dotenv import load_dotenv
-from  app.models import db
+from app.utils.loggingUtil import logging_setup
+
 
 # Load .env file
 load_dotenv()

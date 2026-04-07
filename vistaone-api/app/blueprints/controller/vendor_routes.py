@@ -1,8 +1,12 @@
-from flask import Blueprint, request, jsonify ,vendors_bp
-from app import db
-from app.models.vendor import Vendor, VendorCompliance, VendorStatusAudit
+from flask import Blueprint, request, jsonify 
+from app.extensions import db
+from app.models.vendor import Vendor
+from app.models.vendor_compliance import VendorCompliance
+from app.models.vendor_status_audit import VendorStatusAudit
 from app.blueprints.schemas import vendor_schema, vendors_schema
 from datetime import datetime
+
+vendors_bp = Blueprint("vendors_bp", __name__, url_prefix="/vendors")
 
 
 @vendors_bp.get("/")

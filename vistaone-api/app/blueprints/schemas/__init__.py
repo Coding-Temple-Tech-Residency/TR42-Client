@@ -5,4 +5,5 @@ __all__ = [
     "VendorSchema",
     "vendor_schema",
     "vendors_schema"
+    "auth_schema"
 ]

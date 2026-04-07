@@ -1,13 +1,16 @@
 
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
-from app.extensions import limiter
-from app.blueprints.schema.auth_schema import login_schema
+from app.extensions import limiter,db
+from app.blueprints.schemas.auth_schema import login_schema
 from app.blueprints.services.auth_service import LoginService
+from app.models import User
 
-auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-@auth_bp.route("/login", methods=['POST'])
+users_bp = Blueprint("users_bp", __name__, url_prefix="/users")
+
+
+@users_bp.route("/login", methods=['POST'])
 @limiter.limit("10 per minute")
 def login():
     try:

@@ -1,7 +1,8 @@
 # schemas/vendor_schema.py
 
-from app import ma
-from models.vendor import Vendor
+from app.extensions import ma
+from app.models.vendor import Vendor
+
 
 class VendorSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
