@@ -1,12 +1,13 @@
-import NavBar from './NavBar'
 import TopBar from './TopBar'
 import '../styles/appShell.css'
+import Sidebar from './Sidebar'
+import { sidebarNav } from '../data/dashboardData'
 
 function AppShell({ title, subtitle, eyebrow = 'Welcome back', controls, children }) {
 	return (
 		<div className="app-shell-page">
 			<div className="app-shell-layout">
-				<NavBar />
+				<Sidebar navData={sidebarNav} />
 
 				<section className="app-shell-main">
 					<TopBar title={title} subtitle={subtitle} eyebrow={eyebrow} controls={controls} />
