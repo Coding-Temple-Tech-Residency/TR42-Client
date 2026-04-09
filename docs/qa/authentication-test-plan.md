@@ -2,7 +2,7 @@
 
 **Project:** TR42-Client (VistaOne web + API)  
 **Sprint focus:** Environment setup, auth requirements review, test planning, manual API/UI testing, defect logging.  
-**Companion artifacts:** `generic-test-plan-template.md`, `sprint-01-authentication-test-cases.csv`
+**Companion artifacts:** `generic-test-plan-template.md`, `authentication-test-cases.csv`
 
 ---
 
@@ -30,7 +30,7 @@ Validate authentication behavior for the client dashboard: login, token verifica
 - API testing via Postman/Insomnia for documented endpoints.
 - Manual UI testing for Login and Registration **when present**.
 - Logout flow **when exposed in the UI** or per team definition (client-side token clear).
-- Edge cases listed in `sprint-01-authentication-test-cases.csv`.
+- Edge cases listed in `authentication-test-cases.csv`.
 
 ### Out of scope (unless team expands)
 
@@ -111,7 +111,7 @@ Ground truth for **this folder** (`vistaone-api`, `vistaone-web`) after pulling 
 
 ## 9. Exit criteria
 
-- [ ] All **executable** rows in `sprint-01-authentication-test-cases.csv` are run and logged (Pass/Fail/Blocked).
+- [ ] All **executable** rows in `authentication-test-cases.csv` are run and logged (Pass/Fail/Blocked).
 - [ ] **Blocked** rows have a short reason (e.g. “No registration endpoint”).
 - [ ] Failures filed in **GitHub Issues** (or team tracker) with steps, expected, actual.
 - [ ] Test log spreadsheet updated with dates and build/commit where possible.
