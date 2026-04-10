@@ -31,8 +31,8 @@ const VendorDetail = () => {
 
             <div className="vendor-detail-header d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <h1 className="vendor-detail-title fw-bold mb-1">{vendor.vendor_name}</h1>
-                    <p className="vendor-detail-sub mb-0">{vendor.vendor_code}</p>
+                    <h1 className="vendor-detail-title fw-bold mb-1">{vendor.company_name}</h1>
+                    <p className="vendor-detail-sub mb-0">{vendor.company_code}</p>
                 </div>
                 <span className={`vendor-badge ${vendor.status === 'active' ? 'vendor-badge-active' : 'vendor-badge-inactive'}`}>
                     {vendor.status}
@@ -70,7 +70,7 @@ const VendorDetail = () => {
                         <div className="d-flex flex-wrap gap-2">
                             {vendor.services.map((s) => (
                                 <span key={s.service_id} className="vendor-service-chip">
-                                    {s.name}
+                                    {s.service}
                                 </span>
                             ))}
                         </div>
@@ -87,9 +87,9 @@ const VendorDetail = () => {
                         {vendor.msas.map((msa) => (
                             <div key={msa.msa_id} className="mb-2">
                                 <div className="d-flex justify-content-between align-items-center mb-2">
-                                    <p className="vendor-card-value mb-0">{msa.msa_number}</p>
+                                    <p className="vendor-card-value mb-0">v{msa.version}</p>
                                     <span className={`vendor-badge ${
-                                        msa.status === 'complete' ? 'vendor-badge-active'
+                                        msa.status === 'active' ? 'vendor-badge-active'
                                         : msa.status === 'expired' ? 'vendor-badge-inactive'
                                         : 'vendor-badge-pending'
                                     }`}>
@@ -97,7 +97,7 @@ const VendorDetail = () => {
                                     </span>
                                 </div>
                                 <p className="vendor-card-label mb-0">
-                                    {msa.effective_date} — {msa.expiry_date}
+                                    {msa.effective_date} — {msa.expiration_date}
                                 </p>
                             </div>
                         ))}
@@ -113,11 +113,11 @@ const VendorDetail = () => {
                     <div className="vendor-card-body">
                         {vendor.insurance_policies.map((ins) => (
                             <div key={ins.insurance_id}>
-                                <p className="vendor-card-value mb-1">{ins.insurer_name}</p>
+                                <p className="vendor-card-value mb-1">{ins.provider_name}</p>
                                 <p className="vendor-card-label mb-1">Policy: {ins.policy_number}</p>
-                                <p className={`vendor-card-label mb-0 ${new Date(ins.coverage_end) < new Date() ? 'vendor-text-danger' : ''}`}>
-                                    Coverage ends: {ins.coverage_end}
-                                    {new Date(ins.coverage_end) < new Date() && ' (Expired)'}
+                                <p className={`vendor-card-label mb-0 ${new Date(ins.expiration_date) < new Date() ? 'vendor-text-danger' : ''}`}>
+                                    Coverage ends: {ins.expiration_date}
+                                    {new Date(ins.expiration_date) < new Date() && ' (Expired)'}
                                 </p>
                             </div>
                         ))}
@@ -135,9 +135,9 @@ const VendorDetail = () => {
                             <div key={lic.license_id}>
                                 <p className="vendor-card-value mb-1">{lic.license_type}</p>
                                 <p className="vendor-card-label mb-1">Number: {lic.license_number}</p>
-                                <p className={`vendor-card-label mb-0 ${new Date(lic.valid_to) < new Date() ? 'vendor-text-danger' : ''}`}>
-                                    Valid through: {lic.valid_to}
-                                    {new Date(lic.valid_to) < new Date() && ' (Expired)'}
+                                <p className={`vendor-card-label mb-0 ${new Date(lic.license_expiration_date) < new Date() ? 'vendor-text-danger' : ''}`}>
+                                    Valid through: {lic.license_expiration_date}
+                                    {new Date(lic.license_expiration_date) < new Date() && ' (Expired)'}
                                 </p>
                             </div>
                         ))}

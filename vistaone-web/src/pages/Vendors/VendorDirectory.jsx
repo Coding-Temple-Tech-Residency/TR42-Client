@@ -14,8 +14,8 @@ const VendorDirectory = () => {
     // filter the vendor list based on what the user has selected
     const filteredVendors = vendors.filter((vendor) => {
         const matchesSearch =
-            vendor.vendor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            vendor.vendor_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            vendor.company_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            vendor.company_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
             vendor.primary_contact_name.toLowerCase().includes(searchTerm.toLowerCase())
 
         const matchesStatus = statusFilter === 'all' || vendor.status === statusFilter
@@ -82,7 +82,7 @@ const VendorDirectory = () => {
                     >
                         <option value="all">All services</option>
                         {serviceOptions.map((s) => (
-                            <option key={s.service_id} value={s.service_id}>{s.name}</option>
+                            <option key={s.service_id} value={s.service_id}>{s.service}</option>
                         ))}
                     </select>
 
@@ -92,7 +92,7 @@ const VendorDirectory = () => {
                         onChange={(e) => setMsaFilter(e.target.value)}
                     >
                         <option value="all">All MSA</option>
-                        <option value="complete">Complete</option>
+                        <option value="active">Active</option>
                         <option value="incomplete">Incomplete</option>
                         <option value="expired">Expired</option>
                     </select>
@@ -120,13 +120,13 @@ const VendorDirectory = () => {
                                 onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}
                             >
                                 <td>
-                                    <p className="vendor-cell-name fw-semibold mb-0">{vendor.vendor_name}</p>
-                                    <p className="vendor-cell-sub mb-0">{vendor.vendor_code}</p>
+                                    <p className="vendor-cell-name fw-semibold mb-0">{vendor.company_name}</p>
+                                    <p className="vendor-cell-sub mb-0">{vendor.company_code}</p>
                                 </td>
                                 <td>
                                     <div className="d-flex flex-wrap gap-1">
                                         {vendor.services.map((s) => (
-                                            <span key={s.service_id} className="vendor-service-tag">{s.code}</span>
+                                            <span key={s.service_id} className="vendor-service-tag">{s.service}</span>
                                         ))}
                                     </div>
                                 </td>
@@ -138,7 +138,7 @@ const VendorDirectory = () => {
                                 <td>
                                     {vendor.msas[0] && (
                                         <span className={`vendor-badge ${
-                                            vendor.msas[0].status === 'complete' ? 'vendor-badge-active'
+                                            vendor.msas[0].status === 'active' ? 'vendor-badge-active'
                                             : vendor.msas[0].status === 'expired' ? 'vendor-badge-inactive'
                                             : 'vendor-badge-pending'
                                         }`}>

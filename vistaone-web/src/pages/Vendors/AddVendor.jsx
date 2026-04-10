@@ -44,13 +44,14 @@ const AddVendor = () => {
         // this will POST to the API once endpoints are ready
         // new vendors start as inactive until client approves
         console.log('Submitting new vendor:', {
-            vendor_name: vendorName,
-            vendor_code: vendorCode,
+            company_name: vendorName,
+            company_code: vendorCode,
             primary_contact_name: contactName,
             contact_email: contactEmail,
             contact_phone: contactPhone,
             services: selectedServices,
             status: 'inactive',
+            onboarding: true,
         })
         setSubmitted(true)
     }
@@ -183,7 +184,7 @@ const AddVendor = () => {
                                     onClick={() => toggleService(service)}
                                 >
                                     {isSelected ? <X size={12} /> : <Plus size={12} />}
-                                    {service.name}
+                                    {service.service}
                                 </button>
                             )
                         })}

@@ -40,28 +40,28 @@ const Dashboard = () => {
 
                     <div className="dashboard-panel-body">
                         {recentWorkorders.map((wo) => (
-                            <div key={wo.workorder_number} className="dashboard-row d-flex align-items-center justify-content-between">
+                            <div key={wo.work_order_id} className="dashboard-row d-flex align-items-center justify-content-between">
                                 <div>
-                                    <p className="dashboard-row-primary fw-semibold mb-0">{wo.workorder_number}</p>
+                                    <p className="dashboard-row-primary fw-semibold mb-0">{wo.work_order_id}</p>
                                     <p className="dashboard-row-secondary mb-0">
-                                        {wo.vendor_name || 'Unassigned'} · {wo.client}
+                                        {wo.assigned_vendor_name || 'Unassigned'} · {wo.client_name}
                                     </p>
                                 </div>
                                 <div className="d-flex align-items-center gap-2">
                                     <span className={`dashboard-badge ${
-                                        wo.priority === 'High' ? 'badge-high'
-                                        : wo.priority === 'Low' ? 'badge-low'
+                                        wo.priority === 'HIGH' ? 'badge-high'
+                                        : wo.priority === 'LOW' ? 'badge-low'
                                         : 'badge-medium'
                                     }`}>
                                         {wo.priority}
                                     </span>
                                     <span className={`dashboard-badge ${
-                                        wo.status === 'completed' ? 'badge-completed'
-                                        : wo.status === 'in_progress' ? 'badge-active'
-                                        : wo.status === 'assigned' ? 'badge-assigned'
+                                        wo.current_status === 'completed' ? 'badge-completed'
+                                        : wo.current_status === 'in progress' ? 'badge-active'
+                                        : wo.current_status === 'assigned' ? 'badge-assigned'
                                         : 'badge-unassigned'
                                     }`}>
-                                        {wo.status.replace('_', ' ')}
+                                        {wo.current_status}
                                     </span>
                                 </div>
                             </div>
@@ -80,11 +80,11 @@ const Dashboard = () => {
 
                     <div className="dashboard-panel-body">
                         {recentInvoices.map((inv) => (
-                            <div key={inv.invoice_number} className="dashboard-row d-flex align-items-center justify-content-between">
+                            <div key={inv.invoice_id} className="dashboard-row d-flex align-items-center justify-content-between">
                                 <div>
-                                    <p className="dashboard-row-primary fw-semibold mb-0">{inv.invoice_number}</p>
+                                    <p className="dashboard-row-primary fw-semibold mb-0">{inv.invoice_id}</p>
                                     <p className="dashboard-row-secondary mb-0">
-                                        {inv.vendor_name} · {inv.submitted_at}
+                                        {inv.vendor_name} · {inv.invoice_date}
                                     </p>
                                 </div>
                                 <div className="d-flex align-items-center gap-3">
@@ -92,11 +92,11 @@ const Dashboard = () => {
                                         ${inv.total_amount.toLocaleString()}
                                     </span>
                                     <span className={`dashboard-badge ${
-                                        inv.status === 'accepted' ? 'badge-completed'
-                                        : inv.status === 'rejected' ? 'badge-high'
+                                        inv.invoice_status === 'approved' ? 'badge-completed'
+                                        : inv.invoice_status === 'rejected' ? 'badge-high'
                                         : 'badge-pending'
                                     }`}>
-                                        {inv.status}
+                                        {inv.invoice_status}
                                     </span>
                                 </div>
                             </div>
