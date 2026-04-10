@@ -16,6 +16,8 @@ export const vendors = [
         description: 'Full-service wellbore integrity and cleaning provider',
         start_date: '2025-08-12',
         created_at: '2025-08-12',
+        average_rating: 4.8,
+        completed_work_orders: 34,
         services: [
             { service_id: 's-001', service: 'Wellbore Integrity' },
             { service_id: 's-003', service: 'Well Cleaning' },
@@ -43,6 +45,8 @@ export const vendors = [
         description: 'Water transport, refill, and pump replacement services',
         start_date: '2025-06-20',
         created_at: '2025-06-20',
+        average_rating: 4.5,
+        completed_work_orders: 21,
         services: [
             { service_id: 's-005', service: 'Water Transportation' },
             { service_id: 's-006', service: 'Water Refill' },
@@ -71,6 +75,8 @@ export const vendors = [
         description: 'Cementing services for well construction and remediation',
         start_date: '2026-03-28',
         created_at: '2026-03-28',
+        average_rating: 3.9,
+        completed_work_orders: 8,
         services: [
             { service_id: 's-009', service: 'Cementing Services' },
         ],
@@ -97,6 +103,8 @@ export const vendors = [
         description: 'Pipeline survey, transportation, and plug & abandon services',
         start_date: '2025-04-15',
         created_at: '2025-04-15',
+        average_rating: 4.6,
+        completed_work_orders: 47,
         services: [
             { service_id: 's-007', service: 'Oil Transportation' },
             { service_id: 's-010', service: 'Pipeline Survey' },
@@ -125,6 +133,8 @@ export const vendors = [
         description: 'Stimulation and well refill operations',
         start_date: '2026-01-10',
         created_at: '2026-01-10',
+        average_rating: 3.2,
+        completed_work_orders: 5,
         services: [
             { service_id: 's-013', service: 'Stimulation Services' },
             { service_id: 's-004', service: 'Well Refill' },
@@ -152,6 +162,8 @@ export const vendors = [
         description: 'Water and oil transportation with flowback capabilities',
         start_date: '2024-11-03',
         created_at: '2024-11-03',
+        average_rating: 4.1,
+        completed_work_orders: 19,
         services: [
             { service_id: 's-005', service: 'Water Transportation' },
             { service_id: 's-007', service: 'Oil Transportation' },

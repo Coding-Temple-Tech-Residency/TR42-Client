@@ -94,6 +94,24 @@
 	font-weight: 600;
 }
 
+/* ── Assign Work Order button ───────────────────── */
+.vendor-assign-btn {
+	padding: 0.5rem 1.25rem;
+	border-radius: 0.75rem;
+	border: 1px solid #cbd5e1;
+	background-color: #0f172a;
+	color: #ffffff;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.vendor-assign-btn:hover {
+	background-color: #1e293b;
+	transform: translateY(-1px);
+}
+
 /* ── Empty state ─────────────────────────────────── */
 .vendor-detail-empty {
 	color: #64748b;

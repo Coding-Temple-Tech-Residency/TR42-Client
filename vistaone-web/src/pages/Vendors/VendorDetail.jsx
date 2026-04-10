@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Mail, Phone, Shield, FileText, Award, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, Shield, FileText, Award, AlertCircle, ClipboardList } from 'lucide-react'
 import { vendors } from '../../data/vendorData'
 import '../../styles/VendorDetail.css'
 
@@ -34,9 +34,21 @@ const VendorDetail = () => {
                     <h1 className="vendor-detail-title fw-bold mb-1">{vendor.company_name}</h1>
                     <p className="vendor-detail-sub mb-0">{vendor.company_code}</p>
                 </div>
-                <span className={`vendor-badge ${vendor.status === 'active' ? 'vendor-badge-active' : 'vendor-badge-inactive'}`}>
-                    {vendor.status}
-                </span>
+                <div className="d-flex align-items-center gap-3">
+                    <span className={`vendor-badge ${vendor.status === 'active' ? 'vendor-badge-active' : 'vendor-badge-inactive'}`}>
+                        {vendor.status}
+                    </span>
+                    <button
+                        className="vendor-assign-btn d-inline-flex align-items-center gap-2"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            navigate(`/work-orders/create?vendor=${vendor.vendor_id}`)
+                        }}
+                    >
+                        <ClipboardList size={16} />
+                        Assign Work Order
+                    </button>
+                </div>
             </div>
 
             {/* info cards */}

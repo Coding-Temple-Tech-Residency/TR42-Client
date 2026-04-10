@@ -1,0 +1,50 @@
+/* ── Work Order Create ────────────────────────────── */
+.wo-create { width: 100%; }
+.wo-create-title { font-size: 1.75rem; color: #0f172a; }
+.wo-create-sub { font-size: 0.8125rem; color: #64748b; }
+
+.wo-back-link {
+	background: none; border: none; font-size: 0.8125rem;
+	color: #64748b; cursor: pointer; padding: 0; transition: color 0.15s ease;
+}
+.wo-back-link:hover { color: #0f172a; }
+
+.wo-card {
+	background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+	border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 0.875rem;
+	padding: 1.25rem; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); margin-bottom: 1rem;
+}
+
+.wo-section-title {
+	font-size: 0.9375rem; font-weight: 700; color: #0f172a;
+	margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9;
+}
+
+.wo-label { font-size: 0.8125rem; font-weight: 500; color: #334155; }
+
+.wo-input {
+	font-size: 0.875rem; border: 1px solid #e2e8f0; border-radius: 0.5rem;
+	color: #334155; padding: 0.5rem 0.75rem;
+}
+.wo-input:focus { border-color: #94a3b8; box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.15); }
+.wo-input::placeholder { color: #94a3b8; }
+
+.wo-btn-primary {
+	padding: 0.5rem 1.25rem; border-radius: 0.75rem; border: 1px solid #cbd5e1;
+	background-color: #0f172a; color: #ffffff; font-size: 0.8125rem;
+	font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, transform 0.15s ease;
+}
+.wo-btn-primary:hover { background-color: #1e293b; transform: translateY(-1px); }
+
+.wo-btn-secondary {
+	padding: 0.5rem 1.25rem; border-radius: 0.75rem; border: 1px solid #e2e8f0;
+	background-color: #ffffff; color: #334155; font-size: 0.8125rem;
+	font-weight: 500; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.wo-btn-secondary:hover { background-color: #f8fafc; border-color: #94a3b8; }
+
+.wo-alert { font-size: 0.8125rem; border-radius: 0.5rem; }
+.wo-create-success { color: #0f172a; }
+
+@media (max-width: 768px) { .wo-create-title { font-size: 1.5rem; } }
+@media (max-width: 576px) { .wo-card .row { flex-direction: column !important; } }

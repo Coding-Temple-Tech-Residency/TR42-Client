@@ -6,9 +6,9 @@ import '../../styles/Sidebar.css'
 const navRoutes = {
     'Dashboard': '/dashboard',
     'Jobs': '/jobs',
-    'Work Orders': '/workorders',
+    'Work Orders': '/work-orders',
     'Invoices': '/invoices',
-    'Vendors': '/vendors',
+    'Vendor Marketplace': '/vendors',
     'Contracts / MSA': '/contracts',
 }
 
