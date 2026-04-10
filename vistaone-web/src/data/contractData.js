@@ -1,0 +1,81 @@
+// temp MSA data matching ERD msa table
+// fields mirror the DBML schema: msa_id, vendor_id, version, status, dates, uploaded_by
+// swap for API calls once endpoints are wired up
+
+export const msaContracts = [
+    {
+        msa_id: 'm-001',
+        vendor_id: 'v-001',
+        vendor_name: 'Permian Wellbore Services',
+        version: '1.0',
+        effective_date: '2025-08-01',
+        expiration_date: '2026-08-01',
+        status: 'active',
+        uploaded_by: 'R. Chavez',
+        created_at: '2025-07-28',
+        file_name: 'MSA_Permian_Wellbore_v1.0.pdf',
+    },
+    {
+        msa_id: 'm-002',
+        vendor_id: 'v-002',
+        vendor_name: 'Basin Pump & Flow',
+        version: '1.0',
+        effective_date: '2025-06-01',
+        expiration_date: '2026-06-01',
+        status: 'active',
+        uploaded_by: 'R. Chavez',
+        created_at: '2025-05-20',
+        file_name: 'MSA_Basin_Pump_v1.0.pdf',
+    },
+    {
+        msa_id: 'm-003',
+        vendor_id: 'v-003',
+        vendor_name: 'West Texas Cementing',
+        version: '1.0',
+        effective_date: '2025-03-01',
+        expiration_date: '2026-03-01',
+        status: 'expired',
+        uploaded_by: 'R. Chavez',
+        created_at: '2025-02-15',
+        file_name: 'MSA_WestTX_Cementing_v1.0.pdf',
+    },
+    {
+        msa_id: 'm-004',
+        vendor_id: 'v-004',
+        vendor_name: 'Midland Pipeline Solutions',
+        version: '1.0',
+        effective_date: '2025-04-01',
+        expiration_date: '2027-04-01',
+        status: 'active',
+        uploaded_by: 'R. Chavez',
+        created_at: '2025-03-28',
+        file_name: 'MSA_Midland_Pipeline_v1.0.pdf',
+    },
+    {
+        msa_id: 'm-005',
+        vendor_id: 'v-005',
+        vendor_name: 'Sandstorm Stimulation',
+        version: '1.0',
+        effective_date: '2025-12-01',
+        expiration_date: '2026-12-01',
+        status: 'incomplete',
+        uploaded_by: null,
+        created_at: '2025-11-20',
+        file_name: null,
+    },
+    {
+        msa_id: 'm-006',
+        vendor_id: 'v-006',
+        vendor_name: 'Eagle Ford Logistics',
+        version: '1.0',
+        effective_date: '2024-06-01',
+        expiration_date: '2025-06-01',
+        status: 'expired',
+        uploaded_by: 'R. Chavez',
+        created_at: '2024-05-15',
+        file_name: 'MSA_EagleFord_Logistics_v1.0.pdf',
+    },
+]
+
+export const allowedFileTypes = ['application/pdf']
+export const maxFileSizeMB = 25
