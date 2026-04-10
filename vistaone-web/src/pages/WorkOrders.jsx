@@ -1,69 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import AppShell from '../components/AppShell';
+import { useWorkOrder } from '../hooks/useWorkOrder';
 import '../styles/workorder.css';
-
-const initialWorkOrders = [
-    {
-        id: 1,
-        orderId: 'SO-0451',
-        jobType: 'Water Hauling',
-        title: 'Water Hauling - 120 BBL',
-        description: 'Haul produced water from Tank Battery A to disposal facility.',
-        vendor: 'ABC Trucking Co.',
-        location: 'API-42-002-03456 (Tank Battery A)',
-        priority: 'high',
-        status: 'pending',
-        createdDate: '2026-03-31',
-    },
-    {
-        id: 2,
-        orderId: 'SO-0450',
-        jobType: 'Roustabout Crew',
-        title: 'Valve Replacement - Well Site',
-        description: 'Replace faulty wellhead valve and validate connections.',
-        vendor: 'Midland Field Services',
-        location: 'API-42-015-08921 (North Pad)',
-        priority: 'high',
-        status: 'in_progress',
-        createdDate: '2026-03-29',
-    },
-    {
-        id: 3,
-        orderId: 'SO-0449',
-        jobType: 'Sand Delivery',
-        title: 'Frac Sand - 40 Tons',
-        description: 'Deliver and stage frac sand for hydraulic fracturing operation.',
-        vendor: 'Texas Sand & Gravel',
-        location: 'API-42-027-00234 (East Lease)',
-        priority: 'medium',
-        status: 'completed',
-        createdDate: '2026-03-27',
-    },
-    {
-        id: 4,
-        orderId: 'SO-0448',
-        jobType: 'Water Hauling',
-        title: 'Produced Water - 80 BBL',
-        description: 'Transport produced water to permitted disposal location.',
-        vendor: 'ABC Trucking Co.',
-        location: 'API-42-031-00567 (South Tank)',
-        priority: 'medium',
-        status: 'pending',
-        createdDate: '2026-03-28',
-    },
-    {
-        id: 5,
-        orderId: 'SO-0447',
-        jobType: 'Roustabout Crew',
-        title: 'Equipment Maintenance',
-        description: 'Routine pump inspection and lubrication at tank battery.',
-        vendor: 'Midland Field Services',
-        location: 'API-42-018-04782 (Central Facility)',
-        priority: 'low',
-        status: 'in_progress',
-        createdDate: '2026-03-25',
-    },
-];
 
 const vendorOptions = [
     'ABC Trucking Co.',
@@ -106,19 +44,21 @@ const emptyForm = {
 };
 
 export default function WorkOrders() {
-    const [workOrders, setWorkOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState(emptyForm);
+    const {
+        workOrders,
+        loading,
+        fetchWorkOrders,
+        createWorkOrder,
+        // updateWorkOrder,
+        // removeWorkOrder
+    } = useWorkOrder();
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setWorkOrders(initialWorkOrders);
-            setLoading(false);
-        }, 500);
-        return () => clearTimeout(timer);
+        fetchWorkOrders();
     }, []);
 
     const filteredOrders = useMemo(() => {
@@ -168,7 +108,7 @@ export default function WorkOrders() {
         };
 
         if (!locationDisplay || !formData.jobType) return;
-        setWorkOrders(prev => [newWorkOrder, ...prev]);
+         createWorkOrder(newWorkOrder);
         handleCloseModal();
     };
 
