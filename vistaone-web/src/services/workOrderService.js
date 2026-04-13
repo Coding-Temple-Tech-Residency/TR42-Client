@@ -1,43 +1,71 @@
-import { workOrdersData } from '../data/workOrderData';
 
-let workOrders = [...workOrdersData];
+
+import { authFetch } from './apiClient';
+const WORKORDER_ENDPOINT = '/workorders';
 
 export const workOrderService = {
-    getAll: async () => {
-        return [...workOrders];
-    },
 
-    getById: async (id) => {
-        const order = workOrders.find((wo) => wo.id === id || wo.id === Number(id));
-        if (order) return { ...order };
-        return null;
-    },
+  getAll: async () => {    
+    const response = await authFetch(WORKORDER_ENDPOINT, {
+      method: 'GET',
+    });
 
-    create: async (data) => {
-        const newWorkOrder = {
-            id: Date.now(),
-            ...data,
-            createdDate: new Date().toISOString().split('T')[0],
-        };
-        workOrders.unshift(newWorkOrder);
-        return { ...newWorkOrder };
-    },
+    console.log(response)
 
-    update: async (id, data) => {
-        const index = workOrders.findIndex((wo) => wo.id === id || wo.id === Number(id));
-        if (index !== -1) {
-            workOrders[index] = { ...workOrders[index], ...data };
-            return { ...workOrders[index] };
-        }
-        return null;
-    },
+    if (!response.ok) {
+      throw new Error('Failed to fetch work orders');
+    }
 
-    remove: async (id) => {
-        const index = workOrders.findIndex((wo) => wo.id === id || wo.id === Number(id));
-        if (index !== -1) {
-            const removed = workOrders.splice(index, 1)[0];
-            return { ...removed };
-        }
-        return null;
-    },
+    return await response.json();
+  },
+
+  getById: async (id) => {
+    const response = await authFetch(`${WORKORDER_ENDPOINT}/${id}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch work order');
+    }
+
+    return await response.json();
+  },
+
+  create: async (data) => {
+    const response = await authFetch(WORKORDER_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to create work order');
+    }
+
+    return await response.json();
+  },
+
+  update: async (id, data) => {
+    const response = await authFetch(`${WORKORDER_ENDPOINT}/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update work order');
+    }
+
+    return await response.json();
+  },
+
+  remove: async (id) => {
+    const response = await authFetch(`${WORKORDER_ENDPOINT}/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete work order');
+    }
+    
+    return await response.json();
+  },
 };

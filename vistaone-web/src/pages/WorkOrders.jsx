@@ -4,7 +4,7 @@ import { useWorkOrder } from '../hooks/useWorkOrder';
 import CreateWorkOrderModal from '../components/CreateWorkOrderModal';
 import '../styles/workorder.css';
 
-const statusOptions = ['all', 'pending', 'in_progress', 'completed'];
+const statusOptions = ['all', 'pending', 'in_progress', 'completed', 'cancelled'];
 
 export default function WorkOrders() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -26,10 +26,12 @@ export default function WorkOrders() {
     const filteredOrders = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
         return workOrders.filter(order => {
-            const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+            const matchesStatus = statusFilter === 'all' || (order.status && order.status.toLowerCase() === statusFilter);
+            // Search by description, location, or work_order_id
             const matchesSearch =
-                order.title.toLowerCase().includes(normalizedSearch) ||
-                order.location.toLowerCase().includes(normalizedSearch);
+                (order.description?.toLowerCase().includes(normalizedSearch) ||
+                order.location_type?.toLowerCase().includes(normalizedSearch) ||
+                order.work_order_id?.toLowerCase().includes(normalizedSearch));
             return matchesStatus && matchesSearch;
         });
     }, [workOrders, searchTerm, statusFilter]);
@@ -91,15 +93,15 @@ export default function WorkOrders() {
                         </thead>
                         <tbody>
                             {filteredOrders.map(order => (
-                                <tr key={order.id}>
-                                    <td>{order.orderId}</td>
-                                    <td>{order.vendor}</td>
-                                    <td>{order.jobType}</td>
-                                    <td>{order.location}</td>
-                                    <td>{formatDate(order.createdDate)}</td>
+                                <tr key={order.work_order_id}>
+                                    <td>{order.work_order_id}</td>
+                                    <td>{order.vendor_id}</td>
+                                    <td>{order.service_type_id}</td>
+                                    <td>{order.location_type}</td>
+                                    <td>{formatDate(order.created_date)}</td>
                                     <td>
-                                        <span className={`status-badge status-${order.status}`}>
-                                            {formatStatusLabel(order.status)}
+                                        <span className={`status-badge status-${order.status?.toLowerCase()}`}>
+                                            {formatStatusLabel(order.status || '')}
                                         </span>
                                     </td>
                                     <td className="workorders-actions-cell">
