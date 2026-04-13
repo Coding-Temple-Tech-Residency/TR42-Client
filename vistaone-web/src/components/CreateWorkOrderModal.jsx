@@ -117,14 +117,20 @@ function CreateWorkOrderModal({ setShowModal }) {
 
     return (
         <div className="workorders-modal-overlay" onClick={handleCloseModal}>
-            <div className="workorders-modal" onClick={e => e.stopPropagation()}>
-                <div className="workorders-modal-header">
-                    <h2>Create Work Order</h2>
-                    <button className="workorders-close-btn" onClick={handleCloseModal}>
+            <div className="workorders-modal workorder-modal-card" onClick={e => e.stopPropagation()}>
+                <div className="workorders-modal-header workorder-modal-header">
+                    <div className="workorder-modal-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="14" y="6" width="4" height="20" rx="2" fill="#007bff" />
+                            <rect x="6" y="14" width="20" height="4" rx="2" fill="#007bff" />
+                        </svg>
+                    </div>
+                    <h2 className="workorder-modal-title">Create Work Order</h2>
+                    <button className="workorders-close-btn workorder-close-btn" onClick={handleCloseModal} aria-label="Close">
                         ×
                     </button>
                 </div>
-                <form className="workorders-form" onSubmit={handleCreateWorkOrder}>
+                <form className="workorders-form workorder-form" onSubmit={handleCreateWorkOrder} autoComplete="off">
                     <div className="workorders-form-row">
                         <label>
                             Job Type
@@ -162,41 +168,32 @@ function CreateWorkOrderModal({ setShowModal }) {
                         </select>
                     </label>
                     {/* Location method */}
-                    <fieldset className="workorders-form-fieldset">
-                        <legend>Location Method</legend>
-                        <div className="workorders-radio-group">
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="locationMethod"
-                                    value="api"
-                                    checked={formData.locationMethod === 'api'}
-                                    onChange={handleFormChange}
-                                />
+                    <div className="workorder-location-method">
+                        <span className="workorder-location-label">Location Method</span>
+                        <div className="workorder-location-options">
+                            <button
+                                type="button"
+                                className={formData.locationMethod === 'api' ? 'workorder-location-btn active' : 'workorder-location-btn'}
+                                onClick={() => handleFormChange({ target: { name: 'locationMethod', value: 'api', type: 'radio' } })}
+                            >
                                 API Well Number
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="locationMethod"
-                                    value="gps"
-                                    checked={formData.locationMethod === 'gps'}
-                                    onChange={handleFormChange}
-                                />
+                            </button>
+                            <button
+                                type="button"
+                                className={formData.locationMethod === 'gps' ? 'workorder-location-btn active' : 'workorder-location-btn'}
+                                onClick={() => handleFormChange({ target: { name: 'locationMethod', value: 'gps', type: 'radio' } })}
+                            >
                                 GPS Coordinates
-                            </label>
-                            <label>
-                                <input
-                                    type="radio"
-                                    name="locationMethod"
-                                    value="address"
-                                    checked={formData.locationMethod === 'address'}
-                                    onChange={handleFormChange}
-                                />
+                            </button>
+                            <button
+                                type="button"
+                                className={formData.locationMethod === 'address' ? 'workorder-location-btn active' : 'workorder-location-btn'}
+                                onClick={() => handleFormChange({ target: { name: 'locationMethod', value: 'address', type: 'radio' } })}
+                            >
                                 Physical Address
-                            </label>
+                            </button>
                         </div>
-                    </fieldset>
+                    </div>
                     {/* Conditional location inputs */}
                     {formData.locationMethod === 'api' && (
                         <input
@@ -297,8 +294,9 @@ function CreateWorkOrderModal({ setShowModal }) {
                             </label>
                         </div>
                     )}
-                    <button type="submit" className="workorders-submit-btn">
-                        Create Work Order
+                    <button type="submit" className="workorder-submit-btn">
+                        <span>Create Work Order</span>
+                        <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M7 15l5-5-5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </button>
                 </form>
             </div>
