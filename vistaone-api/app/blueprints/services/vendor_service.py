@@ -1,164 +1,130 @@
+from models import Vendor
+from repository import VendorRepository
+from app.models.vendor_audit_log import VendorAuditLog
+from app.extensions import db
 from datetime import datetime
-from uuid import UUID
-from sqlalchemy.orm import Session
-from app.models import Base
-from app.models.vendor import Vendor
-from app.models.vendor_compliance import VendorCompliance
-from app.models.vendor_status_audit import VendorStatusAudit
+import uuid
 
+class VendorService:
+
+    @staticmethod
+    def list_vendors(filters):
+        return VendorRepository.list_vendors(
+            search=filters.get("search"),
+            status=filters.get("status"),
+            service_id=filters.get("service_id"),
+            msa_status=filters.get("msa_status"),
+        )
+
+    @staticmethod
+    def get_vendor_detail(vendor_id):
+        vendor = VendorRepository.get_vendor_detail(vendor_id)
+        if not vendor:
+            raise ValueError("Vendor not found")
+        return vendor
+
+    @staticmethod
+    def create_vendor(data):
+        vendor = Vendor(
+            vendor_name=data["vendor_name"],
+            vendor_code=data.get("vendor_code"),
+            primary_contact_name=data["primary_contact_name"],
+            contact_email=data["contact_email"],
+            contact_phone=data.get("contact_phone"),
+            services=data["services"],
+            status="inactive",
+        )
+
+
+
+class InvalidStatusTransition(Exception):
+    pass
 
 
 class VendorService:
-    @staticmethod
-    def _get_session() -> Session:
-        return SessionLocal()
+
+    VALID_TRANSITIONS = {
+        "inactive": ["active", "rejected"],
+        "active": ["suspended"],
+        "suspended": ["active"],
+    }
 
     @staticmethod
-    def list_vendors(filters: dict, page: int, page_size: int, sort: str, direction: str):
-        session = VendorService._get_session()
-        try:
-            query = session.query(Vendor)
+    def list_vendors(filters):
+        page = int(filters.get("page", 1))
+        per_page = int(filters.get("per_page", 25))
+        sort = filters.get("sort", "vendor_name:asc")
 
-            status = filters.get("status")
-            service_type = filters.get("service_type")
-            compliance_status = filters.get("compliance_status")
-
-            if status:
-                query = query.filter(Vendor.status == status)
-            if service_type:
-                query = query.filter(Vendor.service_type == service_type)
-            if compliance_status:
-                query = query.join(Vendor.compliance).filter(
-                    VendorCompliance.compliance_status == compliance_status
-                )
-
-            if sort == "name":
-                order_col = Vendor.name
-            elif sort == "created_at":
-                order_col = Vendor.created_at
-            elif sort == "status":
-                order_col = Vendor.status
-            else:
-                order_col = Vendor.created_at
-
-            if direction == "desc":
-                order_col = order_col.desc()
-
-            query = query.order_by(order_col)
-
-            total = query.count()
-            items = query.offset((page - 1) * page_size).limit(page_size).all()
-
-            return items, total
-        finally:
-            session.close()
-
-    @staticmethod
-    def get_vendor_detail(vendor_id: UUID) -> Vendor:
-        session = VendorService._get_session()
-        try:
-            vendor = session.query(Vendor).filter(Vendor.id == vendor_id).first()
-            if not vendor:
-                raise LookupError("Vendor not found.")
-            return vendor
-        finally:
-            session.close()
-
-    @staticmethod
-    def _log_status_change(session: Session, vendor: Vendor, old_status: str | None, new_status: str, reason: str | None, changed_by: str | None):
-        audit = VendorStatusAudit(
-            vendor_id=vendor.id,
-            old_status=old_status,
-            new_status=new_status,
-            reason=reason,
-            changed_by=changed_by,
+        sort_field, _, sort_dir = sort.partition(":")
+        pagination = VendorRepository.list_vendors(
+            search=filters.get("search"),
+            status=filters.get("status"),
+            service_id=filters.get("service_id"),
+            msa_status=filters.get("msa_status"),
+            page=page,
+            per_page=per_page,
+            sort_field=sort_field,
+            sort_dir=sort_dir or "asc",
         )
-        session.add(audit)
+        return pagination
 
     @staticmethod
-    def create_vendor(data: dict, changed_by: str | None = None) -> Vendor:
-        session = VendorService._get_session()
-        try:
-            existing = session.query(Vendor).filter(
-                (Vendor.email == data.get("email")) |
-                (Vendor.name == data.get("name"))
-            ).first()
-            if existing:
-                raise ValueError("Vendor with this name or email already exists.")
-
-            vendor = Vendor(
-                name=data["name"],
-                email=data["email"],
-                phone=data.get("phone"),
-                service_type=data.get("service_type"),
-                status="pending",
-            )
-            session.add(vendor)
-            session.flush()
-
-            compliance = VendorCompliance(
-                vendor_id=vendor.id,
-                compliance_status="pending",
-            )
-            session.add(compliance)
-
-            VendorService._log_status_change(
-                session,
-                vendor,
-                old_status=None,
-                new_status="pending",
-                reason="Vendor created",
-                changed_by=changed_by,
-            )
-
-            session.commit()
-            session.refresh(vendor)
-            return vendor
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+    def get_vendor_detail(vendor_id):
+        vendor = VendorRepository.get_vendor_detail(vendor_id)
+        if not vendor:
+            raise ValueError("Vendor not found")
+        return vendor
 
     @staticmethod
-    def update_status(vendor_id: UUID, new_status: str, reason: str | None, changed_by: str | None = None) -> Vendor:
-        session = VendorService._get_session()
-        try:
-            vendor = session.query(Vendor).filter(Vendor.id == vendor_id).first()
-            if not vendor:
-                raise LookupError("Vendor not found.")
+    def create_vendor(data):
+        vendor = Vendor(
+            vendor_name=data["vendor_name"],
+            vendor_code=data.get("vendor_code"),
+            primary_contact_name=data["primary_contact_name"],
+            contact_email=data["contact_email"],
+            contact_phone=data.get("contact_phone"),
+            services=data["services"],
+            status="inactive",
+        )
 
-            old_status = vendor.status
+        vendor = VendorRepository.create(vendor)
+        VendorService._log_action(
+            vendor_id=vendor.vendor_id,
+            action="vendor_created",
+            payload=data,
+        )
+        return vendor
 
-            if old_status == "pending" and new_status in ("approved", "rejected"):
-                pass
-            else:
-                raise ValueError("Invalid status transition.")
+    @staticmethod
+    def update_status(vendor_id, new_status):
+        vendor = VendorRepository.get_vendor_detail(vendor_id)
+        if not vendor:
+            raise ValueError("Vendor not found")
 
-            vendor.status = new_status
-            if new_status == "approved":
-                vendor.approved_at = datetime.utcnow()
-                vendor.rejection_reason = None
-            elif new_status == "rejected":
-                if not reason:
-                    raise ValueError("Rejection reason is required.")
-                vendor.rejected_at = datetime.utcnow()
-                vendor.rejection_reason = reason
-
-            VendorService._log_status_change(
-                session,
-                vendor,
-                old_status=old_status,
-                new_status=new_status,
-                reason=reason,
-                changed_by=changed_by,
+        allowed = VendorService.VALID_TRANSITIONS.get(vendor.status, [])
+        if new_status not in allowed:
+            raise InvalidStatusTransition(
+                f"Cannot change status from {vendor.status} to {new_status}"
             )
 
-            session.commit()
-            session.refresh(vendor)
-            return vendor
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+        vendor.status = new_status
+        db.session.commit()
+
+        VendorService._log_action(
+            vendor_id=vendor.vendor_id,
+            action="status_updated",
+            payload={"from": vendor.status, "to": new_status},
+        )
+        return vendor
+
+    @staticmethod
+    def _log_action(vendor_id, action, payload):
+        entry = VendorAuditLog(
+            id=uuid.uuid4(),
+            vendor_id=vendor_id,
+            action=action,
+            payload=payload,
+            created_at=datetime.utcnow(),
+        )
+        db.session.add(entry)
+        db.session.commit()

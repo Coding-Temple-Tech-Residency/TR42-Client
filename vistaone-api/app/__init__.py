@@ -1,83 +1,16 @@
-from flask import Flask, app, jsonify
-from .extensions import ma, limiter
-from app.models import Base
-from app.blueprints.controller import users_bp
-from flask_swagger_ui import get_swaggerui_blueprint
-from app.utils.loggingUtil import logging_setup
-from dotenv import load_dotenv
 from flask import Flask
-from app.blueprints.controller import vendor_bp
-from flask_sqlalchemy import SQLAlchemy
-db = SQLAlchemy()
-from app.database import engine
+from app.extensions import db, ma
 
-# Load .env file
-load_dotenv()
 
-SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
-API_URL = '/static/swagger.yaml'  # Our API URL (can of course be a local resource)
-
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Client Web Dashboard"
-    }
-)
-
-def create_app(config_name):
+def create_app(config_name="ProductionConfig"):
     app = Flask(__name__)
-    app.config.from_object(f'config.{config_name}')
-   
-    # Init Flask-SQLAlchemy (Users model)
+    app.config.from_object(f"config.{config_name}")
+
     db.init_app(app)
-
-    # Init pure SQLAlchemy (Vendors module)
-    with app.app_context():
-        db.create_all()  # Create tables for Users model
-        Base.metadata.create_all(bind=engine)
-
-
-    return app
-
-    # Initialize extensions
     ma.init_app(app)
-    db.init_app(app)
-    limiter.init_app(app)
 
-    logging_setup() 
-
-    # Register blueprints
-    app.register_blueprint(users_bp, url_prefix='/users')
-    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-    app.register_blueprint(vendor_bp, url_prefix='/vendors')
-   
-    @app.errorhandler(429)
-    def handle_rate_limit(_):
-        return jsonify({'message': 'Too many requests. Please try again later.'}), 429
-    
-
-    @app.errorhandler(401)
-    def unauthorized_error(e):
-        return jsonify({
-        "status": "error",
-        "message": "Unauthorized access"
-    }), 401
-
-
-    @app.errorhandler(404)
-    def not_found(e):
-        return jsonify({
-        "status": "error",
-        "message": "Resource not found"
-    }), 404
-
-
-    @app.errorhandler(500)
-    def server_error(e):
-        return jsonify({
-        "status": "error",
-        "message": "Internal server error"
-    }), 500
+    # import blueprints AFTER db is created
+    from app.blueprints.controller.vendor_routes import vendor_bp
+    app.register_blueprint(vendor_bp)
     
     return app

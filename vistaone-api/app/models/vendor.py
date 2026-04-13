@@ -1,45 +1,29 @@
-from sqlalchemy import String, DateTime, func
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app import db
+from sqlalchemy.dialects.postgresql import UUID, JSON
 from datetime import datetime
 import uuid
 
-from app.models import Base
 
-
-class Vendor(Base):
+class Vendor(db.Model):
     __tablename__ = "vendors"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4
-    )
+    vendor_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    phone: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    service_type: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    vendor_name = db.Column(db.String(255), nullable=False)
+    vendor_code = db.Column(db.String(50))
 
-    status: Mapped[str] = mapped_column(String(50), nullable=False, default="pending")
-    rejection_reason: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    primary_contact_name = db.Column(db.String(255), nullable=False)
+    contact_email = db.Column(db.String(255), nullable=False)
+    contact_phone = db.Column(db.String(50))
 
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        server_default=func.now()
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        server_default=func.now(),
-        onupdate=func.now()
-    )
+    status = db.Column(db.String(50), nullable=False, default="inactive")
 
-    approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    rejected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # JSON array of services: [{service_id, code, name}]
+    services = db.Column(JSON, nullable=False, default=list)
 
-    contacts = relationship("VendorContact", back_populates="vendor", cascade="all, delete-orphan")
-    compliance = relationship("VendorCompliance", back_populates="vendor", uselist=False, cascade="all, delete-orphan")
-    status_audits = relationship("VendorStatusAudit", back_populates="vendor", cascade="all, delete-orphan")
-    
+    msas = db.relationship("VendorMSA", backref="vendor", lazy="dynamic")
+    insurance_policies = db.relationship("VendorInsurance", backref="vendor", lazy="dynamic")
+    licenses = db.relationship("VendorLicense", backref="vendor", lazy="dynamic")
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

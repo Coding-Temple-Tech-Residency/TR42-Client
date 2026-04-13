@@ -1,66 +1,70 @@
-from uuid import UUID
+from flask import Blueprint, request
+from app.blueprints.services.vendor_service import VendorService, InvalidStatusTransition
+from app.schemas.vendorSchema import vendor_list_schema, vendor_detail_schema
 
-from flask import Blueprint, request, jsonify
-
-from app.blueprints.schemas import vendor_schema, vendors_schema
-from app.blueprints.services.vendor_service import VendorService
-
-vendor_bp = Blueprint("vendor_bp", __name__, url_prefix="/vendors")
+vendor_bp = Blueprint("vendors", __name__)
 
 
-@vendor_bp.get("")
+@vendor_bp.route("/vendors", methods=["GET"])
 def list_vendors():
-    args = request.args
     filters = {
-        "status": args.get("status"),
-        "service_type": args.get("service_type"),
-        "compliance_status": args.get("compliance_status"),
+        "search": request.args.get("search"),
+        "status": request.args.get("status", "all"),
+        "service_id": request.args.get("service_id", "all"),
+        "msa_status": request.args.get("msa_status", "all"),
+        "page": request.args.get("page", 1),
+        "per_page": request.args.get("per_page", 25),
+        "sort": request.args.get("sort", "vendor_name:asc"),
     }
-    page = int(args.get("page", 1))
-    page_size = int(args.get("page_size", 20))
-    sort = args.get("sort", "created_at")
-    direction = args.get("direction", "desc")
 
-    items, total = VendorService.list_vendors(filters, page, page_size, sort, direction)
-    return jsonify({
-        "items": vendors_schema.dump(items),
-        "total": total,
-        "page": page,
-        "page_size": page_size,
-    }), 200
+    pagination = VendorService.list_vendors(filters)
+    items = vendor_list_schema.dump(pagination.items)
+
+    return {
+        "items": items,
+        "page": pagination.page,
+        "per_page": pagination.per_page,
+        "total": pagination.total,
+        "pages": pagination.pages,
+    }, 200
 
 
-@vendor_bp.get("/<uuid:vendor_id>")
-def get_vendor(vendor_id: UUID):
+@vendor_bp.route("/vendors/<uuid:vendor_id>", methods=["GET"])
+def get_vendor_detail(vendor_id):
     try:
         vendor = VendorService.get_vendor_detail(vendor_id)
-        return vendor_schema.dump(vendor), 200
-    except LookupError as e:
-        return jsonify({"error": str(e)}), 404
+        return vendor_detail_schema.dump(vendor), 200
+    except ValueError:
+        return {"error": "Vendor not found"}, 404
 
 
-@vendor_bp.post("")
+@vendor_bp.route("/vendors", methods=["POST"])
 def create_vendor():
     data = request.get_json() or {}
-    try:
-        vendor = VendorService.create_vendor(data, changed_by="system")
-        return vendor_schema.dump(vendor), 201
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 409
-    except KeyError as e:
-        return jsonify({"error": f"Missing required field: {e}"}), 400
+
+    required = ["vendor_name", "primary_contact_name", "contact_email", "services"]
+    missing = [f for f in required if not data.get(f)]
+    if missing:
+        return {"error": f"Missing required fields: {', '.join(missing)}"}, 400
+
+    vendor = VendorService.create_vendor(data)
+    return vendor_detail_schema.dump(vendor), 201
 
 
-@vendor_bp.post("/<uuid:vendor_id>/status")
-def update_vendor_status(vendor_id: UUID):
+@vendor_bp.route("/vendors/<uuid:vendor_id>/status", methods=["PUT"])
+def update_vendor_status(vendor_id):
     data = request.get_json() or {}
     new_status = data.get("status")
-    reason = data.get("reason")
+
+    if not new_status:
+        return {"error": "Missing 'status' in request body"}, 400
 
     try:
-        vendor = VendorService.update_status(vendor_id, new_status, reason, changed_by="system")
-        return vendor_schema.dump(vendor), 200
-    except LookupError as e:
-        return jsonify({"error": str(e)}), 404
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        vendor = VendorService.update_status(vendor_id, new_status)
+        return vendor_detail_schema.dump(vendor), 200
+
+    except InvalidStatusTransition as e:
+        return {"error": str(e)}, 400
+
+    except ValueError:
+        return {"error": "Vendor not found"}, 404
