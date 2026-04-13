@@ -337,6 +337,31 @@
 	color: #495057;
 }
 
+/* Recurring Work Order Row */
+.workorder-recurring-row {
+	display: flex;
+	align-items: center;
+	margin: 1rem 0 0.5rem 0;
+  gap:10px;
+}
+
+.workorder-recurring-label {
+	display: flex;
+	align-items: center;
+	font-size: 1.15rem;
+	font-weight: 600;
+	gap: 0.7rem;
+	cursor: pointer;
+}
+
+.workorder-recurring-checkbox {
+	width: 1.35em;
+	height: 1.35em;
+	accent-color: #007bff;
+	margin-right: 0.5em;
+	cursor: pointer;
+}
+
 /* Floating Action Button for Create Work Order */
 .fab-create-workorder {
 	position: fixed;

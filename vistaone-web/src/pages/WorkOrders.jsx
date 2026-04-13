@@ -21,7 +21,7 @@ export default function WorkOrders() {
 
     useEffect(() => {
         fetchWorkOrders();
-    }, []);
+    }, [fetchWorkOrders]);
 
     const filteredOrders = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
