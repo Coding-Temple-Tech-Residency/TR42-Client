@@ -2,7 +2,7 @@ from . import users_bp
 from flask import request, jsonify
 from marshmallow import ValidationError
 from app.extensions import limiter
-from app.blueprints.schema.auth_schema import login_schema
+from app.blueprints.schemas.auth_schema import login_schema
 from app.blueprints.services.auth_service import LoginService
 from app.utils.util import token_required
 import logging

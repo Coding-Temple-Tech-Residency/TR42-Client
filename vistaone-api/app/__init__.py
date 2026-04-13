@@ -1,12 +1,15 @@
 from flask import Flask, app, jsonify
 from .extensions import ma, limiter
-from app.models import db
+from app.models import Base
 from app.blueprints.controller import users_bp
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.utils.loggingUtil import logging_setup
-
 from dotenv import load_dotenv
-
+from flask import Flask
+from app.blueprints.controller import vendor_bp
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
+from app.database import engine
 
 # Load .env file
 load_dotenv()
@@ -25,7 +28,18 @@ swaggerui_blueprint = get_swaggerui_blueprint(
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(f'config.{config_name}')
-    
+   
+    # Init Flask-SQLAlchemy (Users model)
+    db.init_app(app)
+
+    # Init pure SQLAlchemy (Vendors module)
+    with app.app_context():
+        db.create_all()  # Create tables for Users model
+        Base.metadata.create_all(bind=engine)
+
+
+    return app
+
     # Initialize extensions
     ma.init_app(app)
     db.init_app(app)
@@ -36,7 +50,8 @@ def create_app(config_name):
     # Register blueprints
     app.register_blueprint(users_bp, url_prefix='/users')
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
-
+    app.register_blueprint(vendor_bp, url_prefix='/vendors')
+   
     @app.errorhandler(429)
     def handle_rate_limit(_):
         return jsonify({'message': 'Too many requests. Please try again later.'}), 429
