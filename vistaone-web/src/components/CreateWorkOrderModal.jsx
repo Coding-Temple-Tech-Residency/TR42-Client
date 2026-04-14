@@ -13,8 +13,8 @@ function LocationPicker({ setCoordinates }) {
 import { useWorkOrder } from "../hooks/useWorkOrder";
 
 const recurringOptions = [
+  { value: "daily", label: "Daily" },
   { value: "weekly", label: "Weekly" },
-  { value: "biweekly", label: "Bi-Weekly" },
   { value: "monthly", label: "Monthly" },
 ];
 
@@ -53,27 +53,26 @@ const wellOptions = [
 ];
 
 const emptyForm = {
-  jobType: jobTypeOptions[0].id,
-  quantity: "",
-  units: "",
-  description: "",
+  client_id: "",
   vendor: vendorOptions[0].id,
-  well: wellOptions[0].id,
-  locationMethod: "well",
+  jobType: jobTypeOptions[0].id,
+  description: "",
+  locationMethod: "gps",
   gpsCoordinates: "",
-  physicalAddress: "",
+  latitude: "",
+  longitude: "",
+  units: "",
+  quantity: 0,
+  priority: "MEDIUM",
+  recurring: false,
+  recurringInterval: "weekly",
   date: "",
   endDate: "",
-  priority: "medium",
-  recurring: false,
-  recurringInterval: "",
-  street: "",
-  city: "",
-  state: "",
-  zip: "",
+  address_id: "",
+  well: wellOptions[0].id,
 };
 
-function CreateWorkOrderModal({ setShowModal }) {
+function CreateWorkOrderModal({ setShowModal, fetchWorkOrders }) {
   const [formData, setFormData] = useState(emptyForm);
   const [markerPos, setMarkerPos] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -143,25 +142,40 @@ function CreateWorkOrderModal({ setShowModal }) {
       locationDisplay = formData.physicalAddress.trim();
     }
 
+    // Parse latitude/longitude from GPS coordinates if present
+    let latitude = "";
+    let longitude = "";
+    if (formData.gpsCoordinates) {
+      const [lat, lng] = formData.gpsCoordinates
+        .split(",")
+        .map((v) => v.trim());
+      latitude = lat || "";
+      longitude = lng || "";
+    }
+
     const newWorkOrder = {
+      client_id: formData.client_id || "11111111-1111-1111-1111-111111111111",
       vendor_id: formData.vendor,
       service_type_id: formData.jobType,
-      well_id: formData.well,
       description: formData.description.trim(),
-      quantity: formData.quantity,
+      location_type:
+        formData.locationMethod === "gps"
+          ? "GPS"
+          : formData.locationMethod === "address"
+            ? "ADDRESS"
+            : "WELL",
+      latitude,
+      longitude,
       units: formData.units,
-      location_method: formData.locationMethod,
-      gps_coordinates: formData.gpsCoordinates,
-      physical_address: formData.physicalAddress,
-      date: formData.date,
-      end_date: formData.endDate,
-      priority: formData.priority,
-      recurring: formData.recurring,
-      recurring_interval: formData.recurring ? formData.recurringInterval : null,
-      street: formData.street,
-      city: formData.city,
-      state: formData.state,
-      zip: formData.zip,
+      estimated_quantity: formData.quantity ? formData.quantity : 0,
+      priority: formData.priority?.toUpperCase() || "MEDIUM",
+      is_recurring: !!formData.recurring,
+      recurrence_type: formData.recurring
+        ? formData.recurringInterval?.toUpperCase() || "ONE_TIME"
+        : null,
+      estimated_start_date: formData.date,
+      estimated_end_date: formData.endDate ? formData.endDate : formData.date,
+      address_id: formData.address_id || "a1010101-1010-1010-1010-101010101010",
     };
 
     if (!locationDisplay || !formData.jobType) {
@@ -171,6 +185,7 @@ function CreateWorkOrderModal({ setShowModal }) {
     }
     try {
       await createWorkOrder(newWorkOrder);
+      await fetchWorkOrders();
       setLoading(false);
       handleCloseModal();
     } catch (err) {
@@ -217,8 +232,14 @@ function CreateWorkOrderModal({ setShowModal }) {
           onSubmit={handleCreateWorkOrder}
           autoComplete="off"
         >
-          {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
-          {loading && <div style={{ color: '#007bff', marginBottom: 8 }}>Creating work order...</div>}
+          {error && (
+            <div style={{ color: "red", marginBottom: 8 }}>{error}</div>
+          )}
+          {loading && (
+            <div style={{ color: "#007bff", marginBottom: 8 }}>
+              Creating work order...
+            </div>
+          )}
           <label>
             Vendor
             <select

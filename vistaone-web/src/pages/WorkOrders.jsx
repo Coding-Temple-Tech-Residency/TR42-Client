@@ -128,7 +128,7 @@ export default function WorkOrders() {
                 )}
             </section>
 
-            {showModal && <CreateWorkOrderModal setShowModal={setShowModal}/>}
+            {showModal && <CreateWorkOrderModal setShowModal={setShowModal} fetchWorkOrders={fetchWorkOrders} />}
         </AppShell>
     );
 }
