@@ -5,6 +5,7 @@ from app.blueprints.controller import users_bp, vendors_bp, msa_bp, services_bp
 from flask_swagger_ui import get_swaggerui_blueprint
 from app.utils.loggingUtil import logging_setup
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 load_dotenv()
 
@@ -35,6 +36,13 @@ def create_app(config_name):
     app.register_blueprint(msa_bp, url_prefix='/msa')
     app.register_blueprint(services_bp, url_prefix='/services')
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+    
+    CORS(
+        app,
+        origins = ["http://localhost:5173"],
+        allow_headers = ["Content-Type", "Authorization"],
+        methods =["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
 
     # Create any tables that don't exist yet
     # db.create_all() is non-destructive - it only adds missing tables, never drops existing ones

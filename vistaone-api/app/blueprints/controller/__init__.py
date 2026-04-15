@@ -1,4 +1,5 @@
-from flask import Blueprint
+from .auth_routes import users_bp
+from .workorder_routes import workorder_bp
 
 # Auth blueprint (already exists - handles login and token verification)
 users_bp = Blueprint("users_bp", __name__)
