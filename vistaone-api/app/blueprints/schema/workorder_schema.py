@@ -36,8 +36,8 @@ class WorkOrderSchema(ma.SQLAlchemyAutoSchema):
     latitude = fields.Float()
     longitude = fields.Float()
 
-    address_id = (
-        fields.String()
+    address_id = fields.String(
+        allow_none=True, required=False
     )  # WorkOrderSchema will accept address fields but they will be used to create an Address record and linked via address_id. address_id is optional in input because if location_type is GPS or WELL, we won't have address info. But if location_type is ADDRESS, we will create an Address record and link it via address_id.
     address = fields.Nested(
         "AddressSchema", dump_only=True
