@@ -19,9 +19,8 @@ class WellRepository:
         return Well.query.filter_by(well_id=well_uuid).first()
 
     @staticmethod
-    def create(data: dict):
+    def create(well: Well):
         try:
-            well = Well(**data)
             db.session.add(well)
             db.session.commit()
             return well
@@ -30,19 +29,10 @@ class WellRepository:
             raise
 
     @staticmethod
-    def update(well_id: UUID | str, data: dict):
+    def update(well: Well):
         try:
-            well = WellRepository.get_by_id(well_id)
-            if not well:
-                return None
-
-            for key, value in data.items():
-                if hasattr(well, key):
-                    setattr(well, key, value)
-
             db.session.commit()
             return well
-
         except SQLAlchemyError:
             db.session.rollback()
             raise
