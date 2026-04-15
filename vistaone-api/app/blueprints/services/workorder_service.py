@@ -54,7 +54,7 @@ class WorkOrderService:
                 db.session.add(address)
                 db.session.flush()  # get address_id
 
-                work_order.address_id = address.address_id
+                work_order.address_id = address.id
 
             # ---------------- GPS ----------------
             elif location_type == LocationTypeEnum.GPS:
@@ -161,7 +161,7 @@ class WorkOrderService:
 
                     db.session.add(address)
                     db.session.flush()  # get address_id
-                    workorder.address_id = address.address_id
+                    workorder.address_id = address.id
                     workorder.address = address  # link relationship
 
                     address.last_modified_by = current_user_id

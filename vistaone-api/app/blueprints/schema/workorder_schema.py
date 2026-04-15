@@ -22,8 +22,8 @@ class WorkOrderSchema(ma.SQLAlchemyAutoSchema):
         load_instance = False
         unknown = EXCLUDE
 
-    id = fields.Int(dump_only=True)
-    work_order_id = fields.String(dump_only=True)
+    id = fields.String(dump_only=True)
+    work_order_id = fields.Int(dump_only=True)
 
     client_id = fields.String(required=True)
     vendor_id = fields.String(required=True)
@@ -62,6 +62,9 @@ class WorkOrderSchema(ma.SQLAlchemyAutoSchema):
     estimated_end_date = fields.DateTime()
 
     status = fields.Enum(StatusEnum, by_value=True)
+
+    vendor = fields.Nested("VendorSchema", dump_only=True)
+    service_type = fields.Nested("ServiceTypeSchema", dump_only=True)
 
     @validates_schema
     def validate_fields(self, data, **kwargs):

@@ -8,7 +8,7 @@ import uuid
 class Well(db.Model):
     __tablename__ = "wells"
 
-    well_id = mapped_column(
+    id = mapped_column(
         db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
     client_id = mapped_column(
@@ -25,5 +25,6 @@ class Well(db.Model):
     last_modified_by = mapped_column(db.String(100))
     last_modified_date = mapped_column(db.DateTime)
 
-    # relationship
+    # relationships
     client = relationship("Client", back_populates="wells")
+    workorders = relationship("WorkOrder", back_populates="well")

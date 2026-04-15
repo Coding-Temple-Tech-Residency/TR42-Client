@@ -23,7 +23,7 @@ class Client(db.Model):
     wells = relationship("Well", back_populates="client")
     workorders = relationship("WorkOrder", back_populates="client")
 
-    address_id = mapped_column(db.String(36), db.ForeignKey("address.address_id"))
+    address_id = mapped_column(db.String(36), db.ForeignKey("address.id"))
     address = relationship("Address")
 
 
@@ -42,7 +42,7 @@ class Vendor(db.Model):
 
     workorders = relationship("WorkOrder", back_populates="vendor")
 
-    address_id = mapped_column(db.String(36), db.ForeignKey("address.address_id"))
+    address_id = mapped_column(db.String(36), db.ForeignKey("address.id"))
     address = relationship("Address")
 
 
