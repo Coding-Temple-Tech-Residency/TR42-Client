@@ -1,21 +1,22 @@
-# from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, Boolean, Integer, String
 from werkzeug.security import check_password_hash, generate_password_hash
-from . import Base, db
+from app.extensions import db
 
 
-class User(Base):
-    __tablename__ = 'users'
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    first_name: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    last_name: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    email: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    role_id: Mapped[int] = mapped_column(nullable=False)
-    company_id: Mapped[int] = mapped_column(nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+class User(db.Model):
+    __tablename__ = "users"
+
+    user_id: Mapped[Integer] = mapped_column(Integer, primary_key=True)
+    email: Mapped[String] = mapped_column(String(255), unique=True, nullable=False)
+    password_hash: Mapped[String] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[Boolean] = mapped_column(Boolean, default=True)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=datetime.utcnow
+    )
 
     def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)

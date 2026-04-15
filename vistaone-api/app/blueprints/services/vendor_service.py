@@ -1,5 +1,6 @@
-from models import Vendor
-from repository import VendorRepository
+
+from app.models import Vendor
+from app.blueprints.repository.vendor_repository import VendorRepository
 from app.models.vendor_audit_log import VendorAuditLog
 from app.extensions import db
 from datetime import datetime

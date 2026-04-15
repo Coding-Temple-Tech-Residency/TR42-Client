@@ -1,5 +1,5 @@
-from app import db
-from models import Vendor, VendorMSA
+from app.extensions import db
+from app.models import Vendor, VendorMSA
 from sqlalchemy.orm import joinedload
 from sqlalchemy import or_
 
@@ -7,14 +7,13 @@ from sqlalchemy import or_
 
 class VendorRepository:
 
-    @staticmethod
     def list_vendors(
         search=None,
         status=None,
         service_id=None,
         msa_status=None,
         page=1,
-        per_page=25
+        per_page=25,
         sort_field="vendor_name",
         sort_dir="asc",):
         query = Vendor.query.options(

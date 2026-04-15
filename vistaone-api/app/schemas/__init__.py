@@ -9,7 +9,7 @@ from app.schemas.vendorSchema import (
     vendor_list_schema,
     vendor_detail_schema,
 )
-
+from app.models.user import User 
 __all__ = [
     "VendorListSchema",
     "VendorDetailSchema",

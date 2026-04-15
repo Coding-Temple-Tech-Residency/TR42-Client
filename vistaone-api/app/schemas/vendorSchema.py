@@ -1,5 +1,5 @@
 from app import ma
-from models import Vendor, VendorMSA, VendorInsurance, VendorLicense
+from app.models import Vendor, VendorMSA, VendorInsurance, VendorLicense
 
 
 

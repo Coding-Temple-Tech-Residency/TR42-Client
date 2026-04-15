@@ -1,5 +1,7 @@
+from flask import app
 from sqlalchemy import select
-from app.models import db, User
+from app.models import  User
+from app.extensions import db
 
 class LoginRepository:
     @staticmethod
