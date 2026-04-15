@@ -5,10 +5,17 @@ const VERIFY_TOKEN_ENDPOINT = '/api/users/verify-token';
 
 export default function ProtectedRoute({ children }) {
     const token = localStorage.getItem('authToken');
-    const [isValid, setIsValid] = useState(token ? null : false);
+
+    // null = still checking, true = valid, false = invalid or no token
+    // Previously set to true as a local-dev bypass - reverted so auth is enforced
+    const [isValid, setIsValid] = useState(null);
 
     useEffect(() => {
-        if (!token) return;
+        // If there is no token at all, mark as invalid immediately (no need to hit the API)
+        if (!token) {
+            setIsValid(false);
+            return;
+        }
 
         const verifyToken = async () => {
             try {
@@ -22,6 +29,7 @@ export default function ProtectedRoute({ children }) {
 
                 setIsValid(res.ok);
             } catch {
+                // Network error or server down - treat as invalid to prevent access
                 setIsValid(false);
             }
         };
