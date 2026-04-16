@@ -60,7 +60,10 @@ def update_well(current_user_id, well_id):
             400,
         )
     try:
-        well = WellService.update_well(well_id, validated_data, current_user_id)
+        well = WellService.get_well(well_id)
+        for key in data:
+            setattr(well, key, getattr(validated_data, key))
+        well = WellService.update_well(well, current_user_id)
         return jsonify(well_schema.dump(well)), 200
     except ValueError:
         return jsonify({"message": "Well not found"}), 404

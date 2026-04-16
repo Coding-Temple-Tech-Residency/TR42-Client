@@ -16,7 +16,7 @@ class WellRepository:
         except ValueError:
             return None
 
-        return Well.query.filter_by(well_id=well_uuid).first()
+        return Well.query.filter_by(id=well_uuid).first()
 
     @staticmethod
     def create(well: Well):
