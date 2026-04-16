@@ -49,16 +49,23 @@ def token_required(f):
                 return jsonify({"message": "Invalid auth format"}), 401
 
             data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-
-            return f(data["sub"], *args, **kwargs)
+            jti = data.get("jti")
+            logger.info(f"Token jti: {jti}")
+            if jti in blacklist:
+                logger.warning(f"Attempted access with revoked token: {jti}")
+                return jsonify({"message": "Token has been revoked!"}), 401
+            user_id = data["sub"]
+            logger.info(f"User ID: {user_id}")
 
         except jwt.ExpiredSignatureError:
-            return jsonify({"message": "Token expired"}), 401
+            return jsonify({"message": "Token has expired!"}), 401
 
         except jwt.InvalidTokenError:
-            return jsonify({"message": "Invalid token"}), 401
+            return jsonify({"message": "Invalid token!"}), 401
 
         except Exception as e:
-            return jsonify({"message": str(e)}), 401
+            logger.error(f"Token validation error: {e}")
+            return jsonify({"message": "Token validation error!"}), 401
+        return f(user_id, *args, **kwargs)
 
     return decorated
