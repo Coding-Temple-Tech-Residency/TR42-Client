@@ -1,15 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-
-function LocationPicker({ setCoordinates }) {
-  useMapEvents({
-    click(e) {
-      setCoordinates(`${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`);
-    },
-  });
-  return null;
-}
+import MapPicker from "./MapPicker";
 import { useWorkOrder } from "../hooks/useWorkOrder";
 
 const recurringOptions = [
@@ -413,8 +403,8 @@ function CreateWorkOrderModal({ setShowModal, fetchWorkOrders }) {
                   marginBottom: 8,
                 }}
               >
-                <MapContainer
-                  center={(() => {
+                <MapPicker
+                  markerPos={(() => {
                     const selectedWell = wellOptions.find(
                       (w) => w.id === formData.well,
                     );
@@ -426,26 +416,9 @@ function CreateWorkOrderModal({ setShowModal, fetchWorkOrders }) {
                     }
                     return [31.7451, -102.5028];
                   })()}
-                  zoom={13}
-                  style={{ height: "100%", width: "100%" }}
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; OpenStreetMap contributors"
-                  />
-                  {(() => {
-                    const selectedWell = wellOptions.find(
-                      (w) => w.id === formData.well,
-                    );
-                    if (selectedWell && selectedWell.gps) {
-                      const [lat, lng] = selectedWell.gps
-                        .split(",")
-                        .map(Number);
-                      return <Marker position={[lat, lng]} />;
-                    }
-                    return null;
-                  })()}
-                </MapContainer>
+                  setMarkerPos={() => {}}
+                  height={220}
+                />
               </div>
               <small>Location is set from selected well.</small>
             </div>
@@ -461,31 +434,19 @@ function CreateWorkOrderModal({ setShowModal, fetchWorkOrders }) {
                 required
                 style={{ marginBottom: 8 }}
               />
-              <div
-                style={{
-                  height: 220,
-                  width: "100%",
-                  borderRadius: 8,
-                  overflow: "hidden",
-                  marginBottom: 8,
+              <MapPicker
+                markerPos={markerPos}
+                setMarkerPos={(pos) => {
+                  setMarkerPos(pos);
+                  if (pos && Array.isArray(pos) && pos.length === 2) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      gpsCoordinates: `${pos[0].toFixed(6)}, ${pos[1].toFixed(6)}`,
+                    }));
+                  }
                 }}
-              >
-                <MapContainer
-                  center={markerPos || [31.7451, -102.5028]}
-                  zoom={13}
-                  style={{ height: "100%", width: "100%" }}
-                  whenCreated={(map) => {
-                    if (markerPos) map.setView(markerPos, 13);
-                  }}
-                >
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution="&copy; OpenStreetMap contributors"
-                  />
-                  <LocationPicker setCoordinates={handleMapClick} />
-                  {markerPos && <Marker position={markerPos} />}
-                </MapContainer>
-              </div>
+                height={220}
+              />
               <small>Click on the map to set coordinates.</small>
             </div>
           )}
