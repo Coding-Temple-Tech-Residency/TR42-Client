@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import stateData from "../assets/state_codes.json";
+import MapPicker from "./MapPicker";
 
 export default function CreateWellModal({ setShowModal, onCreate }) {
   const [form, setForm] = useState({
@@ -12,6 +13,13 @@ export default function CreateWellModal({ setShowModal, onCreate }) {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // For map marker position
+  const markerPos = useMemo(() => {
+    const lat = parseFloat(form.latitude);
+    const lng = parseFloat(form.longitude);
+    if (!isNaN(lat) && !isNaN(lng)) return [lat, lng];
+    return null;
+  }, [form.latitude, form.longitude]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,7 +93,7 @@ export default function CreateWellModal({ setShowModal, onCreate }) {
     try {
       const formWithClient = {
         ...form,
-        client_id: "11111111-1111-1111-1111-111111111111"
+        client_id: "11111111-1111-1111-1111-111111111111",
       };
       await onCreate(formWithClient);
     } catch (err) {
@@ -158,22 +166,44 @@ export default function CreateWellModal({ setShowModal, onCreate }) {
               onChange={handleChange}
             />
           </label>
-          <label>
-            Latitude
-            <input
-              name="latitude"
-              value={form.latitude}
-              onChange={handleChange}
+          <div style={{ display: "flex", gap: 8 }}>
+            <label style={{ flex: 1 }}>
+              Latitude
+              <input
+                name="latitude"
+                value={form.latitude}
+                onChange={handleChange}
+                placeholder="e.g., 31.7451"
+              />
+            </label>
+            <label style={{ flex: 1 }}>
+              Longitude
+              <input
+                name="longitude"
+                value={form.longitude}
+                onChange={handleChange}
+                placeholder="e.g., -102.5028"
+              />
+            </label>
+          </div>
+          <div style={{ margin: "12px 0 16px 0" }}>
+            <MapPicker
+              markerPos={markerPos}
+              setMarkerPos={(pos) => {
+                if (pos && Array.isArray(pos) && pos.length === 2) {
+                  setForm((prev) => ({
+                    ...prev,
+                    latitude: pos[0].toFixed(6),
+                    longitude: pos[1].toFixed(6),
+                  }));
+                }
+              }}
+              height={220}
             />
-          </label>
-          <label>
-            Longitude
-            <input
-              name="longitude"
-              value={form.longitude}
-              onChange={handleChange}
-            />
-          </label>
+            <small>
+              Enter latitude/longitude or pick a location on the map.
+            </small>
+          </div>
           <label>
             Status
             <select name="status" value={form.status} onChange={handleChange}>
