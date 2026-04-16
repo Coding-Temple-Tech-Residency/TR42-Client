@@ -18,6 +18,26 @@ export default function CreateWellModal({ setShowModal, onCreate }) {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  function validateApiWellNumber(wellNumber) {
+    // Format: XX-XXX-XXXXX-XX-XX (10-14 digits, dashes required)
+    const apiPattern = /^(\d{2})-(\d{3})-(\d{5})(?:-(\d{2}))?(?:-(\d{2}))?$/;
+    const match = wellNumber.match(apiPattern);
+    if (!match) {
+      return "API Well Number must be in format XX-XXX-XXXXX-XX-XX (dashes required).";
+    }
+    const stateCode = match[1];
+    const countyCode = match[2];
+    const state = stateData.states.find((s) => s.state_code === stateCode);
+    if (!state) {
+      return `Invalid state code: ${stateCode}.`;
+    }
+    const county = state.counties.find((c) => c.county_code === countyCode);
+    if (!county) {
+      return `Invalid county code: ${countyCode} for state ${state.state_name}.`;
+    }
+    return "";
+  }
+
   // Show state/county name as user types API number
   const apiNumberInfo = useMemo(() => {
     const apiPattern = /^(\d{2})-(\d{3})/;
@@ -33,14 +53,39 @@ export default function CreateWellModal({ setShowModal, onCreate }) {
     return { state: stateName, county: countyName };
   }, [form.well_number, stateData]);
 
+  const validateForm = () => {
+    if (!form.well_number.trim()) {
+      return "Well number is required.";
+    }
+    const apiError = validateApiWellNumber(form.well_number.trim());
+    if (apiError) {
+      return apiError;
+    }
+    if (!form.latitude.trim() || isNaN(Number(form.latitude))) {
+      return "Latitude must be a valid number.";
+    }
+    if (!form.longitude.trim() || isNaN(Number(form.longitude))) {
+      return "Longitude must be a valid number.";
+    }
+    if (!form.well_name.trim()) {
+      return "Please enter a well name.";
+    }
+    return "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setLoading(true);
     try {
       const formWithClient = {
         ...form,
-        client_id: "11111111-1111-1111-1111-111111111111",
+        client_id: "11111111-1111-1111-1111-111111111111"
       };
       await onCreate(formWithClient);
     } catch (err) {
