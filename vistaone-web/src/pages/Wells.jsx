@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import AppShell from "../components/AppShell";
+import CreateWellModal from "../components/CreateWellModal";
 import { useWell } from "../hooks/useWell";
 import "../styles/workorder.css";
 
 export default function Wells() {
+  const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const { wells, loading, fetchWells, createWell } = useWell();
 
@@ -13,6 +15,7 @@ export default function Wells() {
 
   const handleCreateWell = async (wellData) => {
     await createWell(wellData);
+    setShowModal(false);
   };
 
   const filteredWells = useMemo(() => {
@@ -87,6 +90,12 @@ export default function Wells() {
           </table>
         )}
       </section>
+      {showModal && (
+        <CreateWellModal
+          setShowModal={setShowModal}
+          onCreate={handleCreateWell}
+        />
+      )}
     </AppShell>
   );
 }
