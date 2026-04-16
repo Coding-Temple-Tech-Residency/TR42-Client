@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import WorkOrders from "./pages/WorkOrders";
+import Wells from "./pages/Wells";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -22,6 +23,14 @@ function App() {
         element={
           <ProtectedRoute>
             <WorkOrders />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/wells"
+        element={
+          <ProtectedRoute>
+            <Wells />
           </ProtectedRoute>
         }
       />
