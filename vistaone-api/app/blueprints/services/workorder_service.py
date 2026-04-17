@@ -23,9 +23,12 @@ class WorkOrderService:
                 k: validated_workorder_data.pop(k, None) for k in address_fields
             }
 
+            # Create workorder object
             work_order = WorkOrder(**validated_workorder_data)
-            if work_order.is_recurring != True:
+
+            if not work_order.is_recurring:
                 work_order.recurrence_type = FrequencyEnum.ONE_TIME.value
+
             work_order.created_by = current_user_id
 
             location_type = validated_workorder_data.get("location_type")
@@ -33,6 +36,11 @@ class WorkOrderService:
             logger.info(f"Validated workorder data: {LocationTypeEnum.ADDRESS}")
             # ---------------- ADDRESS ----------------
             if location_type == LocationTypeEnum.ADDRESS:
+                # clear other location types
+                work_order.latitude = None
+                work_order.longitude = None
+                work_order.well_id = None
+
                 if (
                     not address_data.get("street")
                     or not address_data.get("city")
@@ -43,6 +51,7 @@ class WorkOrderService:
                         "Invalid address location - street, city, state, zip are required"
                     )
 
+                # CREATE address record and link to workorder
                 address = Address(
                     street=address_data.get("street"),
                     city=address_data.get("city"),
@@ -58,6 +67,9 @@ class WorkOrderService:
 
             # ---------------- GPS ----------------
             elif location_type == LocationTypeEnum.GPS:
+                work_order.address_id = None
+                work_order.well_id = None
+
                 if not validated_workorder_data.get(
                     "latitude"
                 ) or not validated_workorder_data.get("longitude"):
@@ -67,8 +79,13 @@ class WorkOrderService:
                 work_order.longitude = validated_workorder_data.get("longitude")
             # ---------------- WELL ----------------
             elif location_type == LocationTypeEnum.WELL:
+                work_order.address_id = None
+                work_order.latitude = None
+                work_order.longitude = None
+
                 if not validated_workorder_data.get("well_id"):
                     raise Exception("well_id is required for WELL location")
+
                 work_order.well_id = validated_workorder_data.get("well_id")
 
             #  Create WorkOrder
@@ -100,9 +117,9 @@ class WorkOrderService:
             if not current_user_id:
                 raise Exception("current_user_id not provided!")
 
-            address_fields = ["street", "city", "state", "zip", "country"]
+            address_fields = ["street", "city", "state", "zip"]
 
-            location_type = data.get("location_type", workorder.location_type)
+            location_type = data.get("location_type") or workorder.location_type
 
             ALLOWED_FIELDS = {
                 "status",
@@ -129,9 +146,8 @@ class WorkOrderService:
                 if key in ALLOWED_FIELDS:
                     setattr(workorder, key, value)
 
-            if hasattr(workorder, "is_recurring"):
-                if workorder.is_recurring is False or workorder.is_recurring == "false":
-                    workorder.recurrence_type = FrequencyEnum.ONE_TIME.value
+            if "is_recurring" in data and not workorder.is_recurring:
+                workorder.recurrence_type = FrequencyEnum.ONE_TIME.value
 
             # ---------------- LOCATION UPDATE LOGIC ----------------
 
@@ -142,6 +158,18 @@ class WorkOrderService:
                 workorder.longitude = None
                 workorder.well_id = None
 
+                # validate required
+                if not workorder.address and not all(
+                    [
+                        data.get("street"),
+                        data.get("city"),
+                        data.get("state"),
+                        data.get("zip"),
+                    ]
+                ):
+                    raise Exception("street, city, state, zip required for ADDRESS")
+
+                # update existing address
                 if workorder.address:
                     for key in address_fields:
                         if key in data:
@@ -150,7 +178,8 @@ class WorkOrderService:
                     workorder.address.last_modified_by = current_user_id
                     workorder.address.last_modified_date = datetime.now()
 
-                elif any(k in data for k in address_fields):
+                # create new address if not exists and address fields provided in update
+                elif all(k in data for k in address_fields):
                     address = Address(
                         street=data.get("street"),
                         city=data.get("city"),

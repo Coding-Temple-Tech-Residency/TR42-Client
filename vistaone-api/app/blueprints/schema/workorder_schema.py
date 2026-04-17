@@ -72,6 +72,38 @@ class WorkOrderSchema(ma.SQLAlchemyAutoSchema):
         if data.get("is_recurring") == True and not data.get("recurrence_type"):
             raise ValidationError("recurrence_type required when is_recurring is TRUE")
 
+    @validates_schema
+    def validate_location(self, data, **kwargs):
+        location_type = data.get("location_type")
+
+        # For PUT (partial update) → skip if not provided
+        if not location_type:
+            return
+
+        has_address = any(
+            [data.get("street"), data.get("city"), data.get("state"), data.get("zip")]
+        )
+        has_gps = data.get("latitude") is not None or data.get("longitude") is not None
+        has_well = data.get("well_id") is not None
+
+        if location_type == LocationTypeEnum.ADDRESS:
+            if not has_address:
+                raise ValidationError("Address fields required")
+            if has_gps or has_well:
+                raise ValidationError("Only ADDRESS allowed")
+
+        elif location_type == LocationTypeEnum.GPS:
+            if not has_gps:
+                raise ValidationError("latitude & longitude required")
+            if has_address or has_well:
+                raise ValidationError("Only GPS allowed")
+
+        elif location_type == LocationTypeEnum.WELL:
+            if not has_well:
+                raise ValidationError("well_id required")
+            if has_address or has_gps:
+                raise ValidationError("Only WELL allowed")
+
 
 workorder_schema = WorkOrderSchema()
 workorders_schema = WorkOrderSchema(many=True)
