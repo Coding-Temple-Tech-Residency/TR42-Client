@@ -7,4 +7,5 @@ __all__ = [
     "users_bp",
     "workorder_bp",
     "vendor_bp",
+    "well_bp"
 ]

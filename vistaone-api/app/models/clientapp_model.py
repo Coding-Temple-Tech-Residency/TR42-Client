@@ -11,16 +11,20 @@ from app.extensions import db
 class Client(db.Model):
     __tablename__ = "clients"
 
-    client_id = mapped_column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    client_id = mapped_column(
+        db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
     name = mapped_column(db.String(255), nullable=False)
     created_by = mapped_column(db.String(100))
     created_date = mapped_column(db.DateTime, server_default=func.now())
     last_modified_by = mapped_column(db.String(100))
     last_modified_date = mapped_column(db.DateTime)
 
+    #  ONE CLIENT → MANY WELLS
+    wells = relationship("Well", back_populates="client")
     workorders = relationship("WorkOrder", back_populates="client")
 
-    address_id = mapped_column(db.String(36), db.ForeignKey("address.address_id"))
+    address_id = mapped_column(db.String(36), db.ForeignKey("address.id"))
     address = relationship("Address")
 
 
@@ -99,20 +103,19 @@ class Vendor(db.Model):
     last_modified_by = mapped_column(db.String(100))
     last_modified_date = mapped_column(db.DateTime)
 
-    # FK to address table
-    address_id = mapped_column(db.String(36), db.ForeignKey("address.address_id"))
-    address = relationship("Address")
-
-    # Existing relationship from work order model
     workorders = relationship("WorkOrder", back_populates="vendor")
 
+    address_id = mapped_column(db.String(36), db.ForeignKey("address.id"))
+    address = relationship("Address")
 
-# ServiceType model - stub for work order FK reference
-# ERD defines a "services" table - will be expanded in a separate feature branch
+
+# incomplete models needs to be added to the database for testing purposes.
 class ServiceType(db.Model):
     __tablename__ = "service_types"
 
-    service_type_id = mapped_column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    service_type_id = mapped_column(
+        db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
+    )
     service = mapped_column(db.String(255), nullable=False)
     created_by = mapped_column(db.String(100))
     created_date = mapped_column(db.DateTime, server_default=func.now())
