@@ -5,16 +5,19 @@ import CreateWorkOrderModal from "../components/CreateWorkOrderModal";
 import "../styles/workorder.css";
 
 const statusOptions = [
-  "all",
-  "pending",
-  "in_progress",
-  "completed",
-  "cancelled",
+  { value: "ALL", label: "All" },
+  { value: "UNASSIGNED", label: "Unassigned" },
+  { value: "ASSIGNED", label: "Assigned" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "CANCELLED", label: "Cancelled" },
+  { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "COMPLETED", label: "Completed" },
+  { value: "CLOSED", label: "Closed" },
 ];
 
 export default function WorkOrders() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [showModal, setShowModal] = useState(false);
   const {
     workOrders,
@@ -33,8 +36,8 @@ export default function WorkOrders() {
     const normalizedSearch = searchTerm.trim().toLowerCase();
     return workOrders.filter((order) => {
       const matchesStatus =
-        statusFilter === "all" ||
-        (order.status && order.status.toLowerCase() === statusFilter);
+        statusFilter === "ALL" ||
+        (order.status && order.status === statusFilter);
       // Search by description, location, or work_order_id
       const matchesSearch =
         order.description?.toLowerCase().includes(normalizedSearch) ||
@@ -75,9 +78,9 @@ export default function WorkOrders() {
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
-          {statusOptions.map((status) => (
-            <option key={status} value={status}>
-              {status}
+          {statusOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
