@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Oil & Gas Messaging Panel</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #0f172a;
+      color: #fff;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #1e293b;
+      padding: 15px;
+    }
+
+    .sidebar h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .channel {
+      padding: 10px;
+      margin-bottom: 5px;
+      background: #334155;
+      cursor: pointer;
+    }
+
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .message {
+      margin-bottom: 10px;
+    }
+
+    .message span {
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    .input-box {
+      display: flex;
+      padding: 10px;
+      background: #ecf1fa;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      padding: 10px;
+      background: #424744;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="sidebar">
+    <h2>Channels</h2>
+    <div class="channel">🛢 Field Ops</div>
+    <div class="channel">⚙️ Maintenance</div>
+    <div class="channel">🚨 Emergency</div>
+  </div>
+
+  <div class="chat">
+    <div class="messages" id="messages"></div>
+
+    <div class="input-box">
+      <input id="msgInput" placeholder="Type message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ws = new WebSocket("ws://localhost:3000");
+
+  ws.onmessage = (event) => {
+    const messages = document.getElementById("messages");
+    const msg = JSON.parse(event.data);
+
+    const div = document.createElement("div");
+    div.classList.add("message");
+    div.innerHTML = `<span>${msg.user}:</span> ${msg.text}`;
+    messages.appendChild(div);
+
+    messages.scrollTop = messages.scrollHeight;
+  };
+
+  function sendMessage() {
+    const input = document.getElementById("msgInput");
+    const message = {
+      user: "Field Engineer",
+      text: input.value
+    };
+
+    ws.send(JSON.stringify(message));
+    input.value = "";
+  }
+</script>
+
+</body>
+</html>
