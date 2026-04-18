@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Webpage Layout</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      display: grid;
+      grid-template-rows: 60px 1fr 40px;
+      grid-template-columns: 250px 1fr;
+      grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+      height: 100vh;
+    }
+
+    header {
+      grid-area: header;
+      background: #1e293b;
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 18px;
+    }
+
+    aside {
+      grid-area: sidebar;
+      background: #334155;
+      color: white;
+      padding: 20px;
+    }
+
+    aside ul {
+      list-style: none;
+    }
+
+    aside li {
+      margin: 15px 0;
+      cursor: pointer;
+    }
+
+    aside li:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      grid-area: main;
+      padding: 20px;
+      background: #f1f5f9;
+      overflow-y: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    footer {
+      grid-area: footer;
+      background: #1e293b;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        grid-template-columns: 1fr;
+        grid-template-rows: 60px auto 1fr 40px;
+        grid-template-areas:
+          "header"
+          "sidebar"
+          "main"
+          "footer";
+      }
+
+      aside {
+        display: flex;
+        overflow-x: auto;
+      }
+
+      aside ul {
+        display: flex;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+
+<aside>
+  <ul>
+    <li>Home</li>
+    <li>Vendor</li>
+    <li>Invoice</li>
+    <li>Jobs</li>
+    <li>Contracts</li>
+    <li>Deliveries</li>
+    <li>Messages</li>
+  </ul>
+</aside>
+
+<main>
+  <div class="card">
+    <body>
+
+<div class="chat-container">
+
+  <title>Vendor Messaging Selector</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+.container {
+    width: 350px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+h2 {
+    margin-bottom: 10px;
+}
+
+.search-box {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.vendor-list {
+    max-height: 100px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+.vendor {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.vendor:hover {
+    background: #f1f1f1;
+}
+
+.vendor.active {
+    background: #007bff;
+    color: white;
+}
+
+button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background: #28a745;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <button id="messageBtn" disabled></button>
+    <h2>
+      <center>
+      <ul>Compose</ul>
+      Vendor or Client</h2>
+  </center>
+
+    <input 
+        type="text" 
+        id="search" 
+        class="search-box" 
+        placeholder="Search..."
+    >
+
+    <div class="vendor-list" id="vendorList">
+        <div class="vendor">Alpha Supplies</div>
+        <div class="vendor">Beta Logistics</div>
+        <div class="vendor">Gamma Traders</div>
+        <div class="vendor">Delta Distributors</div>
+        <div class="vendor">Omega Services</div>
+    </div>
+<button 2 id="messageBtn" disabled></button 2>
+  
+</div>
+
+<script>
+const vendors = document.querySelectorAll('.vendor');
+const search = document.getElementById('search');
+const button = document.getElementById('messageBtn');
+
+let selectedVendor = null;
+
+// Select vendor
+vendors.forEach(vendor => {
+    vendor.addEventListener('click', () => {
+        vendors.forEach(v => v.classList.remove('active'));
+        vendor.classList.add('active');
+
+        selectedVendor = vendor.textContent;
+        button.disabled = false;
+    });
+});
+
+// Search filter
+search.addEventListener('keyup', () => {
+    const value = search.value.toLowerCase();
+
+    vendors.forEach(vendor => {
+        vendor.style.display = vendor.textContent
+            .toLowerCase()
+            .includes(value) ? 'block' : 'none';
+    });
+});
+
+// Message button action
+button.addEventListener('click', () => {
+    if (selectedVendor) {
+        alert(`Messaging ${selectedVendor}`);
+        // Replace with real messaging logic (API call, modal, etc.)
+    }
+});
+</script>
+
+</body>
+  <div class="chat-header">:</div>
+
+  <div class="chat-messages" id="messages"></div>
+
+  <div class="chat-input">
+    <input type="text" id="messageInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<script>
+  function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const messageText = input.value.trim();
+
+    if (messageText === "") return;
+
+    const messagesDiv = document.getElementById("messages");
+
+    const message = document.createElement("div");
+    message.classList.add("message", "sent");
+    message.textContent = messageText;
+
+    messagesDiv.appendChild(message);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    input.value = "";
+
+    // Simulated reply
+    setTimeout(() => {
+      const reply = document.createElement("div");
+      reply.classList.add("message", "received");
+      reply.textContent = "Auto reply: " + messageText;
+
+      messagesDiv.appendChild(reply);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }, 1000);
+  }
+</script>
+
+</body>
+  </div>
+ 
+</main>
+
+
+
+</body>
+</html>
