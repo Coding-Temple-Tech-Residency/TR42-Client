@@ -5,11 +5,13 @@ import Dashboard from "./pages/Dashboard";
 import WorkOrders from "./pages/WorkOrders";
 import Wells from "./pages/Wells";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import RegisterUser from "./pages/RegisterUser";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<RegisterUser />} />
       <Route
         path="/dashboard"
         element={
