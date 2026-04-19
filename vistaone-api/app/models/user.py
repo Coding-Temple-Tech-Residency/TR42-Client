@@ -66,6 +66,8 @@ class User(db.Model):
 
     created_clients = db.relationship("Client", back_populates="created_user")
     updated_clients = db.relationship("Client", back_populates="updated_user")
+    created_address = db.relationship("Address", back_populates="created_user")
+    updated_address = db.relationship("Address", back_populates="updated_user")
 
     def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)

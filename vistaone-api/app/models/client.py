@@ -20,8 +20,8 @@ class Client(db.Model):
     company_contact_number: Mapped[str] = mapped_column(db.String(30), nullable=False)
     company_web_address: Mapped[str] = mapped_column(db.String(100))
 
-    address_id: Mapped[str] = mapped_column(db.String(36), db.ForeignKey("address.id"))
-    address = db.relationship("Address")
+    address_id: Mapped[str] = mapped_column(db.String(36), db.ForeignKey("address.id"), unique=True)
+    address = db.relationship("Address", back_populates="client", uselist=False)
 
     created_by: Mapped[str] = mapped_column(
         db.String(36), db.ForeignKey("user.id"), nullable=False
