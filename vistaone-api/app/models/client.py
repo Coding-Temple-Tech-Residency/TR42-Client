@@ -1,11 +1,10 @@
 from sqlalchemy.orm import mapped_column, Mapped
-from sqlalchemy import DateTime, func
 import uuid
 from app.extensions import db
-from datetime import datetime
+from app.models.audit_mixin import AuditMixin
 
 
-class Client(db.Model):
+class Client(db.Model, AuditMixin):
     __tablename__ = "client"
 
     id: Mapped[str] = mapped_column(
@@ -20,29 +19,13 @@ class Client(db.Model):
     company_contact_number: Mapped[str] = mapped_column(db.String(30), nullable=False)
     company_web_address: Mapped[str] = mapped_column(db.String(100))
 
-    address_id: Mapped[str] = mapped_column(db.String(36), db.ForeignKey("address.id"), unique=True)
-    address = db.relationship("Address", back_populates="client", uselist=False)
-
-    created_by: Mapped[str] = mapped_column(
-        db.String(36), db.ForeignKey("user.id"), nullable=False
+    address_id: Mapped[str] = mapped_column(
+        db.String(36), db.ForeignKey("address.id"), unique=True
     )
-    created_user = db.relationship("User", back_populates="created_clients")
+    address = db.relationship("Address")
 
-    updated_by: Mapped[str] = mapped_column(
-        db.String(36), db.ForeignKey("user.id"), nullable=False
+    users = db.relationship(
+        "User", foreign_keys="User.client_id", back_populates="client"
     )
-    updated_user = db.relationship("User", back_populates="updated_clients")
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False,
-    )
-
     wells = db.relationship("Well", back_populates="client")
     workorders = db.relationship("WorkOrder", back_populates="client")

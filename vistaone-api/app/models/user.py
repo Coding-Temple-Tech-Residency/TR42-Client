@@ -1,13 +1,14 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import DateTime, func, Date
+from sqlalchemy import Date
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.extensions import db
 import uuid
 from app.blueprints.enum.enums import UserType, UserStatus
-from datetime import date, datetime
+from datetime import date
+from app.models.audit_mixin import AuditMixin
 
 
-class User(db.Model):
+class User(db.Model, AuditMixin):
     __tablename__ = "user"
 
     id: Mapped[str] = mapped_column(
@@ -27,47 +28,15 @@ class User(db.Model):
     contact_number: Mapped[str] = mapped_column(db.String(30), nullable=False)
     alternate_number: Mapped[str] = mapped_column(db.String(30))
 
-    company_id: Mapped[str] = mapped_column(
+    client_id: Mapped[str] = mapped_column(
         db.String(36), db.ForeignKey("client.id"), nullable=False
     )
-    company = db.relationship("Client", back_populates="users")
+    client = db.relationship("Client", foreign_keys=[client_id], back_populates="users")
 
     address_id: Mapped[str] = mapped_column(
         db.String(36), db.ForeignKey("address.id"), nullable=False
     )
-    address = db.relationship("Address", back_populates="users")
-
-    created_by: Mapped[str] = mapped_column(db.String(36), db.ForeignKey("user.id"))
-    creator = db.relationship(
-        "User",
-        foreign_keys=[created_by],
-        remote_side=[id],
-        back_populates="created_users",
-    )
-
-    updated_by: Mapped[str] = mapped_column(db.String(36), db.ForeignKey("user.id"))
-    updater = db.relationship(
-        "User",
-        foreign_keys=[updated_by],
-        remote_side=[id],
-        back_populates="updated_users",
-    )
-
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
-
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False,
-    )
-
-    created_clients = db.relationship("Client", back_populates="created_user")
-    updated_clients = db.relationship("Client", back_populates="updated_user")
-    created_address = db.relationship("Address", back_populates="created_user")
-    updated_address = db.relationship("Address", back_populates="updated_user")
+    address = db.relationship("Address", foreign_keys=[address_id])
 
     def set_password(self, raw_password: str) -> None:
         self.password_hash = generate_password_hash(raw_password)
