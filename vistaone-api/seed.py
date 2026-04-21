@@ -7,11 +7,22 @@ from app import create_app
 from app.extensions import db
 from app.models.user import User
 from app.models.vendor import Vendor
+from app.models.client import Client
 from app.blueprints.enum.enums import VendorStatus, ComplianceStatus
 
 app = create_app("DevelopmentConfig")
 
 with app.app_context():
+
+    # Create a client company for the demo user
+    existing_client = db.session.query(Client).filter_by(client_id="1").first()
+    if not existing_client:
+        client = Client(client_id="1", name="VistaOne Energy", created_by="system")
+        db.session.add(client)
+        db.session.commit()
+        print("Created client: VistaOne Energy (id=1)")
+    else:
+        print("Client already exists: VistaOne Energy")
 
     # Create a demo user if one does not exist
     existing_user = db.session.query(User).filter_by(email="admin@vistaone.com").first()

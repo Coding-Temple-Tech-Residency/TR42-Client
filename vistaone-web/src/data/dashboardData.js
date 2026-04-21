@@ -121,9 +121,10 @@ export const sidebarNav = {
     { to: '/wells', label: "Oil Wells", icon: "list", active: false },
     { to: '/workorders', label: "Work Orders", icon: "clipboard", active: false },
     { label: "Invoices", icon: "file", active: false },
+    { to: "/vendor-favorites", label: "Vendors", icon: "users", active: false },
   ],
   account: [
-    { to: "/vendors", label: "Vendors", icon: "users", active: false },
+    { to: "/vendor-marketplace", label: "Vendor Marketplace", icon: "users", active: false },
     { to: "/contracts", label: "Contracts / MSA", icon: "folder", active: false },
   ],
 };
