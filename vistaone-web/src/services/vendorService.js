@@ -46,4 +46,36 @@ export const vendorService = {
     }
     return await response.json();
   },
+
+  getFavorites: async (clientId) => {
+    const response = await authFetch(`${VENDOR_ENDPOINT}/favorites/${clientId}`, {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch favorites");
+    }
+    return await response.json();
+  },
+
+  addFavorite: async (clientId, vendorId) => {
+    const response = await authFetch(`${VENDOR_ENDPOINT}/favorites`, {
+      method: "POST",
+      body: JSON.stringify({ client_id: clientId, vendor_id: vendorId }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add favorite");
+    }
+    return await response.json();
+  },
+
+  removeFavorite: async (clientId, vendorId) => {
+    const response = await authFetch(
+      `${VENDOR_ENDPOINT}/favorites/${clientId}/${vendorId}`,
+      { method: "DELETE" }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to remove favorite");
+    }
+    return await response.json();
+  },
 };

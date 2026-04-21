@@ -17,14 +17,23 @@ const complianceOptions = [
   { value: "expired", label: "Expired" },
 ];
 
+const sortOptions = [
+  { value: "name-asc", label: "Name A-Z" },
+  { value: "name-desc", label: "Name Z-A" },
+  { value: "status", label: "Status" },
+  { value: "compliance", label: "Compliance" },
+];
+
 export default function Vendors() {
   const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [complianceFilter, setComplianceFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("name-asc");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -36,15 +45,40 @@ export default function Vendors() {
     description: "",
   });
 
+  // Client ID from the logged-in user's company
+  // For now using the first client in the system
+  const [clientId, setClientId] = useState(null);
+
   useEffect(() => {
-    fetchVendors();
+    fetchData();
   }, []);
 
-  const fetchVendors = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await vendorService.getAll();
-      setVendors(data);
+      const allVendors = await vendorService.getAll();
+      setVendors(allVendors);
+
+      // Try to load favorites if a client exists
+      try {
+        const res = await fetch("/api/clients", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        });
+        if (res.ok) {
+          const clients = await res.json();
+          if (clients.length > 0) {
+            const cid = clients[0].client_id;
+            setClientId(cid);
+            const favs = await vendorService.getFavorites(cid);
+            setFavoriteIds(new Set(favs.map((v) => v.vendor_id)));
+          }
+        }
+      } catch {
+        // No client endpoint yet or no clients - favorites disabled
+      }
+
       setError("");
     } catch (err) {
       setError("Failed to load vendors");
@@ -53,9 +87,29 @@ export default function Vendors() {
     }
   };
 
-  const filteredVendors = useMemo(() => {
+  const handleToggleFavorite = async (vendorId) => {
+    if (!clientId) return;
+    try {
+      if (favoriteIds.has(vendorId)) {
+        await vendorService.removeFavorite(clientId, vendorId);
+        setFavoriteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(vendorId);
+          return next;
+        });
+      } else {
+        await vendorService.addFavorite(clientId, vendorId);
+        setFavoriteIds((prev) => new Set(prev).add(vendorId));
+      }
+    } catch (err) {
+      setError("Failed to update favorites");
+    }
+  };
+
+  // Filter and sort vendors
+  const processedVendors = useMemo(() => {
     const search = searchTerm.trim().toLowerCase();
-    return vendors.filter((v) => {
+    const filtered = vendors.filter((v) => {
       const matchesStatus =
         statusFilter === "ALL" || v.status === statusFilter;
       const matchesCompliance =
@@ -67,7 +121,28 @@ export default function Vendors() {
         (v.description || "").toLowerCase().includes(search);
       return matchesStatus && matchesCompliance && matchesSearch;
     });
-  }, [vendors, searchTerm, statusFilter, complianceFilter]);
+
+    // Sort
+    return filtered.sort((a, b) => {
+      if (sortBy === "name-asc")
+        return (a.company_name || "").localeCompare(b.company_name || "");
+      if (sortBy === "name-desc")
+        return (b.company_name || "").localeCompare(a.company_name || "");
+      if (sortBy === "status")
+        return (a.status || "").localeCompare(b.status || "");
+      if (sortBy === "compliance")
+        return (a.compliance_status || "").localeCompare(b.compliance_status || "");
+      return 0;
+    });
+  }, [vendors, searchTerm, statusFilter, complianceFilter, sortBy]);
+
+  // Split into favorites and marketplace
+  const favoriteVendors = processedVendors.filter((v) =>
+    favoriteIds.has(v.vendor_id)
+  );
+  const marketplaceVendors = processedVendors.filter(
+    (v) => !favoriteIds.has(v.vendor_id)
+  );
 
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -75,9 +150,7 @@ export default function Vendors() {
 
   const handleCreateVendor = async (e) => {
     e.preventDefault();
-    if (!formData.company_name.trim() || !formData.company_email.trim()) {
-      return;
-    }
+    if (!formData.company_name.trim() || !formData.company_email.trim()) return;
     try {
       setCreating(true);
       await vendorService.create(formData);
@@ -90,7 +163,7 @@ export default function Vendors() {
         description: "",
       });
       setShowCreateForm(false);
-      fetchVendors();
+      fetchData();
     } catch (err) {
       setError("Failed to create vendor");
     } finally {
@@ -98,10 +171,79 @@ export default function Vendors() {
     }
   };
 
+  const renderVendorTable = (vendorList, isFavorites) => (
+    <table className="vendors-table">
+      <thead>
+        <tr>
+          {clientId && <th></th>}
+          <th>Company</th>
+          <th>Code</th>
+          <th>Contact</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Compliance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {vendorList.map((vendor) => (
+          <tr key={vendor.vendor_id} className="vendors-row-clickable">
+            {clientId && (
+              <td>
+                <button
+                  className={`vendors-fav-btn ${
+                    favoriteIds.has(vendor.vendor_id) ? "is-fav" : ""
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleFavorite(vendor.vendor_id);
+                  }}
+                  title={
+                    favoriteIds.has(vendor.vendor_id)
+                      ? "Remove from favorites"
+                      : "Add to favorites"
+                  }
+                >
+                  {favoriteIds.has(vendor.vendor_id) ? "★" : "☆"}
+                </button>
+              </td>
+            )}
+            <td
+              className="vendors-name-cell"
+              onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}
+            >
+              {vendor.company_name || vendor.name}
+            </td>
+            <td onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}>
+              {vendor.company_code || "-"}
+            </td>
+            <td onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}>
+              {vendor.primary_contact_name || "-"}
+            </td>
+            <td onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}>
+              {vendor.company_email || "-"}
+            </td>
+            <td onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}>
+              <span className={`status-badge status-${vendor.status}`}>
+                {vendor.status}
+              </span>
+            </td>
+            <td onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}>
+              <span
+                className={`status-badge compliance-${vendor.compliance_status}`}
+              >
+                {vendor.compliance_status}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
   return (
     <AppShell
       title="Vendor Marketplace"
-      subtitle="Browse and manage vendors"
+      subtitle="Browse, search, and manage vendors"
       loading={loading}
       loadingText="Loading vendors..."
     >
@@ -132,6 +274,17 @@ export default function Vendors() {
           onChange={(e) => setComplianceFilter(e.target.value)}
         >
           {complianceOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <select
+          className="vendors-filter"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          {sortOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
@@ -234,51 +387,34 @@ export default function Vendors() {
         </section>
       )}
 
-      <section className="vendors-table-wrap">
-        {!loading && filteredVendors.length === 0 ? (
-          <div className="vendors-state">No vendors found</div>
-        ) : (
-          <table className="vendors-table">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Code</th>
-                <th>Contact</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Compliance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredVendors.map((vendor) => (
-                <tr
-                  key={vendor.vendor_id}
-                  className="vendors-row-clickable"
-                  onClick={() => navigate(`/vendors/${vendor.vendor_id}`)}
-                >
-                  <td>{vendor.company_name || vendor.name}</td>
-                  <td>{vendor.company_code || "-"}</td>
-                  <td>{vendor.primary_contact_name || "-"}</td>
-                  <td>{vendor.company_email || "-"}</td>
-                  <td>
-                    <span
-                      className={`status-badge status-${vendor.status}`}
-                    >
-                      {vendor.status}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`status-badge compliance-${vendor.compliance_status}`}
-                    >
-                      {vendor.compliance_status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      {/* My Vendors - favorites section */}
+      {favoriteVendors.length > 0 && (
+        <section className="vendors-section">
+          <h2 className="vendors-section-title">My Vendors</h2>
+          <p className="vendors-section-count">
+            {favoriteVendors.length} favorite
+            {favoriteVendors.length !== 1 ? "s" : ""}
+          </p>
+          <div className="vendors-table-wrap">
+            {renderVendorTable(favoriteVendors, true)}
+          </div>
+        </section>
+      )}
+
+      {/* Vendor Marketplace - all vendors */}
+      <section className="vendors-section">
+        <h2 className="vendors-section-title">Vendor Marketplace</h2>
+        <p className="vendors-section-count">
+          {marketplaceVendors.length} vendor
+          {marketplaceVendors.length !== 1 ? "s" : ""} available
+        </p>
+        <div className="vendors-table-wrap">
+          {!loading && marketplaceVendors.length === 0 ? (
+            <div className="vendors-state">No vendors found</div>
+          ) : (
+            renderVendorTable(marketplaceVendors, false)
+          )}
+        </div>
       </section>
     </AppShell>
   );
