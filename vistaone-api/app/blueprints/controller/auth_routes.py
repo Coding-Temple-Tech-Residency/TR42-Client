@@ -2,6 +2,7 @@ from flask import request, jsonify, Blueprint
 from marshmallow import ValidationError
 from app.extensions import limiter
 from app.blueprints.schema.auth_schema import login_schema
+from app.blueprints.schema.register_user_schema import register_user_schema
 from app.blueprints.services.auth_service import LoginService
 from app.utils.util import token_required
 import logging
@@ -45,3 +46,21 @@ def logout(user_id):
     logger.info(f"Logout response: {response}, Status Code: {status_code}")
     response = {"status": "success", "message": "Successfully logged out"}
     return jsonify(response), status_code
+
+
+@users_bp.route("/register", methods=["POST"])
+def register_user():
+    user_data = request.get_json()
+    try:
+        user_data = register_user_schema.load(user_data)
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    user = LoginService.register_user(user_data)
+    return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
+
+
+@users_bp.route("/verify-email", methods=["GET"])
+def verify_email():
+    token = request.args.get("token")
+    result, status = LoginService.verify_email(token)
+    return jsonify(result), status
