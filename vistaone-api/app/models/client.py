@@ -17,7 +17,7 @@ class Client(db.Model, AuditMixin):
     primary_contact_name: Mapped[str] = mapped_column(db.String(80), nullable=False)
     company_email: Mapped[str] = mapped_column(db.String(100), nullable=False)
     company_contact_number: Mapped[str] = mapped_column(db.String(30), nullable=False)
-    company_web_address: Mapped[str] = mapped_column(db.String(100))
+    company_web_address: Mapped[str] = mapped_column(db.String(100), nullable=True)
 
     address_id: Mapped[str] = mapped_column(
         db.String(36), db.ForeignKey("address.id"), unique=True
