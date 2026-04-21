@@ -2,7 +2,6 @@ from sqlalchemy.orm import mapped_column, relationship, Mapped
 import uuid
 from app.extensions import db
 from app.blueprints.enum.enums import VendorStatus, ComplianceStatus
-from app.models.vendor_service import vendor_service
 from app.models.audit_mixin import AuditMixin
 
 
@@ -43,7 +42,6 @@ class Vendor(db.Model, AuditMixin):
     address_id = mapped_column(db.String(36), db.ForeignKey("address.id"))
     address = relationship("Address")
 
-    service_types: Mapped[list["ServiceType"]] = db.relationship(
-        secondary=vendor_service, back_populates="vendors"
-    )
     workorders = relationship("WorkOrder", back_populates="vendor")
+
+    vendor_services = relationship("VendorService", back_populates="vendor")

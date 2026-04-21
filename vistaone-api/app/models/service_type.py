@@ -1,7 +1,6 @@
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 import uuid
 from app.extensions import db
-from app.models.vendor_service import vendor_service
 from app.models.audit_mixin import AuditMixin
 
 
@@ -13,6 +12,5 @@ class ServiceType(db.Model, AuditMixin):
     )
     service = mapped_column(db.String(255), nullable=False)
 
-    vendors: Mapped[list["Vendor"]] = db.relationship(
-        secondary=vendor_service, back_populates="service_types"
-    )
+    ## Relationships
+    vendor_services = relationship("VendorService", back_populates="service_type")

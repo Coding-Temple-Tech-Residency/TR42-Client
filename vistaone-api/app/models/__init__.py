@@ -5,7 +5,7 @@ from .well import Well
 from .vendor import Vendor
 from .client import Client
 from .service_type import ServiceType
-from .vendor_service import vendor_service
+from .vendor_service import VendorService
 from app.blueprints.enum.enums import (
     StatusEnum,
     PriorityEnum,
