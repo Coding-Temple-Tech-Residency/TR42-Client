@@ -17,3 +17,15 @@ class UserRepository:
         except SQLAlchemyError:
             db.session.rollback()
             raise
+
+    @staticmethod
+    def update_user_status(user, status):
+        from app.extensions import db
+
+        user.status = status
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            raise
+        return user
