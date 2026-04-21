@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRegisterUser } from "../hooks/useRegisterUser";
 import { companies } from "../data/companies";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -22,39 +23,34 @@ const initialState = {
   password: "",
   confirmPassword: "",
   email: "",
-  profilePhoto: null,
-  firstName: "",
-  lastName: "",
-  middleName: "",
-  contactNumber: "",
-  alternateNumber: "",
-  dob: "",
-  ssnLastFour: "",
-  addressLine1: "",
+  first_name: "",
+  last_name: "",
+  middle_name: "",
+  contact_number: "",
+  alternate_number: "",
+  date_of_birth: "",
+  ssn_last_four: "",
+  street: "",
   city: "",
   state: "",
   zip: "",
   country: "",
-  companyId: "",
+  client_id: "",
 };
 
 function RegisterUser() {
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
-  const [photoPreview, setPhotoPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [step, setStep] = useState(1);
   const [registrationComplete, setRegistrationComplete] = useState(false);
 
+  const { submitRegistration, loading, error, success } = useRegisterUser();
+
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "profilePhoto") {
-      setFormData({ ...formData, profilePhoto: files[0] });
-      setPhotoPreview(files[0] ? URL.createObjectURL(files[0]) : null);
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
     if (errors[name]) {
       setErrors({ ...errors, [name]: "" });
     }
@@ -69,7 +65,7 @@ function RegisterUser() {
     const password = formData.password;
     const confirmPassword = formData.confirmPassword;
 
-    if (!formData.companyId) newErrors.companyId = "Company is required";
+    if (!formData.client_id) newErrors.client_id = "Company is required";
 
     if (!username) {
       newErrors.username = "Username is required";
@@ -105,53 +101,53 @@ function RegisterUser() {
   function validateStep2() {
     const newErrors = {};
 
-    const firstName = formData.firstName.trim();
-    const middleName = formData.middleName.trim();
-    const lastName = formData.lastName.trim();
-    const contactNumber = formData.contactNumber.trim();
-    const alternateNumber = formData.alternateNumber.trim();
-    const dob = formData.dob;
-    const ssnLastFour = formData.ssnLastFour.trim();
-    const addressLine1 = formData.addressLine1.trim();
+    const first_name = formData.first_name.trim();
+    const middle_name = formData.middle_name.trim();
+    const last_name = formData.last_name.trim();
+    const contact_number = formData.contact_number.trim();
+    const alternate_number = formData.alternate_number.trim();
+    const date_of_birth = formData.date_of_birth;
+    const ssn_last_four = formData.ssn_last_four.trim();
+    const street = formData.street.trim();
     const city = formData.city.trim();
     const state = formData.state.trim();
     const zip = formData.zip.trim();
     const country = formData.country.trim();
 
-    if (!firstName) {
-      newErrors.firstName = "First name is required";
-    } else if (!/^[a-zA-Z\s'-]+$/.test(firstName)) {
-      newErrors.firstName = "Only letters are allowed";
+    if (!first_name) {
+      newErrors.first_name = "First name is required";
+    } else if (!/^[a-zA-Z\s'-]+$/.test(first_name)) {
+      newErrors.first_name = "Only letters are allowed";
     }
 
-    if (!lastName) {
-      newErrors.lastName = "Last name is required";
-    } else if (!/^[a-zA-Z\s'-]+$/.test(lastName)) {
-      newErrors.lastName = "Only letters are allowed";
+    if (!last_name) {
+      newErrors.last_name = "Last name is required";
+    } else if (!/^[a-zA-Z\s'-]+$/.test(last_name)) {
+      newErrors.last_name = "Only letters are allowed";
     }
 
-    if (middleName && !/^[a-zA-Z\s'-]+$/.test(middleName)) {
-      newErrors.middleName = "Only letters are allowed";
+    if (middle_name && !/^[a-zA-Z\s'-]+$/.test(middle_name)) {
+      newErrors.middle_name = "Only letters are allowed";
     }
 
-    if (!contactNumber) {
-      newErrors.contactNumber = "Contact number is required";
-    } else if (!/^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/.test(contactNumber)) {
-      newErrors.contactNumber = "Invalid phone number";
+    if (!contact_number) {
+      newErrors.contact_number = "Contact number is required";
+    } else if (!/^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/.test(contact_number)) {
+      newErrors.contact_number = "Invalid phone number";
     }
 
     if (
-      alternateNumber &&
-      !/^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/.test(alternateNumber)
+      alternate_number &&
+      !/^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/.test(alternate_number)
     ) {
-      newErrors.alternateNumber = "Invalid alternate number";
+      newErrors.alternate_number = "Invalid alternate number";
     }
 
-    if (!dob) {
-      newErrors.dob = "Date of birth is required";
+    if (!date_of_birth) {
+      newErrors.date_of_birth = "Date of birth is required";
     } else {
       const today = new Date();
-      const birthDate = new Date(dob);
+      const birthDate = new Date(date_of_birth);
       let age = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();
 
@@ -160,20 +156,20 @@ function RegisterUser() {
       }
 
       if (age < 18) {
-        newErrors.dob = "You must be at least 18 years old";
+        newErrors.date_of_birth = "You must be at least 18 years old";
       }
     }
 
-    if (ssnLastFour && !/^\d{4}$/.test(ssnLastFour)) {
-      newErrors.ssnLastFour = "Must be 4 digits";
-    } else if (ssnLastFour && ssnLastFour === "0000") {
-      newErrors.ssnLastFour = "Invalid SSN";
+    if (ssn_last_four && !/^\d{4}$/.test(ssn_last_four)) {
+      newErrors.ssn_last_four = "Must be 4 digits";
+    } else if (ssn_last_four && ssn_last_four === "0000") {
+      newErrors.ssn_last_four = "Invalid SSN";
     }
 
-    if (!addressLine1) {
-      newErrors.addressLine1 = "Address line 1 is required";
-    } else if (addressLine1.length < 5) {
-      newErrors.addressLine1 = "Address is too short";
+    if (!street) {
+      newErrors.street = "Street is required";
+    } else if (street.length < 5) {
+      newErrors.street = "Address is too short";
     }
 
     if (!city) {
@@ -214,15 +210,14 @@ function RegisterUser() {
     setStep(1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep2()) return;
-    // TODO: Send formData to backend
-    // On successful backend response:
-    setRegistrationComplete(true);
+    await submitRegistration(formData);
+    if (success) setRegistrationComplete(true);
   };
 
-  const selectedCompany = companies.find((c) => c.id === formData.companyId);
+  const selectedCompany = companies.find((c) => c.id === formData.client_id);
 
   return (
     <div className="login-page position-relative overflow-hidden">
@@ -260,6 +255,21 @@ function RegisterUser() {
           {/* Right registration panel */}
           <section className="col-lg-5 order-1 order-md-2 d-flex align-items-center justify-content-center px-4 px-lg-5 py-5">
             <div className="login-panel w-100 shadow-lg">
+              {error && (
+                <div className="alert alert-danger" role="alert">
+                  {error}
+                </div>
+              )}
+              {loading && (
+                <div className="text-center mb-3">
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>{" "}
+                  Registering...
+                </div>
+              )}
               {registrationComplete ? (
                 <div className="text-center py-5">
                   <h2 className="mb-3">Registration Successful!</h2>
@@ -282,10 +292,10 @@ function RegisterUser() {
                           Company
                         </label>
                         <select
-                          name="companyId"
-                          value={formData.companyId}
+                          name="client_id"
+                          value={formData.client_id}
                           onChange={handleChange}
-                          className={`form-select${errors.companyId ? " is-invalid" : ""}`}
+                          className={`form-select${errors.client_id ? " is-invalid" : ""}`}
                         >
                           <option value="">Select your company</option>
                           {companies.map((c) => (
@@ -294,9 +304,9 @@ function RegisterUser() {
                             </option>
                           ))}
                         </select>
-                        {errors.companyId && (
+                        {errors.client_id && (
                           <div className="invalid-feedback d-block">
-                            {errors.companyId}
+                            {errors.client_id}
                           </div>
                         )}
                         {/* Show company web address if available */}
@@ -449,31 +459,6 @@ function RegisterUser() {
                   )}
                   {step === 2 && (
                     <form onSubmit={handleSubmit} noValidate>
-                      {/* Profile Photo */}
-                      <div className="mb-3">
-                        <label className="form-label login-label">
-                          Profile Photo
-                        </label>
-                        <div className="input-group login-input-group">
-                          <span className="input-group-text">
-                            <ImageIcon size={18} />
-                          </span>
-                          <input
-                            type="file"
-                            name="profilePhoto"
-                            accept="image/*"
-                            className="form-control"
-                            onChange={handleChange}
-                          />
-                        </div>
-                        {photoPreview && (
-                          <img
-                            src={photoPreview}
-                            alt="Preview"
-                            className="profile-photo-preview mt-2"
-                          />
-                        )}
-                      </div>
                       {/* First, Middle, Last Name */}
                       <div className="row g-2">
                         <div className="col-md-4 mb-3">
@@ -482,8 +467,8 @@ function RegisterUser() {
                           </label>
                           <input
                             type="text"
-                            name="firstName"
-                            value={formData.firstName}
+                            name="first_name"
+                            value={formData.first_name}
                             onChange={handleChange}
                             className={`form-control${errors.firstName ? " is-invalid" : ""}`}
                             placeholder="First name"
@@ -500,8 +485,8 @@ function RegisterUser() {
                           </label>
                           <input
                             type="text"
-                            name="middleName"
-                            value={formData.middleName}
+                            name="middle_name"
+                            value={formData.middle_name}
                             onChange={handleChange}
                             className="form-control"
                             placeholder="Middle name (optional)"
@@ -518,15 +503,15 @@ function RegisterUser() {
                           </label>
                           <input
                             type="text"
-                            name="lastName"
-                            value={formData.lastName}
+                            name="last_name"
+                            value={formData.last_name}
                             onChange={handleChange}
-                            className={`form-control${errors.lastName ? " is-invalid" : ""}`}
+                            className={`form-control${errors.last_name ? " is-invalid" : ""}`}
                             placeholder="Last name"
                           />
-                          {errors.lastName && (
+                          {errors.last_name && (
                             <div className="invalid-feedback d-block">
-                              {errors.lastName}
+                              {errors.last_name}
                             </div>
                           )}
                         </div>
@@ -543,16 +528,16 @@ function RegisterUser() {
                             </span>
                             <input
                               type="tel"
-                              name="contactNumber"
-                              value={formData.contactNumber}
+                              name="contact_number"
+                              value={formData.contact_number}
                               onChange={handleChange}
-                              className={`form-control${errors.contactNumber ? " is-invalid" : ""}`}
+                              className={`form-control${errors.contact_number ? " is-invalid" : ""}`}
                               placeholder="(555) 123-4567"
                             />
                           </div>
-                          {errors.contactNumber && (
+                          {errors.contact_number && (
                             <div className="invalid-feedback d-block">
-                              {errors.contactNumber}
+                              {errors.contact_number}
                             </div>
                           )}
                         </div>
@@ -566,16 +551,16 @@ function RegisterUser() {
                             </span>
                             <input
                               type="tel"
-                              name="alternateNumber"
-                              value={formData.alternateNumber}
+                              name="alternate_number"
+                              value={formData.alternate_number}
                               onChange={handleChange}
-                              className="form-control"
+                              className={`form-control${errors.alternate_number ? " is-invalid" : ""}`}
                               placeholder="(555) 987-6543 (optional)"
                             />
                           </div>
-                          {errors.alternateNumber && (
+                          {errors.alternate_number && (
                             <div className="invalid-feedback d-block">
-                              {errors.alternateNumber}
+                              {errors.alternate_number}
                             </div>
                           )}
                         </div>
@@ -592,15 +577,15 @@ function RegisterUser() {
                             </span>
                             <input
                               type="date"
-                              name="dob"
-                              value={formData.dob}
+                              name="date_of_birth"
+                              value={formData.date_of_birth}
                               onChange={handleChange}
-                              className={`form-control${errors.dob ? " is-invalid" : ""}`}
+                              className={`form-control${errors.date_of_birth ? " is-invalid" : ""}`}
                             />
                           </div>
-                          {errors.dob && (
+                          {errors.date_of_birth && (
                             <div className="invalid-feedback d-block">
-                              {errors.dob}
+                              {errors.date_of_birth}
                             </div>
                           )}
                         </div>
@@ -614,17 +599,17 @@ function RegisterUser() {
                             </span>
                             <input
                               type="text"
-                              name="ssnLastFour"
+                              name="ssn_last_four"
                               maxLength={4}
-                              value={formData.ssnLastFour}
+                              value={formData.ssn_last_four}
                               onChange={handleChange}
-                              className={`form-control${errors.ssnLastFour ? " is-invalid" : ""}`}
+                              className={`form-control${errors.ssn_last_four ? " is-invalid" : ""}`}
                               placeholder="1234"
                             />
                           </div>
-                          {errors.ssnLastFour && (
+                          {errors.ssn_last_four && (
                             <div className="invalid-feedback d-block">
-                              {errors.ssnLastFour}
+                              {errors.ssn_last_four}
                             </div>
                           )}
                         </div>
@@ -640,16 +625,16 @@ function RegisterUser() {
                           </span>
                           <input
                             type="text"
-                            name="addressLine1"
-                            value={formData.addressLine1}
+                            name="street"
+                            value={formData.street}
                             onChange={handleChange}
-                            className={`form-control${errors.addressLine1 ? " is-invalid" : ""}`}
+                            className={`form-control${errors.street ? " is-invalid" : ""}`}
                             placeholder="123 Main St"
                           />
                         </div>
-                        {errors.addressLine1 && (
+                        {errors.street && (
                           <div className="invalid-feedback d-block">
-                            {errors.addressLine1}
+                            {errors.street}
                           </div>
                         )}
                       </div>
