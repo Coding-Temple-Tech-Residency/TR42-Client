@@ -73,10 +73,10 @@ export const authService = {
 
     verifyEmail: async (token) => {
         try {
-            const response = await fetch(`VERIFY_EMAIL_ENDPOINT?token=${token}`);
+            const response = await fetch(`${VERIFY_EMAIL_ENDPOINT}?token=${token}`);
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) {
-                throw new Error(payload?.message || 'Verification failed.');
+                return { success: false, message: payload?.message || 'Verification failed.' };
             }
             return { success: true, message: payload.message };
         } catch (err) {
