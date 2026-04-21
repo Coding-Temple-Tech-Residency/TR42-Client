@@ -1,3 +1,11 @@
+from app.blueprints.repository.user_repository import UserRepository
+from app.blueprints.repository.address_repository import AddressRepository
+from app.models.user import User
+from app.blueprints.enum.enums import UserStatus, UserType
+from app.utils.email_util import send_verification_email
+import itsdangerous
+from flask import current_app
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 from app.utils.util import encode_token, token_required
 from app.blueprints.repository.auth_repository import LoginRepository
 from app.utils.token_blacklist import blacklist
@@ -8,28 +16,27 @@ import logging
 
 
 # Load secret from environment
-SECRET_KEY = os.environ.get('SECRET_KEY') or "custom key"
+SECRET_KEY = os.environ.get("SECRET_KEY") or "custom key"
+logger = logging.getLogger()
 
-logger= logging.getLogger()
 
 class LoginService:
     @staticmethod
     def login_user(email, password):
         user = LoginRepository.get_user_by_email(email)
 
-        if user and user.check_password(password): # ensure password hash check
-        
+        if user and user.check_password(password):  # ensure password hash check
+
             logger.info(f"User logged in: {user.id}")
             token = encode_token(user.id)
 
             return {
                 "status": "success",
                 "message": "Successfully Logged In",
-                "token": token
+                "token": token,
             }, 200
 
         return {"message": "Invalid email or password"}, 401
-    
 
     @staticmethod
     @token_required
@@ -38,24 +45,51 @@ class LoginService:
 
         # Extract token from request
         token = None
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split(" ")[1]
 
         if not token:
-            return ({'message': 'Token is missing!'}), 401 
+            return ({"message": "Token is missing!"}), 401
 
         try:
-            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         except Exception:
             return {"message": "Invalid token!"}, 401
-        
+
         jti = data.get("jti")
         if jti:
-                if jti in blacklist:
-                    logger.warning(f"Attempted logout with already revoked token: {jti}")
-                    return {"message": "Token has already been revoked!"}, 401
-                blacklist.add(jti)
-                logger.info(f"Token revoked for user {user_id}: token revoked {jti}")
+            if jti in blacklist:
+                logger.warning(f"Attempted logout with already revoked token: {jti}")
+                return {"message": "Token has already been revoked!"}, 401
+            blacklist.add(jti)
+            logger.info(f"Token revoked for user {user_id}: token revoked {jti}")
 
         return {"status": "success", "message": "Successfully logged out"}, 200
 
+    @staticmethod
+    def register_user(user_data):
+        address_fields = ["street", "city", "state", "zip", "country"]
+        address_data = {}
+        if "address" in user_data and isinstance(user_data["address"], dict):
+            for k in address_fields:
+                address_data[k] = user_data["address"].get(k, "")
+        else:
+            for k in address_fields:
+                address_data[k] = ""
+        # Get or create address
+        address = AddressRepository.get_or_create_address(address_data)
+        user_data["address_id"] = address.id
+        password = user_data.pop("password", None)
+        user_data["status"] = UserStatus.PENDING_EMAIL_VERIFICATION
+
+        user_data["user_type"] = UserType.CLIENT
+        user_data.pop("address", None)
+        user = User(**user_data)
+        if password:
+            user.set_password(password)
+        created_user = UserRepository.create_user(user)
+        # Generate a token for email verification
+        s = itsdangerous.URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
+        token = s.dumps(created_user.email, salt="email-verify")
+        send_verification_email(created_user, token)
+        return created_user
