@@ -55,7 +55,10 @@ def register_user():
         user_data = register_user_schema.load(user_data)
     except ValidationError as e:
         return jsonify(e.messages), 400
-    user = LoginService.register_user(user_data)
+    result, status = LoginService.register_user(user_data)
+    if status != 201:
+        return jsonify(result), status
+    user = result
     return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
 
 

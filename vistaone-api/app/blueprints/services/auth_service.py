@@ -87,6 +87,17 @@ class LoginService:
 
     @staticmethod
     def register_user(user_data):
+        # Check for duplicate email
+        existing_user = UserRepository.get_user_by_email(user_data["email"])
+        if existing_user:
+            return {"message": "A user with this email is already registered."}, 409
+
+        # Check for duplicate username
+        from app.models.user import User as UserModel
+
+        if UserModel.query.filter_by(username=user_data["username"]).first():
+            return {"message": "A user with this username is already registered."}, 409
+
         address_fields = ["street", "city", "state", "zip", "country"]
         address_data = {}
         if "address" in user_data and isinstance(user_data["address"], dict):
@@ -111,7 +122,7 @@ class LoginService:
         s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
         token = s.dumps(created_user.email, salt="email-verify")
         send_verification_email(created_user, token)
-        return created_user
+        return created_user, 201
 
     @staticmethod
     def verify_email(token):
