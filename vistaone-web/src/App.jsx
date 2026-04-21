@@ -5,6 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import WorkOrders from "./pages/WorkOrders";
 import Wells from "./pages/Wells";
 import Vendors from "./pages/Vendors";
+import VendorMarketplace from "./pages/VendorMarketplace";
+import VendorFavorites from "./pages/VendorFavorites";
 import VendorDetail from "./pages/VendorDetail";
 import Contracts from "./pages/Contracts";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -46,6 +48,22 @@ function App() {
         element={
           <ProtectedRoute>
             <Vendors />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/vendor-marketplace"
+        element={
+          <ProtectedRoute>
+            <VendorMarketplace />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/vendor-favorites"
+        element={
+          <ProtectedRoute>
+            <VendorFavorites />
           </ProtectedRoute>
         }
       />

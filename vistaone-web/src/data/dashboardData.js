@@ -123,7 +123,8 @@ export const sidebarNav = {
     { label: "Invoices", icon: "file", active: false },
   ],
   account: [
-    { to: "/vendors", label: "Vendors", icon: "users", active: false },
+    { to: "/vendor-marketplace", label: "Vendor Marketplace", icon: "users", active: false },
+    { to: "/vendor-favorites", label: "Vendor Favorites", icon: "users", active: false },
     { to: "/contracts", label: "Contracts / MSA", icon: "folder", active: false },
   ],
 };
