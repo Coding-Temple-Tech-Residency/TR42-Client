@@ -67,14 +67,19 @@ export const authService = {
                 },
                 body: JSON.stringify(payload),
             });
-            const respPayload = await response.json().catch(() => ({}));
+            let respPayload = {};
+            try {
+                respPayload = await response.json();
+            } catch (e) {}
             if (!response.ok) {
                 throw new Error(respPayload?.message || 'Registration failed');
             }
             return respPayload;
         } catch (err) {
-            console.error(err);
-            throw new Error('Unable to reach server. Please try again later.');
+            if (err instanceof TypeError) {
+                throw new Error('Unable to reach server. Please try again later.');
+            }
+            throw err;
         }
     },
 
