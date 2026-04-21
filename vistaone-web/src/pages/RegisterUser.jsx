@@ -535,12 +535,12 @@ function RegisterUser() {
                                                             formData.first_name
                                                         }
                                                         onChange={handleChange}
-                                                        className={`form-control${errors.firstName ? " is-invalid" : ""}`}
+                                                        className={`form-control${errors.first_name ? " is-invalid" : ""}`}
                                                         placeholder="First name"
                                                     />
-                                                    {errors.firstName && (
+                                                    {errors.first_name && (
                                                         <div className="invalid-feedback d-block">
-                                                            {errors.firstName}
+                                                            {errors.first_name}
                                                         </div>
                                                     )}
                                                 </div>
