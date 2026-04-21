@@ -24,18 +24,38 @@ class LoginService:
     def login_user(email, password):
         user = LoginRepository.get_user_by_email(email)
 
-        if user and user.check_password(password):  # ensure password hash check
+        if not user or not user.check_password(password):
+            return {"message": "Invalid email or password"}, 401
 
-            logger.info(f"User logged in: {user.id}")
-            token = encode_token(user.id)
-
-            return {
-                "status": "success",
-                "message": "Successfully Logged In",
-                "token": token,
-            }, 200
-
-        return {"message": "Invalid email or password"}, 401
+        match user.status:
+            case UserStatus.PENDING_EMAIL_VERIFICATION:
+                return {
+                    "message": "Please verify your email address before logging in. Check your inbox for the verification link."
+                }, 403
+            case UserStatus.PENDING_APPROVAL:
+                return {
+                    "message": "Your account is pending approval by an administrator."
+                }, 403
+            case UserStatus.REJECTED:
+                return {
+                    "message": "Your account registration was rejected. Please contact support."
+                }, 403
+            case UserStatus.INACTIVE:
+                return {
+                    "message": "Your account is inactive. Please contact support."
+                }, 403
+            case UserStatus.DELETED:
+                return {"message": "Your account has been deleted."}, 403
+            case UserStatus.ACTIVE:
+                logger.info(f"User logged in: {user.id}")
+                token = encode_token(user.id)
+                return {
+                    "status": "success",
+                    "message": "Successfully Logged In",
+                    "token": token,
+                }, 200
+            case _:
+                return {"message": "Your account is not active."}, 403
 
     @staticmethod
     @token_required
