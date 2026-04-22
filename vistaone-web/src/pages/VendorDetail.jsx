@@ -44,9 +44,9 @@ export default function VendorDetail() {
         <div className="vendor-detail">
           <button
             className="vendor-detail-back"
-            onClick={() => navigate("/vendors")}
+            onClick={() => navigate(-1)}
           >
-            Back to Vendors
+            Back
           </button>
 
           <div className="vendor-detail-grid">
