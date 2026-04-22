@@ -6,20 +6,16 @@ from app.extensions import db
 
 
 class Invoice(db.Model):
-    __tablename__ = "invoices"
+    __tablename__ = "invoice"
 
     id = mapped_column(
         db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
     work_order_id = mapped_column(
-        db.Integer, db.ForeignKey("work_orders.id"), nullable=False
+        db.String(36), db.ForeignKey("work_order.id"), nullable=False
     )
-    vendor_id = mapped_column(
-        db.String(36), db.ForeignKey("vendors.vendor_id"), nullable=False
-    )
-    client_id = mapped_column(
-        db.String(36), db.ForeignKey("clients.client_id"), nullable=False
-    )
+    vendor_id = mapped_column(db.String(36), db.ForeignKey("vendor.id"), nullable=False)
+    client_id = mapped_column(db.String(36), db.ForeignKey("client.id"), nullable=False)
     invoice_date = mapped_column(db.DateTime(timezone=True), nullable=False)
     due_date = mapped_column(db.DateTime(timezone=True), nullable=False)
     period_start = mapped_column(db.DateTime(timezone=True), nullable=True)

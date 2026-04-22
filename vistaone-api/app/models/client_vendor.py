@@ -10,12 +10,8 @@ class ClientVendor(db.Model):
     id = mapped_column(
         db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
-    client_id = mapped_column(
-        db.String(36), db.ForeignKey("clients.client_id"), nullable=False
-    )
-    vendor_id = mapped_column(
-        db.String(36), db.ForeignKey("vendors.vendor_id"), nullable=False
-    )
+    client_id = mapped_column(db.String(36), db.ForeignKey("client.id"), nullable=False)
+    vendor_id = mapped_column(db.String(36), db.ForeignKey("vendor.id"), nullable=False)
     created_by = mapped_column(db.String(100), nullable=False)
     created_date = mapped_column(db.DateTime, server_default=func.now())
     last_modified_by = mapped_column(db.String(100))
