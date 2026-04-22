@@ -5,13 +5,13 @@ from app.extensions import db
 
 
 class LineItem(db.Model):
-    __tablename__ = "line_items"
+    __tablename__ = "line_item"
 
     id = mapped_column(
         db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
     invoice_id = mapped_column(
-        db.String(36), db.ForeignKey("invoices.id"), nullable=False
+        db.String(36), db.ForeignKey("invoice.id"), nullable=False
     )
     quantity = mapped_column(db.Integer, nullable=False)
     rate = mapped_column(db.Numeric, nullable=False)
