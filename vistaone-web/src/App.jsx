@@ -9,6 +9,7 @@ import VendorMarketplace from "./pages/VendorMarketplace";
 import VendorFavorites from "./pages/VendorFavorites";
 import VendorDetail from "./pages/VendorDetail";
 import Contracts from "./pages/Contracts";
+import Invoices from "./pages/Invoices";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RegisterUser from "./pages/RegisterUser";
 import VerifyEmail from "./pages/VerifyEmail";
@@ -80,6 +81,14 @@ function App() {
         element={
           <ProtectedRoute>
             <Contracts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/invoices"
+        element={
+          <ProtectedRoute>
+            <Invoices />
           </ProtectedRoute>
         }
       />
