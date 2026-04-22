@@ -125,6 +125,27 @@ class LoginService:
         return created_user, 201
 
     @staticmethod
+    def register_client(client_data):
+        from app.blueprints.repository.client_repository import ClientRepository
+        from app.models.client import Client
+
+        existing = ClientRepository.get_client_by_email(client_data["company_email"])
+        if existing:
+            return {"message": "A client with this email is already registered."}, 409
+
+        existing_code = ClientRepository.get_client_by_code(client_data["client_code"])
+        if existing_code:
+            return {"message": "A client with this code is already registered."}, 409
+
+        address_data = client_data.pop("address", {})
+        address = AddressRepository.get_or_create_address(address_data)
+        client_data["address_id"] = address.id
+
+        client = Client(**client_data)
+        created_client = ClientRepository.create_client(client)
+        return created_client, 201
+
+    @staticmethod
     def verify_email(token):
         s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
         if not token:
