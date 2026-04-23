@@ -46,14 +46,19 @@ def get_current_user(user_id):
     user = User.query.get(user_id)
     if not user:
         return jsonify({"error": "User not found"}), 404
-    return jsonify({
-        "id": user.id,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "email": user.email,
-        "company_id": user.company_id,
-        "role_id": user.role_id,
-    }), 200
+    return (
+        jsonify(
+            {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "email": user.email,
+                "company_id": user.client_id,
+                "roles": [r.name for r in user.roles],
+            }
+        ),
+        200,
+    )
 
 
 @users_bp.route("/logout", methods=["POST"])
