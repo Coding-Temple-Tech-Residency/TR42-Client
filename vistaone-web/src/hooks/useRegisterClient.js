@@ -13,8 +13,10 @@ export function useRegisterClient() {
         try {
             await authService.registerClient(formData);
             setSuccess(true);
+            return true;
         } catch (err) {
             setError(err.message || "Registration failed");
+            return false;
         } finally {
             setLoading(false);
         }
