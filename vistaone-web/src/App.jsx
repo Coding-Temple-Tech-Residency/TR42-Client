@@ -11,6 +11,7 @@ import VendorDetail from "./pages/VendorDetail";
 import Contracts from "./pages/Contracts";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RegisterUser from "./pages/RegisterUser";
+import RegisterClient from "./pages/RegisterClient";
 import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<RegisterUser />} />
+      <Route path="/register-client" element={<RegisterClient />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route
         path="/dashboard"

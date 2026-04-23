@@ -1,6 +1,7 @@
 const LOGIN_ENDPOINT = '/api/users/login';
 const REGISTER_ENDPOINT = '/api/users/register';
 const VERIFY_EMAIL_ENDPOINT = '/api/users/verify-email';
+const REGISTER_CLIENT_ENDPOINT = '/api/clients/register';
 
 export const authService = {
     login: async ({ email, password }) => {
@@ -74,6 +75,58 @@ export const authService = {
             if (!response.ok) {
                 throw new Error(respPayload?.message || 'Registration failed');
             }
+            return respPayload;
+        } catch (err) {
+            if (err instanceof TypeError) {
+                throw new Error('Unable to reach server. Please try again later.');
+            }
+            throw err;
+        }
+    },
+
+    registerClient: async ({ company, adminUser }) => {
+        try {
+            const address = {
+                street: company.street || "",
+                city: company.city || "",
+                state: company.state || "",
+                zip: company.zip || "",
+                country: company.country || "",
+            };
+
+            const payload = {
+                client_name: company.client_name,
+                client_code: company.client_code,
+                primary_contact_name: company.primary_contact_name,
+                company_email: company.company_email,
+                company_contact_number: company.company_contact_number,
+                address,
+                admin_user: {
+                    username: adminUser.username,
+                    email: adminUser.email,
+                    password: adminUser.password,
+                    first_name: adminUser.first_name,
+                    last_name: adminUser.last_name,
+                    contact_number: adminUser.contact_number,
+                },
+            };
+
+            if (company.company_web_address) {
+                payload.company_web_address = company.company_web_address;
+            }
+
+            const response = await fetch(REGISTER_CLIENT_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+
+            const respPayload = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(respPayload?.message || 'Registration failed');
+            }
+
             return respPayload;
         } catch (err) {
             if (err instanceof TypeError) {
