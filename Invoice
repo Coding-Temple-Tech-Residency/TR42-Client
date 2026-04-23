@@ -1,0 +1,17 @@
+import sqlite3
+
+def connect_database():
+    try:
+        # Connect to SQLite database (creates file if it doesn't exist)
+        conn = sqlite3.connect("testdb.db")
+        print("Database connected!")
+
+        # Close connection
+        conn.close()
+
+    except Exception as e:
+        print("Error:", e)
+
+
+if __name__ == "__main__":
+    connect_database()
