@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Invoice Review</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f4f6f9;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Scrollable form */
+.form-section {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+/* Fixed button */
+.fixed-btn {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-top: 10px;
+}
+
+.review {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Review Invoice</h2>
+
+<div class="form-section">
+  <input id="id" placeholder="ID">
+  <input id="workOrder" placeholder="Work Order ID">
+  <input id="vendor" placeholder="Vendor ID">
+  <input id="client" placeholder="Client ID">
+  <input id="invoiceDate" placeholder="Invoice Date">
+  <input id="dueDate" placeholder="Due Date">
+  <input id="periodStart" placeholder="Period Start">
+  <input id="total" placeholder="Total Amount">
+  <input id="status" placeholder="Invoice Status">
+  <input id="paidAt" placeholder="Paid At">
+  <input id="rejectedAt" placeholder="Rejected At">
+  <input id="createdAt" placeholder="Created At">
+  <input id="updatedAt" placeholder="Updated At">
+  <input id="createdBy" placeholder="Created By">
+  <input id="updatedBy" placeholder="Updated By">
+</div>
+
+<div class="fixed-btn">
+  <button onclick="reviewInvoice()">Review Invoice</button>
+</div>
+
+<div class="review" id="reviewSection">
+  <h3>Invoice Preview</h3>
+
+  <p><strong>ID:</strong> <span id="r_id"></span></p>
+  <p><strong>Work Order:</strong> <span id="r_workOrder"></span></p>
+  <p><strong>Vendor:</strong> <span id="r_vendor"></span></p>
+  <p><strong>Client:</strong> <span id="r_client"></span></p>
+  <p><strong>Invoice Date:</strong> <span id="r_invoiceDate"></span></p>
+  <p><strong>Due Date:</strong> <span id="r_dueDate"></span></p>
+  <p><strong>Period Start:</strong> <span id="r_periodStart"></span></p>
+  <p><strong>Total:</strong> <span id="r_total"></span></p>
+  <p><strong>Status:</strong> <span id="r_status"></span></p>
+  <p><strong>Paid At:</strong> <span id="r_paidAt"></span></p>
+  <p><strong>Rejected At:</strong> <span id="r_rejectedAt"></span></p>
+  <p><strong>Created At:</strong> <span id="r_createdAt"></span></p>
+  <p><strong>Updated At:</strong> <span id="r_updatedAt"></span></p>
+  <p><strong>Created By:</strong> <span id="r_createdBy"></span></p>
+  <p><strong>Updated By:</strong> <span id="r_updatedBy"></span></p>
+
+  <button onclick="confirmInvoice()">Confirm</button>
+  <button onclick="editInvoice()">Edit</button>
+</div>
+
+</div>
+
+<script>
+function reviewInvoice() {
+  const fields = [
+    "id","workOrder","vendor","client","invoiceDate","dueDate",
+    "periodStart","total","status","paidAt","rejectedAt",
+    "createdAt","updatedAt","createdBy","updatedBy"
+  ];
+
+  let missing = false;
+
+  fields.forEach(f => {
+    const value = document.getElementById(f).value;
+    if (!value) missing = true;
+
+    document.getElementById("r_" + f).innerText = value || "-";
+  });
+
+  if (missing) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  document.getElementById("reviewSection").style.display = "block";
+}
+
+function confirmInvoice() {
+  alert("Invoice confirmed!");
+}
+
+function editInvoice() {
+  document.getElementById("reviewSection").style.display = "none";
+}
+</script>
+
+</body>
+</html>
