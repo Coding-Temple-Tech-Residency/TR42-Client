@@ -84,27 +84,35 @@ export const authService = {
         }
     },
 
-    registerClient: async (formData) => {
+    registerClient: async ({ company, adminUser }) => {
         try {
             const address = {
-                street: formData.street || "",
-                city: formData.city || "",
-                state: formData.state || "",
-                zip: formData.zip || "",
-                country: formData.country || "",
+                street: company.street || "",
+                city: company.city || "",
+                state: company.state || "",
+                zip: company.zip || "",
+                country: company.country || "",
             };
 
             const payload = {
-                client_name: formData.client_name,
-                client_code: formData.client_code,
-                primary_contact_name: formData.primary_contact_name,
-                company_email: formData.company_email,
-                company_contact_number: formData.company_contact_number,
+                client_name: company.client_name,
+                client_code: company.client_code,
+                primary_contact_name: company.primary_contact_name,
+                company_email: company.company_email,
+                company_contact_number: company.company_contact_number,
                 address,
+                admin_user: {
+                    username: adminUser.username,
+                    email: adminUser.email,
+                    password: adminUser.password,
+                    first_name: adminUser.first_name,
+                    last_name: adminUser.last_name,
+                    contact_number: adminUser.contact_number,
+                },
             };
 
-            if (formData.company_web_address) {
-                payload.company_web_address = formData.company_web_address;
+            if (company.company_web_address) {
+                payload.company_web_address = company.company_web_address;
             }
 
             const response = await fetch(REGISTER_CLIENT_ENDPOINT, {
