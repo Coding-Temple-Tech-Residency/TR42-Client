@@ -1,54 +1,115 @@
-// main dashboard page - pulls in all the smaller components
-import React from "react";
+import { useState } from "react";
+import AppShell from "../components/AppShell";
+import Widget, { WidgetPickerModal } from "../components/widgets/Widget";
+import { useDashboardLayout } from "../hooks/useDashboardLayout";
+import { WIDGET_REGISTRY } from "../components/widgets/registry";
 import "../styles/dashboard.css";
 
-// import each section component
-import StatCard from "../components/StatCard";
-import JobsList from "../components/JobsList";
-import RecentInvoices from "../components/RecentInvoices";
+const MAX_WIDGETS = 12;
 
-// import all the temp data
-import {
-  statCards,
-  jobsInProgress,
-  upcomingJobs,
-  recentInvoices,
-} from "../data/dashboardData";
-import AppShell from "../components/AppShell";
+export default function Dashboard() {
+    const {
+        layout,
+        addWidget,
+        removeWidget,
+        replaceWidget,
+        setWidgetSize,
+        moveWidget,
+        resetLayout,
+    } = useDashboardLayout();
 
-function Dashboard() {
-  return (
-    <AppShell
-        title="Dashboard"
-        subtitle="Overview of operations, work orders and invoices"
-        eyebrow="Welcome back"
-    >
-        <main className="dashboard">
-            {/* row of stat cards */}
-            <div className="stat-cards-row">
-                {statCards.map((card) => (
-                    <StatCard
-                        key={card.label}
-                        label={card.label}
-                        value={card.value}
-                        subtitle={card.subtitle}
-                        color={card.color}
-                    />
-                ))}
-            </div>
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const atCapacity = layout.length >= MAX_WIDGETS;
 
-            {/* jobs in progress and upcoming jobs side by side */}
-            <div className="jobs-row">
-                <JobsList title="Jobs in progress" jobs={jobsInProgress} type="active" />
-                <JobsList title="Upcoming jobs" jobs={upcomingJobs} type="upcoming" />
-            </div>
+    return (
+        <AppShell
+            title="Dashboard"
+            subtitle="Customize your view — every tile is a widget you can swap or resize"
+            eyebrow="Welcome back"
+        >
+            <section className="dashboard-toolbar">
+                <div className="dashboard-toolbar__meta">
+                    {layout.length} {layout.length === 1 ? "widget" : "widgets"}
+                </div>
+                <div className="dashboard-toolbar__actions">
+                    <button
+                        type="button"
+                        className="dashboard-toolbar__btn dashboard-toolbar__btn--ghost"
+                        onClick={() => {
+                            if (
+                                window.confirm(
+                                    "Reset your dashboard to the default layout?",
+                                )
+                            ) {
+                                resetLayout();
+                            }
+                        }}
+                    >
+                        Reset layout
+                    </button>
+                    <button
+                        type="button"
+                        className="dashboard-toolbar__btn"
+                        disabled={atCapacity}
+                        onClick={() => setPickerOpen(true)}
+                    >
+                        + Add widget
+                    </button>
+                </div>
+            </section>
 
-            {/* recent invoices at the bottom */}
-            <RecentInvoices invoices={recentInvoices} />
-        </main>
-    </AppShell>
-    
-  );
+            {layout.length === 0 ? (
+                <div className="dashboard-empty">
+                    <h2>Your dashboard is empty</h2>
+                    <p>Add a widget to get started.</p>
+                    <button
+                        type="button"
+                        className="dashboard-toolbar__btn"
+                        onClick={() => setPickerOpen(true)}
+                    >
+                        + Add widget
+                    </button>
+                </div>
+            ) : (
+                <div className="dashboard-grid">
+                    {layout.map((instance, idx) => (
+                        <Widget
+                            key={instance.id}
+                            instance={instance}
+                            isFirst={idx === 0}
+                            isLast={idx === layout.length - 1}
+                            onRemove={removeWidget}
+                            onReplace={replaceWidget}
+                            onResize={setWidgetSize}
+                            onMove={moveWidget}
+                        />
+                    ))}
+                    {!atCapacity && (
+                        <button
+                            type="button"
+                            className="dashboard-add-tile"
+                            onClick={() => setPickerOpen(true)}
+                        >
+                            <span className="dashboard-add-tile__plus">+</span>
+                            <span>Add widget</span>
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {pickerOpen && (
+                <WidgetPickerModal
+                    onPick={(type) => {
+                        addWidget(
+                            type,
+                            WIDGET_REGISTRY[type]?.defaultSize || "medium",
+                        );
+                        setPickerOpen(false);
+                    }}
+                    onClose={() => setPickerOpen(false)}
+                    title="Add a widget"
+                />
+            )}
+        </AppShell>
+    );
 }
-
-export default Dashboard;
