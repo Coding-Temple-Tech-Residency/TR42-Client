@@ -5,12 +5,12 @@ info:
   version: "1.0.0"
 host: "127.0.0.1:5000"
 schemes:
-  - "http"
+- "http"
 # - "https"
 consumes:
-  - "application/json"
+- "application/json"
 produces:
-  - "application/json"
+- "application/json"
 
 securityDefinitions:
   bearerAuth:
@@ -22,16 +22,16 @@ paths:
   /users/login:
     post:
       tags:
-        - Users
+      - Users
       summary: "Login endpoint, (generates token)"
       description: "Validates user credentials and returns a user-specific token."
       parameters:
-        - in: "body"
-          name: "body"
-          description: "Login credentials"
-          required: true
-          schema:
-            $ref: "#/definitions/LoginCredentials"
+      - in: "body"
+        name: "body"
+        description: "Login credentials"
+        required: true
+        schema:
+          $ref: "#/definitions/LoginCredentials"
       responses:
         200:
           description: "Login Successful"
@@ -49,9 +49,9 @@ paths:
           examples:
             application/json:
               email:
-                - "Not a valid email address."
+              - "Not a valid email address."
               password:
-                - "Missing data for required field."
+              - "Missing data for required field."
         401:
           description: "Invalid credentials"
           schema:
@@ -63,11 +63,11 @@ paths:
   /users/verify-token:
     get:
       tags:
-        - Users
+      - Users
       summary: "Verify JWT token validity"
       description: "Checks if the provided JWT token is valid. Requires Authorization header."
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         200:
           description: "Token is valid"
@@ -95,11 +95,11 @@ paths:
   /users/logout:
     post:
       tags:
-        - Users
+      - Users
       summary: "Logout endpoint (revokes JWT token)"
       description: "Revokes the token sent in the Authorization header."
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         200:
           description: "Logout Successful"
@@ -117,20 +117,110 @@ paths:
             application/json:
               message: "Token has been revoked!"
 
+  /users/profile:
+    get:
+      tags:
+      - Profile
+      summary: Get logged-in user profile
+      security:
+      - bearerAuth: []
+      responses:
+        200:
+          description: Profile fetched successfully
+          schema:
+            $ref: "#/definitions/UserProfileResponse"
+        404:
+          description: User not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        400:
+          description: Bad request
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+    put:
+      tags:
+      - Profile
+      summary: Update user profile (user + address)
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/UserProfileUpdateRequest"
+      responses:
+        200:
+          description: Profile updated successfully
+          schema:
+            $ref: "#/definitions/UserProfileUpdateResponse"
+        400:
+          description: Validation error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: User not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+    delete:
+      tags:
+      - Profile
+      summary: Soft delete user profile (status = DELETED)
+      security:
+      - bearerAuth: []
+      responses:
+        200:
+          description: User soft deleted successfully
+          schema:
+            $ref: "#/definitions/DeleteResponse"
+        404:
+          description: User not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /users/profile/change-password:
+    put:
+      tags:
+      - Profile
+      summary: Change user password
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/ChangePasswordRequest"
+      responses:
+        200:
+          description: Password changed successfully
+          schema:
+            $ref: "#/definitions/SuccessResponse"
+        400:
+          description: Validation or incorrect password
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        404:
+          description: User not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
   /workorders:
     post:
       tags:
-        - WorkOrders
+      - WorkOrders
       summary: "Create WorkOrder"
       description: "Creates a work order. If location_type = ADDRESS, address is created internally."
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: "#/definitions/WorkOrderCreateRequest"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/WorkOrderCreateRequest"
       responses:
         201:
           description: "WorkOrder created successfully"
@@ -164,10 +254,10 @@ paths:
 
     get:
       tags:
-        - WorkOrders
+      - WorkOrders
       summary: "Get all WorkOrders"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         200:
           description: "List of WorkOrders"
@@ -179,15 +269,15 @@ paths:
   /workorders/{work_order_id}:
     get:
       tags:
-        - WorkOrders
+      - WorkOrders
       summary: "Get WorkOrder by ID"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: work_order_id
-          in: path
-          required: true
-          type: string
+      - name: work_order_id
+        in: path
+        required: true
+        type: string
       responses:
         200:
           description: "WorkOrder found"
@@ -200,20 +290,20 @@ paths:
 
     put:
       tags:
-        - WorkOrders
+      - WorkOrders
       summary: "Update WorkOrder (partial update allowed)"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: work_order_id
-          in: path
-          required: true
-          type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: "#/definitions/WorkOrderUpdateRequest"
+      - name: work_order_id
+        in: path
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/WorkOrderUpdateRequest"
       responses:
         200:
           description: "Updated successfully"
@@ -226,20 +316,20 @@ paths:
 
     delete:
       tags:
-        - WorkOrders
+      - WorkOrders
       summary: "Cancel WorkOrder"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: work_order_id
-          in: path
-          required: true
-          type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: "#/definitions/CancelRequest"
+      - name: work_order_id
+        in: path
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/CancelRequest"
       responses:
         200:
           description: "Cancelled successfully"
@@ -256,29 +346,29 @@ paths:
   /workorders/search:
     get:
       tags:
-        - WorkOrders
+      - WorkOrders
       summary: "Search WorkOrders"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: q
-          in: query
-          type: string
-        - name: status
-          in: query
-          type: string
-        - name: page
-          in: query
-          type: integer
-        - name: per_page
-          in: query
-          type: integer
-        - name: sort_by
-          in: query
-          type: string
-        - name: order
-          in: query
-          type: string
+      - name: q
+        in: query
+        type: string
+      - name: status
+        in: query
+        type: string
+      - name: page
+        in: query
+        type: integer
+      - name: per_page
+        in: query
+        type: integer
+      - name: sort_by
+        in: query
+        type: string
+      - name: order
+        in: query
+        type: string
       responses:
         200:
           description: "Paginated results"
@@ -292,17 +382,17 @@ paths:
   /wells:
     post:
       tags:
-        - Wells
+      - Wells
       summary: "Create Well"
       description: "Creates a new well."
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: "#/definitions/WellCreateRequest"
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/WellCreateRequest"
       responses:
         201:
           description: "Well created successfully"
@@ -315,10 +405,10 @@ paths:
 
     get:
       tags:
-        - Wells
+      - Wells
       summary: "Get all Wells"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       responses:
         200:
           description: "List of Wells"
@@ -330,15 +420,15 @@ paths:
   /wells/{well_id}:
     get:
       tags:
-        - Wells
+      - Wells
       summary: "Get Well by ID"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: well_id
-          in: path
-          required: true
-          type: string
+      - name: well_id
+        in: path
+        required: true
+        type: string
       responses:
         200:
           description: "Well found"
@@ -351,20 +441,20 @@ paths:
 
     put:
       tags:
-        - Wells
+      - Wells
       summary: "Update Well"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: well_id
-          in: path
-          required: true
-          type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: "#/definitions/WellUpdateRequest"
+      - name: well_id
+        in: path
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/WellUpdateRequest"
       responses:
         200:
           description: "Well updated successfully"
@@ -377,15 +467,15 @@ paths:
 
     delete:
       tags:
-        - Wells
+      - Wells
       summary: "Delete Well"
       security:
-        - bearerAuth: []
+      - bearerAuth: []
       parameters:
-        - name: well_id
-          in: path
-          required: true
-          type: string
+      - name: well_id
+        in: path
+        required: true
+        type: string
       responses:
         200:
           description: "Well deleted successfully"
@@ -423,8 +513,8 @@ definitions:
         type: "string"
 
     required:
-      - email
-      - password
+    - email
+    - password
 
   LoginResponse:
     type: "object"
@@ -468,15 +558,141 @@ definitions:
       message:
         type: string
 
+  UserProfileResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      username:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      middle_name:
+        type: string
+      last_name:
+        type: string
+      contact_number:
+        type: string
+      alternate_number:
+        type: string
+      profile_photo_url:
+        type: string
+      date_of_birth:
+        type: string
+      address:
+        $ref: "#/definitions/AddressResponse"
+      client:
+        $ref: "#/definitions/ClientResponse"
+
+  UserProfileUpdateRequest:
+    type: object
+    properties:
+      first_name:
+        type: string
+      middle_name:
+        type: string
+      last_name:
+        type: string
+      contact_number:
+        type: string
+      alternate_number:
+        type: string
+      profile_photo_url:
+        type: string
+      date_of_birth:
+        type: string
+      address:
+        $ref: "#/definitions/AddressRequest"
+
+  UserProfileUpdateResponse:
+    type: object
+    properties:
+      message:
+        type: string
+      data:
+        $ref: "#/definitions/UserProfileResponse"
+
+  ChangePasswordRequest:
+    type: object
+    required:
+    - old_password
+    - new_password
+    - confirm_password
+    properties:
+      old_password:
+        type: string
+      new_password:
+        type: string
+      confirm_password:
+        type: string
+
+  SuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string
+
+  DeleteResponse:
+    type: object
+    properties:
+      message:
+        type: string
+
+  ErrorResponse:
+    type: object
+    properties:
+      error:
+        type: string
+
+  AddressRequest:
+    type: object
+    properties:
+      street:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      zip:
+        type: string
+      country:
+        type: string
+
+  AddressResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      street:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      zip:
+        type: string
+      country:
+        type: string
+
+  ClientResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      client_name:
+        type: string
+
   WorkOrderCreateRequest:
     type: object
     required:
-      - client_id
-      - vendor_id
-      - service_type_id
-      - description
-      - location_type
-      - priority
+    - client_id
+    - vendor_id
+    - service_type_id
+    - description
+    - location_type
+    - priority
     properties:
       client_id:
         type: string
@@ -488,7 +704,7 @@ definitions:
         type: string
       location_type:
         type: string
-        enum: [ADDRESS, GPS, WELL]
+        enum: [ ADDRESS, GPS, WELL ]
 
       well_id:
         type: string
@@ -511,14 +727,14 @@ definitions:
 
       priority:
         type: string
-        enum: [LOW, MEDIUM, HIGH]
+        enum: [ LOW, MEDIUM, HIGH ]
 
       is_recurring:
         type: boolean
 
       recurrence_type:
         type: string
-        enum: [ONE_TIME, DAILY, WEEKLY, MONTHLY]
+        enum: [ ONE_TIME, DAILY, WEEKLY, MONTHLY ]
 
   WorkOrderResponse:
     type: object
@@ -576,28 +792,6 @@ definitions:
       cancellation_reason:
         type: string
 
-  AddressResponse:
-    type: object
-  properties:
-    address_id:
-      type: string
-    street:
-      type: string
-    city:
-      type: string
-    state:
-      type: string
-    zip:
-      type: string
-    country:
-      type: string
-
-  ErrorResponse:
-    type: object
-    properties:
-      error:
-        type: string
-
   WorkOrderUpdateRequest:
     type: object
     properties:
@@ -629,17 +823,17 @@ definitions:
         type: string
       location_type:
         type: string
-        enum: [ADDRESS, GPS, WELL]
+        enum: [ ADDRESS, GPS, WELL ]
       is_recurring:
         type: boolean
       recurrence_type:
         type: string
-        enum: [ONE_TIME, DAILY, WEEKLY, MONTHLY]
+        enum: [ ONE_TIME, DAILY, WEEKLY, MONTHLY ]
 
   CancelRequest:
     type: object
     required:
-      - cancellation_reason
+    - cancellation_reason
     properties:
       cancellation_reason:
         type: string
@@ -663,8 +857,8 @@ definitions:
   WellCreateRequest:
     type: object
     required:
-      - client_id
-      - well_number
+    - client_id
+    - well_number
     properties:
       client_id:
         type: string
@@ -678,7 +872,7 @@ definitions:
         type: string
       status:
         type: string
-        enum: [ACTIVE, INACTIVE]
+        enum: [ ACTIVE, INACTIVE ]
 
   WellUpdateRequest:
     type: object
@@ -693,7 +887,7 @@ definitions:
         type: string
       status:
         type: string
-        enum: [ACTIVE, INACTIVE]
+        enum: [ ACTIVE, INACTIVE ]
 
   WellResponse:
     type: object

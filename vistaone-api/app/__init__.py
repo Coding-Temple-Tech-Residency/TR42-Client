@@ -1,6 +1,7 @@
 from flask import Flask, app, jsonify
 from app.extensions import ma, limiter, db
 from app.blueprints.controller import users_bp
+from app.blueprints.controller import profile_bp
 from app.blueprints.controller import workorder_bp
 from app.blueprints.controller import well_bp
 from app.blueprints.controller import vendor_bp
@@ -40,6 +41,7 @@ def create_app(config_name="ProductionConfig"):
 
     # Register blueprints
     app.register_blueprint(users_bp, url_prefix="/users")
+    app.register_blueprint(profile_bp, url_prefix="/users/profile")
     app.register_blueprint(workorder_bp, url_prefix="/workorders")
     app.register_blueprint(well_bp, url_prefix="/wells")
     app.register_blueprint(vendor_bp, url_prefix='/vendors')
