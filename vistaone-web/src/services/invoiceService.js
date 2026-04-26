@@ -7,6 +7,7 @@ export const invoiceService = {
     if (params.vendor_id) query.append("vendor_id", params.vendor_id);
     if (params.client_id) query.append("client_id", params.client_id);
     if (params.status) query.append("status", params.status);
+    if (params.work_order_id) query.append("work_order_id", params.work_order_id);
     const qs = query.toString();
     const url = qs ? `${INVOICE_ENDPOINT}?${qs}` : INVOICE_ENDPOINT;
     const response = await authFetch(url, { method: "GET" });

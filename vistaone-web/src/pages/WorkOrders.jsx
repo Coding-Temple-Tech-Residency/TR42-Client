@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import AppShell from "../components/AppShell";
 import { useWorkOrder } from "../hooks/useWorkOrder";
 import CreateWorkOrderModal from "../components/CreateWorkOrderModal";
+import WorkOrderDetailModal from "../components/WorkOrderDetailModal";
 import "../styles/workorder.css";
 
 const statusOptions = [
@@ -19,6 +20,7 @@ export default function WorkOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [showModal, setShowModal] = useState(false);
+  const [detailOrder, setDetailOrder] = useState(null);
   const {
     workOrders,
     loading,
@@ -126,7 +128,20 @@ export default function WorkOrders() {
             </thead>
             <tbody>
               {filteredOrders.map((order) => (
-                <tr key={order.work_order_id}>
+                <tr
+                  key={order.work_order_id}
+                  className="workorders-row-clickable"
+                  onClick={() => setDetailOrder(order)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`View details for work order ${order.work_order_id}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setDetailOrder(order);
+                    }
+                  }}
+                >
                   <td>{order.work_order_id}</td>
                   <td>{order.vendor.name}</td>
                   <td>{order.service_type.service}</td>
@@ -140,10 +155,6 @@ export default function WorkOrders() {
                       {formatStatusLabel(order.status || "")}
                     </span>
                   </td>
-                  {/* <td className="workorders-actions-cell">
-                                        <button className="workorders-action-btn">View</button>
-                                        <button className="workorders-action-btn workorders-action-btn-secondary">Edit</button>
-                                    </td> */}
                 </tr>
               ))}
             </tbody>
@@ -155,6 +166,13 @@ export default function WorkOrders() {
         <CreateWorkOrderModal
           setShowModal={setShowModal}
           fetchWorkOrders={fetchWorkOrders}
+        />
+      )}
+
+      {detailOrder && (
+        <WorkOrderDetailModal
+          workOrder={detailOrder}
+          onClose={() => setDetailOrder(null)}
         />
       )}
     </AppShell>

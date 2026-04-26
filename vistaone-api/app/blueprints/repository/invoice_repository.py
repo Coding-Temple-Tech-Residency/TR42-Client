@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class InvoiceRepository:
 
     @staticmethod
-    def get_all(vendor_id=None, client_id=None, status=None):
+    def get_all(vendor_id=None, client_id=None, status=None, work_order_id=None):
         query = select(Invoice)
         if vendor_id:
             query = query.where(Invoice.vendor_id == vendor_id)
@@ -18,6 +18,8 @@ class InvoiceRepository:
             query = query.where(Invoice.client_id == client_id)
         if status:
             query = query.where(Invoice.invoice_status == status)
+        if work_order_id:
+            query = query.where(Invoice.work_order_id == work_order_id)
         return db.session.execute(query).scalars().all()
 
     @staticmethod

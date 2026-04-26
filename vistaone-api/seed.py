@@ -50,6 +50,44 @@ _BUILT_IN_ROLES = [
 ]
 
 
+def seed_demo_tickets():
+    """Create 2-3 example tickets for every existing work order that has none.
+    Idempotent — skips work orders that already have tickets attached.
+    """
+    from datetime import datetime, timedelta, timezone
+    from app.models.workorder import WorkOrder
+    from app.models.ticket import Ticket
+    from app.blueprints.enum.enums import TicketStatusEnum, PriorityEnum
+
+    _TICKET_TEMPLATES = [
+        ("Initial site assessment and equipment staging", PriorityEnum.HIGH, TicketStatusEnum.COMPLETED, 0),
+        ("Primary work execution", PriorityEnum.MEDIUM, TicketStatusEnum.IN_PROGRESS, 2),
+        ("Site cleanup and final inspection", PriorityEnum.LOW, TicketStatusEnum.UNASSIGNED, 5),
+    ]
+
+    work_orders = WorkOrder.query.all()
+    created_total = 0
+    for wo in work_orders:
+        if Ticket.query.filter_by(work_order_id=wo.id).first():
+            continue
+        now = datetime.now(timezone.utc)
+        for desc, priority, status, day_offset in _TICKET_TEMPLATES:
+            db.session.add(Ticket(
+                work_order_id=wo.id,
+                vendor_id=wo.vendor_id,
+                service_type=wo.service_type_id,
+                description=f"{desc} — {wo.description}",
+                priority=priority,
+                status=status,
+                due_date=now + timedelta(days=day_offset + 3),
+                start_time=now - timedelta(days=1) if status != TicketStatusEnum.UNASSIGNED else None,
+            ))
+            created_total += 1
+    if created_total:
+        db.session.commit()
+    return created_total
+
+
 def init_company_roles(client_id):
     """Create MASTER, ADMIN, USER roles for a company. Idempotent."""
     from app.models.role import Role
@@ -166,5 +204,11 @@ if __name__ == "__main__":
             db.session.add(Vendor(**vdata))
             db.session.commit()
             print(f"  Created vendor: {vdata['company_name']}")
+
+        created = seed_demo_tickets()
+        if created:
+            print(f"  Created {created} demo tickets across work orders.")
+        else:
+            print("  No new tickets — all work orders already have tickets.")
 
         print("\nSeed complete.")

@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 class InvoiceService:
 
     @staticmethod
-    def get_all_invoices(vendor_id=None, client_id=None, status=None):
+    def get_all_invoices(vendor_id=None, client_id=None, status=None, work_order_id=None):
         invoices = InvoiceRepository.get_all(
-            vendor_id=vendor_id, client_id=client_id, status=status
+            vendor_id=vendor_id, client_id=client_id, status=status, work_order_id=work_order_id
         )
         return invoices
 

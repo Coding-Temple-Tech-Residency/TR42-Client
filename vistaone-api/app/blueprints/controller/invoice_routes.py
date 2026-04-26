@@ -35,8 +35,9 @@ def get_all_invoices(current_user_id):
     vendor_id = request.args.get("vendor_id")
     client_id = request.args.get("client_id")
     status = request.args.get("status")
+    work_order_id = request.args.get("work_order_id")
     invoices = InvoiceService.get_all_invoices(
-        vendor_id=vendor_id, client_id=client_id, status=status
+        vendor_id=vendor_id, client_id=client_id, status=status, work_order_id=work_order_id
     )
     return invoices_schema.jsonify(invoices), 200
 
