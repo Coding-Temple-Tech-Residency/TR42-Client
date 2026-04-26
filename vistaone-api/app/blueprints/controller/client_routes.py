@@ -19,7 +19,7 @@ def list_clients():
     from app.blueprints.repository.client_repository import ClientRepository
     clients = ClientRepository.get_all_clients()
     return jsonify([
-        {"id": c.id, "client_name": c.client_name, "client_code": c.client_code}
+        {"id": c.id, "client_name": c.client_name, "client_code": c.client_code, "company_web_address": c.company_web_address}
         for c in clients
     ]), 200
 
