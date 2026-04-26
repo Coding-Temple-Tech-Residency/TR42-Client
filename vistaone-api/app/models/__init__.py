@@ -1,10 +1,25 @@
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
-
-class Base(DeclarativeBase):
-    pass
-
-db = SQLAlchemy(model_class=Base)
-
-# Import models so SQLAlchemy registers them
+from .role import Role, user_role
+from .permission import Permission
 from .user import User
+from .workorder import WorkOrder
+from .address import Address
+from .well import Well
+from .vendor import Vendor
+from .client import Client
+from .service_type import ServiceType
+from .vendor_service import VendorService
+from .msa import Msa
+from .invoice import Invoice
+from .line_item import LineItem
+from .client_vendor import ClientVendor
+from .ticket import Ticket
+from app.blueprints.enum.enums import (
+    StatusEnum,
+    PriorityEnum,
+    FrequencyEnum,
+    LocationTypeEnum,
+    WellStatusEnum,
+    VendorStatus,
+    ComplianceStatus,
+    TicketStatusEnum,
+)

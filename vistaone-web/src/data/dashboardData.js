@@ -117,28 +117,20 @@ export const recentInvoices = [
 // sidebar menu items split into main and account sections
 export const sidebarNav = {
   main: [
-    { label: "Dashboard", icon: "grid", active: true },
-    { label: "Jobs", icon: "list", active: false },
-    { label: "Work Orders", icon: "clipboard", active: false },
-    { label: "Invoices", icon: "file", active: false },
+    { to: '/dashboard', label: "Dashboard", icon: "grid", active: true },
+    { to: '/wells', label: "Oil Wells", icon: "list", active: false },
+    { to: '/workorders', label: "Work Orders", icon: "clipboard", active: false },
+    { to: "/tickets", label: "Tickets", icon: "clipboard", active: false },
+    { to: "/invoices", label: "Invoices", icon: "file", active: false },
+    { to: "/vendor-favorites", label: "Vendors", icon: "users", active: false },
   ],
   account: [
-    { label: "Vendors", icon: "users", active: false },
-    { label: "Contracts / MSA", icon: "folder", active: false },
+    { to: "/vendor-marketplace", label: "Vendor Marketplace", icon: "users", active: false },
+    { to: "/contracts", label: "Contracts / MSA", icon: "folder", active: false },
+    { to: "/analytics", label: "Analytics", icon: "grid", active: false },
+    { to: "/fraud", label: "Fraud & Anomalies", icon: "file", active: false },
   ],
 };
 
-export const initialNotifications = [
-    {
-        id: 'n1',
-        title: 'High fraud risk detected for SandCore Transport',
-        time: '5 min ago',
-        isRead: false,
-    },
-    {
-        id: 'n2',
-        title: 'Invoice INV-8231 is pending your approval',
-        time: '22 min ago',
-        isRead: false,
-    },
-];
+// notifications will be populated from the API when the notification feature is built
+export const initialNotifications = [];
