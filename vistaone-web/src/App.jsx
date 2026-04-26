@@ -14,9 +14,13 @@ import Tickets from "./pages/Tickets";
 import Analytics from "./pages/Analytics";
 import Fraud from "./pages/Fraud";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import RoleProtectedRoute from "./routes/RoleProtectedRoute";
 import RegisterUser from "./pages/RegisterUser";
 import RegisterClient from "./pages/RegisterClient";
 import VerifyEmail from "./pages/VerifyEmail";
+import UserManagement from "./pages/UserManagement";
+import Settings from "./pages/Settings";
+import RoleManagement from "./pages/RoleManagement";
 import Profile from "./pages/UserProfile";
 
 function App() {
@@ -99,6 +103,31 @@ function App() {
                 }
             />
             <Route
+                path="/admin/users"
+                element={
+                    <RoleProtectedRoute roles={["MASTER", "ADMIN"]}>
+                        <UserManagement />
+                    </RoleProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/roles"
+                element={
+                    <RoleProtectedRoute roles={["MASTER"]}>
+                        <RoleManagement />
+                    </RoleProtectedRoute>
+                }
+            />
+            <Route
+                path="/settings"
+                element={
+                    <RoleProtectedRoute roles={["MASTER"]}>
+                        <Settings />
+                    </RoleProtectedRoute>
+                }
+            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 path="/profile"
                 element={
                     <ProtectedRoute>
