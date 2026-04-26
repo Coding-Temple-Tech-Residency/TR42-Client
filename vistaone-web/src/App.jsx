@@ -126,8 +126,7 @@ function App() {
                     </RoleProtectedRoute>
                 }
             />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route
                 path="/profile"
                 element={
                     <ProtectedRoute>
@@ -135,7 +134,7 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-                  
+
             <Route
                  path="/tickets"
                  element={
@@ -163,7 +162,6 @@ function App() {
                 }
               />
                   
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
         </Routes>
