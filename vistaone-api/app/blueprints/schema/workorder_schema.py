@@ -78,7 +78,7 @@ class WorkOrderSchema(ma.SQLAlchemyAutoSchema):
         statuses = {inv.invoice_status for inv in invoices}
         if InvoiceStatusEnum.REJECTED in statuses:
             return "INVOICE_REJECTED"
-        if InvoiceStatusEnum.DRAFT in statuses or InvoiceStatusEnum.SUBMITTED in statuses:
+        if InvoiceStatusEnum.PENDING in statuses:
             return "PENDING_REVIEW"
         return obj.status.value if obj.status else None
 

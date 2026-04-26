@@ -66,11 +66,9 @@ class UserStatus(str, Enum):
     INACTIVE = "inactive"
     DELETED = "deleted"
 class InvoiceStatusEnum(Enum):
-    DRAFT = "DRAFT"
-    SUBMITTED = "SUBMITTED"
+    PENDING = "PENDING"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
-    PAID = "PAID"
 
 
 class TicketStatusEnum(Enum):

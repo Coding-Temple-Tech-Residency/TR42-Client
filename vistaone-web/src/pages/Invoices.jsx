@@ -5,11 +5,9 @@ import "../styles/invoices.css";
 
 const statusOptions = [
   { value: "ALL", label: "All" },
-  { value: "DRAFT", label: "Draft" },
-  { value: "SUBMITTED", label: "Submitted" },
+  { value: "PENDING", label: "Pending" },
   { value: "APPROVED", label: "Approved" },
   { value: "REJECTED", label: "Rejected" },
-  { value: "PAID", label: "Paid" },
 ];
 
 export default function Invoices() {
@@ -89,7 +87,7 @@ export default function Invoices() {
   };
 
   const statusCounts = useMemo(() => {
-    const counts = { DRAFT: 0, SUBMITTED: 0, APPROVED: 0, REJECTED: 0, PAID: 0 };
+    const counts = { PENDING: 0, APPROVED: 0, REJECTED: 0 };
     invoices.forEach((inv) => {
       if (counts[inv.invoice_status] !== undefined) {
         counts[inv.invoice_status]++;
@@ -295,8 +293,7 @@ export default function Invoices() {
                 <div className="inv-action-message">{actionMessage}</div>
               )}
 
-              {/* Approve / Reject buttons - only show for SUBMITTED invoices */}
-              {selectedInvoice.invoice_status === "SUBMITTED" && (
+              {selectedInvoice.invoice_status === "PENDING" && (
                 <div className="inv-detail-actions">
                   <button
                     className="inv-btn-approve"
@@ -315,27 +312,15 @@ export default function Invoices() {
                 </div>
               )}
 
-              {selectedInvoice.invoice_status === "DRAFT" && (
-                <p className="inv-detail-note">
-                  This invoice is in draft. It must be submitted before it can be reviewed.
-                </p>
-              )}
-
               {selectedInvoice.invoice_status === "APPROVED" && (
                 <p className="inv-detail-note inv-detail-note-success">
-                  This invoice has been approved and is awaiting payment.
+                  This invoice has been approved.
                 </p>
               )}
 
               {selectedInvoice.invoice_status === "REJECTED" && (
                 <p className="inv-detail-note inv-detail-note-error">
                   This invoice was rejected. The vendor will need to resubmit.
-                </p>
-              )}
-
-              {selectedInvoice.invoice_status === "PAID" && (
-                <p className="inv-detail-note inv-detail-note-success">
-                  This invoice has been paid.
                 </p>
               )}
             </div>
