@@ -62,9 +62,25 @@ class WorkOrderSchema(ma.SQLAlchemyAutoSchema):
     estimated_end_date = fields.DateTime()
 
     status = fields.Enum(StatusEnum, by_value=True)
+    display_status = fields.Method("compute_display_status", dump_only=True)
 
     vendor = fields.Nested("VendorSchema", dump_only=True)
     service_type = fields.Nested("ServiceTypeSchema", dump_only=True)
+
+    def compute_display_status(self, obj):
+        from app.models.invoice import Invoice
+        from app.blueprints.enum.enums import InvoiceStatusEnum
+
+        invoices = Invoice.query.filter_by(work_order_id=obj.id).all()
+        if not invoices:
+            return obj.status.value if obj.status else None
+
+        statuses = {inv.invoice_status for inv in invoices}
+        if InvoiceStatusEnum.REJECTED in statuses:
+            return "INVOICE_REJECTED"
+        if InvoiceStatusEnum.PENDING in statuses:
+            return "PENDING_REVIEW"
+        return obj.status.value if obj.status else None
 
     @validates_schema
     def validate_fields(self, data, **kwargs):

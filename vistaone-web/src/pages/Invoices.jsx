@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "../components/AppShell";
 import { useInvoice } from "../hooks/useInvoice";
+import { useAuthContext } from "../context/AuthContext";
 import "../styles/invoices.css";
 
 const statusOptions = [
   { value: "ALL", label: "All" },
-  { value: "DRAFT", label: "Draft" },
-  { value: "SUBMITTED", label: "Submitted" },
+  { value: "PENDING", label: "Pending" },
   { value: "APPROVED", label: "Approved" },
   { value: "REJECTED", label: "Rejected" },
-  { value: "PAID", label: "Paid" },
 ];
 
 export default function Invoices() {
@@ -24,7 +23,9 @@ export default function Invoices() {
     fetchInvoices,
     approveInvoice,
     rejectInvoice,
+    setInvoicePending,
   } = useInvoice();
+  const { isAdmin } = useAuthContext();
 
   useEffect(() => {
     fetchInvoices();
@@ -88,8 +89,22 @@ export default function Invoices() {
     }
   };
 
+  const handleUndo = async (invoiceId) => {
+    setActionLoading(true);
+    setActionMessage("");
+    try {
+      const updated = await setInvoicePending(invoiceId);
+      setSelectedInvoice(updated);
+      setActionMessage("Invoice reset to pending");
+    } catch (err) {
+      setActionMessage(err.message || "Failed to undo");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const statusCounts = useMemo(() => {
-    const counts = { DRAFT: 0, SUBMITTED: 0, APPROVED: 0, REJECTED: 0, PAID: 0 };
+    const counts = { PENDING: 0, APPROVED: 0, REJECTED: 0 };
     invoices.forEach((inv) => {
       if (counts[inv.invoice_status] !== undefined) {
         counts[inv.invoice_status]++;
@@ -295,8 +310,7 @@ export default function Invoices() {
                 <div className="inv-action-message">{actionMessage}</div>
               )}
 
-              {/* Approve / Reject buttons - only show for SUBMITTED invoices */}
-              {selectedInvoice.invoice_status === "SUBMITTED" && (
+              {selectedInvoice.invoice_status === "PENDING" && (
                 <div className="inv-detail-actions">
                   <button
                     className="inv-btn-approve"
@@ -315,28 +329,42 @@ export default function Invoices() {
                 </div>
               )}
 
-              {selectedInvoice.invoice_status === "DRAFT" && (
-                <p className="inv-detail-note">
-                  This invoice is in draft. It must be submitted before it can be reviewed.
-                </p>
-              )}
-
               {selectedInvoice.invoice_status === "APPROVED" && (
-                <p className="inv-detail-note inv-detail-note-success">
-                  This invoice has been approved and is awaiting payment.
-                </p>
+                <>
+                  <p className="inv-detail-note inv-detail-note-success">
+                    This invoice has been approved.
+                  </p>
+                  {isAdmin && (
+                    <div className="inv-detail-actions">
+                      <button
+                        className="inv-btn-undo"
+                        onClick={() => handleUndo(selectedInvoice.id)}
+                        disabled={actionLoading}
+                      >
+                        {actionLoading ? "Processing..." : "Undo Approval (set Pending)"}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
 
               {selectedInvoice.invoice_status === "REJECTED" && (
-                <p className="inv-detail-note inv-detail-note-error">
-                  This invoice was rejected. The vendor will need to resubmit.
-                </p>
-              )}
-
-              {selectedInvoice.invoice_status === "PAID" && (
-                <p className="inv-detail-note inv-detail-note-success">
-                  This invoice has been paid.
-                </p>
+                <>
+                  <p className="inv-detail-note inv-detail-note-error">
+                    This invoice was rejected. The vendor will need to resubmit.
+                  </p>
+                  {isAdmin && (
+                    <div className="inv-detail-actions">
+                      <button
+                        className="inv-btn-undo"
+                        onClick={() => handleUndo(selectedInvoice.id)}
+                        disabled={actionLoading}
+                      >
+                        {actionLoading ? "Processing..." : "Undo Rejection (set Pending)"}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </section>

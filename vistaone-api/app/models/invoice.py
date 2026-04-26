@@ -22,7 +22,7 @@ class Invoice(db.Model):
     period_end = mapped_column(db.DateTime(timezone=True), nullable=True)
     total_amount = mapped_column(db.Numeric, nullable=False, default=0.0)
     invoice_status = mapped_column(
-        db.Enum(InvoiceStatusEnum), nullable=False, default=InvoiceStatusEnum.DRAFT
+        db.Enum(InvoiceStatusEnum), nullable=False, default=InvoiceStatusEnum.PENDING
     )
     paid_at = mapped_column(db.DateTime(timezone=True), nullable=True)
     approved_at = mapped_column(db.DateTime(timezone=True), nullable=True)

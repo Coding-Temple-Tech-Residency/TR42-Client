@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 class InvoiceService:
 
     @staticmethod
-    def get_all_invoices(vendor_id=None, client_id=None, status=None):
+    def get_all_invoices(vendor_id=None, client_id=None, status=None, work_order_id=None):
         invoices = InvoiceRepository.get_all(
-            vendor_id=vendor_id, client_id=client_id, status=status
+            vendor_id=vendor_id, client_id=client_id, status=status, work_order_id=work_order_id
         )
         return invoices
 
@@ -50,7 +50,7 @@ class InvoiceService:
 
             invoice = Invoice(**validated_data)
             invoice.created_by = current_user_id
-            invoice.invoice_status = InvoiceStatusEnum.DRAFT
+            invoice.invoice_status = InvoiceStatusEnum.PENDING
 
             saved = InvoiceRepository.create(invoice)
 
@@ -91,8 +91,6 @@ class InvoiceService:
         invoice = InvoiceRepository.get_by_id(invoice_id)
         if not invoice:
             raise ValueError("Invoice not found")
-        if invoice.invoice_status != InvoiceStatusEnum.SUBMITTED:
-            raise ValueError("Only submitted invoices can be approved")
 
         invoice.invoice_status = InvoiceStatusEnum.APPROVED
         invoice.approved_at = datetime.now(timezone.utc)
@@ -106,12 +104,22 @@ class InvoiceService:
         invoice = InvoiceRepository.get_by_id(invoice_id)
         if not invoice:
             raise ValueError("Invoice not found")
-        if invoice.invoice_status != InvoiceStatusEnum.SUBMITTED:
-            raise ValueError("Only submitted invoices can be rejected")
 
         invoice.invoice_status = InvoiceStatusEnum.REJECTED
         invoice.rejected_at = datetime.now(timezone.utc)
         invoice.last_modified_by = current_user_id
         saved = InvoiceRepository.update(invoice)
         logger.info(f"Invoice rejected: {saved.id}")
+        return saved
+
+    @staticmethod
+    def set_pending_invoice(invoice_id, current_user_id):
+        invoice = InvoiceRepository.get_by_id(invoice_id)
+        if not invoice:
+            raise ValueError("Invoice not found")
+
+        invoice.invoice_status = InvoiceStatusEnum.PENDING
+        invoice.last_modified_by = current_user_id
+        saved = InvoiceRepository.update(invoice)
+        logger.info(f"Invoice reset to pending: {saved.id}")
         return saved

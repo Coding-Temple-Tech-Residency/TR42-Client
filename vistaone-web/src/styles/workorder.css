@@ -454,22 +454,48 @@
 	}
 }
 
-/* ── Per-row tickets expand ─────────────────────────────────────────────── */
-.workorders-expand-btn {
-	background: transparent;
-	border: none;
-	cursor: pointer;
-	padding: 0 6px;
-	font-size: 14px;
-	color: #555;
-	line-height: 1;
+/* ── Click-to-detail row + detail modal ─────────────────────────────────── */
+.workorders-row-clickable { cursor: pointer; }
+.workorders-row-clickable:hover { background: #f5f8ff; }
+.workorders-row-clickable:focus-visible {
+	outline: 2px solid #007bff;
+	outline-offset: -2px;
 }
-.workorders-expand-btn:hover { color: #007bff; }
 
-.workorders-tickets-row > td {
-	background: #f7f9fc;
-	padding: 12px 16px;
-	border-top: 1px solid #e3e8ef;
+.workorder-detail-modal {
+	max-width: 900px;
+	width: 90%;
+	max-height: 85vh;
+	overflow-y: auto;
+}
+.workorder-detail-body {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 16px 20px 24px 20px;
+}
+.workorder-detail-section h3 {
+	font-size: 1em;
+	font-weight: 600;
+	color: #1f2937;
+	margin: 0 0 10px 0;
+	border-bottom: 1px solid #e3e8ef;
+	padding-bottom: 6px;
+}
+.workorder-detail-grid {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 6px 16px;
+	margin: 0;
+}
+.workorder-detail-grid dt {
+	color: #6b7280;
+	font-size: 0.9em;
+}
+.workorder-detail-grid dd {
+	margin: 0;
+	color: #111827;
+	font-size: 0.95em;
 }
 
 .workorders-tickets-state {
@@ -495,3 +521,14 @@
 	color: #4b5563;
 	background: transparent;
 }
+
+/* Derived display statuses (computed server-side from invoice state) */
+.status-badge.status-invoice_rejected {
+	background: #fde2e2;
+	color: #991b1b;
+}
+.status-badge.status-pending_review {
+	background: #fff4d6;
+	color: #92400e;
+}
+
