@@ -77,6 +77,7 @@ def create_app(config_name="ProductionConfig"):
     _register_audit_hooks(db)
 
     app.register_blueprint(users_bp, url_prefix="/users")
+    app.register_blueprint(profile_bp, url_prefix="/users/profile")
     app.register_blueprint(workorder_bp, url_prefix="/workorders")
     app.register_blueprint(well_bp, url_prefix="/wells")
     app.register_blueprint(vendor_bp, url_prefix="/vendors")
