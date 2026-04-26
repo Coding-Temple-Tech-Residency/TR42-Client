@@ -3,14 +3,12 @@ from app.blueprints.schema.invoice_schema import invoice_schema, invoices_schema
 from app.blueprints.services.invoice_service import InvoiceService
 from marshmallow import ValidationError
 from app.utils.util import token_required, role_required
+from app.utils.roles import MASTER, ADMIN
 import logging
 
 logger = logging.getLogger(__name__)
 
 invoice_bp = Blueprint("invoice_bp", __name__)
-
-MASTER = "MASTER"
-ADMIN = "ADMIN"
 
 
 # CREATE Invoice
