@@ -453,3 +453,45 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+/* ── Per-row tickets expand ─────────────────────────────────────────────── */
+.workorders-expand-btn {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 0 6px;
+	font-size: 14px;
+	color: #555;
+	line-height: 1;
+}
+.workorders-expand-btn:hover { color: #007bff; }
+
+.workorders-tickets-row > td {
+	background: #f7f9fc;
+	padding: 12px 16px;
+	border-top: 1px solid #e3e8ef;
+}
+
+.workorders-tickets-state {
+	color: #6b7280;
+	font-style: italic;
+	padding: 6px 0;
+}
+.workorders-tickets-error { color: #c0392b; font-style: normal; }
+
+.workorders-tickets-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.92em;
+}
+.workorders-tickets-table th,
+.workorders-tickets-table td {
+	padding: 6px 10px;
+	text-align: left;
+	border-bottom: 1px solid #e3e8ef;
+}
+.workorders-tickets-table th {
+	font-weight: 600;
+	color: #4b5563;
+	background: transparent;
+}
