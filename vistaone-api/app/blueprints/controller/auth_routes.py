@@ -68,10 +68,8 @@ def get_current_user(user_id):
 @users_bp.route("/logout", methods=["POST"])
 @token_required
 def logout(user_id):
-    logger.info(f"Logout request received for user ID:")
+    logger.info(f"Logout request received for user ID: {user_id}")
     response, status_code = LoginService.logout_user(user_id)
-    logger.info(f"Logout response: {response}, Status Code: {status_code}")
-    response = {"status": "success", "message": "Successfully logged out"}
     return jsonify(response), status_code
 
 

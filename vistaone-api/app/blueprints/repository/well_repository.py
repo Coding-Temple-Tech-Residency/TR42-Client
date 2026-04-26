@@ -12,11 +12,11 @@ class WellRepository:
     @staticmethod
     def get_by_id(well_id: UUID | str):
         try:
-            well_uuid = UUID(str(well_id))
+            UUID(str(well_id))
         except ValueError:
             return None
 
-        return db.session.query(Well).filter_by(id=well_uuid).first()
+        return db.session.query(Well).filter_by(id=str(well_id)).first()
 
     @staticmethod
     def create(well: Well):

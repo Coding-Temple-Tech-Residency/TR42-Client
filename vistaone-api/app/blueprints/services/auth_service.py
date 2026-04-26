@@ -5,7 +5,7 @@ from app.blueprints.enum.enums import UserStatus, UserType
 from app.utils.email_util import send_verification_email
 from flask import current_app
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from app.utils.util import encode_token, token_required
+from app.utils.util import encode_token
 from app.blueprints.repository.auth_repository import LoginRepository
 from app.utils.token_blacklist import blacklist
 import os
@@ -58,7 +58,6 @@ class LoginService:
                 return {"message": "Your account is not active."}, 403
 
     @staticmethod
-    @token_required
     def logout_user(user_id):
         logger.info(f"Logout attempt for user ID: {user_id}")
 
