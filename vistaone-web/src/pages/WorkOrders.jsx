@@ -58,7 +58,12 @@ export default function WorkOrders() {
       year: "numeric",
     });
 
-  const formatStatusLabel = (status) => status.replace("_", " ");
+  const formatStatusLabel = (status) => {
+    if (!status) return "";
+    if (status === "INVOICE_REJECTED") return "Invoice Rejected";
+    if (status === "PENDING_REVIEW") return "Pending Review";
+    return status.replace(/_/g, " ");
+  };
 
   return (
     <AppShell
@@ -149,11 +154,16 @@ export default function WorkOrders() {
                   <td>{`${order.latitude}, ${order.longitude}`}</td>
                   <td>{formatDate(order.created_at)}</td>
                   <td>
-                    <span
-                      className={`status-badge status-${order.status?.toLowerCase()}`}
-                    >
-                      {formatStatusLabel(order.status || "")}
-                    </span>
+                    {(() => {
+                      const effective = order.display_status || order.status;
+                      return (
+                        <span
+                          className={`status-badge status-${effective?.toLowerCase()}`}
+                        >
+                          {formatStatusLabel(effective)}
+                        </span>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}

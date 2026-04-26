@@ -521,3 +521,13 @@
 	color: #4b5563;
 	background: transparent;
 }
+
+/* Derived display statuses (computed server-side from invoice state) */
+.status-badge.status-invoice_rejected {
+	background: #fde2e2;
+	color: #991b1b;
+}
+.status-badge.status-pending_review {
+	background: #fff4d6;
+	color: #92400e;
+}

@@ -11,6 +11,13 @@ const formatDate = (s) =>
       })
     : "—";
 
+const formatStatusLabel = (status) => {
+  if (!status) return "";
+  if (status === "INVOICE_REJECTED") return "Invoice Rejected";
+  if (status === "PENDING_REVIEW") return "Pending Review";
+  return status.replace(/_/g, " ");
+};
+
 export default function WorkOrderDetailModal({ workOrder, onClose }) {
   const [tickets, setTickets] = useState(null);
   const [invoices, setInvoices] = useState(null);
@@ -82,9 +89,14 @@ export default function WorkOrderDetailModal({ workOrder, onClose }) {
               <dt>Priority</dt><dd>{workOrder.priority || "—"}</dd>
               <dt>Status</dt>
               <dd>
-                <span className={`status-badge status-${workOrder.status?.toLowerCase()}`}>
-                  {(workOrder.status || "").replace("_", " ")}
-                </span>
+                {(() => {
+                  const effective = workOrder.display_status || workOrder.status;
+                  return (
+                    <span className={`status-badge status-${effective?.toLowerCase()}`}>
+                      {formatStatusLabel(effective)}
+                    </span>
+                  );
+                })()}
               </dd>
               <dt>Created</dt><dd>{formatDate(workOrder.created_at)}</dd>
             </dl>
