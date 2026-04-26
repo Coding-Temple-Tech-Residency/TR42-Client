@@ -117,6 +117,15 @@ class LoginService:
         user = User(**user_data)
         if password:
             user.set_password(password)
+
+        # Assign the default role (USER) for the user's company
+        client_id = user_data.get("client_id")
+        if client_id:
+            from app.models.role import Role
+            default_role = Role.query.filter_by(client_id=client_id, is_default=True).first()
+            if default_role:
+                user.roles.append(default_role)
+
         created_user = UserRepository.create_user(user)
         # Generate a token for email verification
         s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
@@ -147,6 +156,8 @@ class LoginService:
             return {"message": "A user with this username is already registered."}, 409
 
         try:
+            from seed import init_company_roles
+
             address_data = client_data.pop("address", {})
             address = AddressRepository.get_or_create_address(address_data)
 
@@ -155,14 +166,10 @@ class LoginService:
             db.session.add(client)
             db.session.flush()
 
-            role = Role.query.filter_by(name="CLIENT_ADMIN").first()
-            if not role:
-                role = Role(
-                    name="CLIENT_ADMIN",
-                    description="Administrator for a client company",
-                )
-                db.session.add(role)
-                db.session.flush()
+            # Create MASTER, ADMIN, USER roles for this company
+            init_company_roles(client.id)
+
+            master_role = Role.query.filter_by(name="MASTER", client_id=client.id).first()
 
             password = admin_data.pop("password")
             admin_user = User(
@@ -173,7 +180,8 @@ class LoginService:
                 user_type=UserType.CLIENT,
             )
             admin_user.set_password(password)
-            admin_user.roles.append(role)
+            if master_role:
+                admin_user.roles.append(master_role)
             db.session.add(admin_user)
             db.session.commit()
 
@@ -201,6 +209,18 @@ class LoginService:
         user = UserRepository.get_user_by_email(email)
         if not user:
             return {"message": "User not found"}, 404
-        # Set user status to ACTIVE after email verification
-        UserRepository.update_user_status(user, UserStatus.ACTIVE)
+
+        # Master accounts are always activated immediately after email confirmation
+        new_status = UserStatus.PENDING_APPROVAL
+        if any(role.name == "MASTER" for role in user.roles):
+            new_status = UserStatus.ACTIVE
+        elif user.client_id:
+            from app.models.client import Client
+            client = Client.query.get(user.client_id)
+            if client and client.approved_domain:
+                email_domain = email.split("@")[-1].lower()
+                if email_domain == client.approved_domain.lower():
+                    new_status = UserStatus.ACTIVE
+
+        UserRepository.update_user_status(user, new_status)
         return {"message": "Email verified", "status": user.status.value}, 200

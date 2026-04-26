@@ -1,7 +1,9 @@
 import { useCallback, useState } from 'react';
 import { authService } from '../services/authServices';
+import { useAuthContext } from '../context/AuthContext';
 
 export const useAuth = () => {
+    const { setAuth, clearAuth } = useAuthContext();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -14,6 +16,8 @@ export const useAuth = () => {
 
             if (response?.token) {
                 localStorage.setItem('authToken', response.token);
+                const profile = await authService.getMe();
+                setAuth(response.token, profile);
             }
 
             return response;
@@ -24,16 +28,16 @@ export const useAuth = () => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [setAuth]);
 
     const clearError = useCallback(() => {
         setError('');
     }, []);
 
     const logout = useCallback(() => {
-        localStorage.removeItem('authToken');
+        clearAuth();
         setError('');
-    }, []);
+    }, [clearAuth]);
 
     return {
         isLoading,

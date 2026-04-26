@@ -1,4 +1,5 @@
 from .role import Role, user_role
+from .permission import Permission
 from .user import User
 from .workorder import WorkOrder
 from .address import Address

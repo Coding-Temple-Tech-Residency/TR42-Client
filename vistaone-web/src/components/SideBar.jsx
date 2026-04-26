@@ -1,9 +1,6 @@
-// sidebar component - the left nav panel with links and user info
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/sidebar.css";
-
-// importing icons from react-icons (fi = Feather Icons set)
 import {
     FiGrid,
     FiList,
@@ -12,32 +9,41 @@ import {
     FiUsers,
     FiFolder,
     FiLogOut,
+    FiSettings,
+    FiShield,
 } from "react-icons/fi";
+import { useAuth } from "../hooks/useAuth";
 
-// navData gets passed in from the parent component
 function SideBar({ navData }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const { logout } = useAuth();
 
-    // clears both auth tokens and sends user back to login
     const handleLogout = () => {
+        logout();
         localStorage.removeItem("token");
         localStorage.removeItem("authToken");
         navigate("/login");
     };
 
-    // Helper to check if route is active
     const isActive = (to) => to && location.pathname.startsWith(to);
+
+    const initials = navData.userName
+        ? navData.userName
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()
+              .slice(0, 2)
+        : "??";
 
     return (
         <aside className="sidebar">
-            {/* brand section at the top */}
             <div className="sidebar-brand">
                 <h2 className="sidebar-title">FieldPortal</h2>
                 <p className="sidebar-subtitle">Permian Basin Operations</p>
             </div>
 
-            {/* navigation links */}
             <nav className="sidebar-nav">
                 <p className="sidebar-section-label">MAIN</p>
                 <ul className="sidebar-list">
@@ -55,6 +61,7 @@ function SideBar({ navData }) {
                         </li>
                     ))}
                 </ul>
+
                 <p className="sidebar-section-label">ACCOUNT</p>
                 <ul className="sidebar-list">
                     {navData.account.map((item) => (
@@ -71,10 +78,44 @@ function SideBar({ navData }) {
                         </li>
                     ))}
                 </ul>
+
+                {navData.admin && navData.admin.length > 0 && (
+                    <>
+                        <p className="sidebar-section-label">ADMIN</p>
+                        <ul className="sidebar-list">
+                            {navData.admin.map((item) => (
+                                <li
+                                    key={item.label}
+                                    className={`sidebar-item ${isActive(item.to) ? "active" : ""}`}
+                                    onClick={() => item.to && navigate(item.to)}
+                                    style={{
+                                        cursor: item.to ? "pointer" : "default",
+                                    }}
+                                >
+                                    <span className="sidebar-icon">
+                                        {getIcon(item.icon)}
+                                    </span>
+                                    <span>{item.label}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                )}
             </nav>
 
-            {/* sign out at the bottom */}
             <div className="sidebar-bottom">
+                <div className="sidebar-user">
+                    <div className="sidebar-avatar">{initials}</div>
+                    <div>
+                        <p className="sidebar-user-name">
+                            {navData.userName || "User"}
+                        </p>
+                        <p className="sidebar-user-role">
+                            {navData.userRole || "Member"}
+                        </p>
+                    </div>
+                </div>
+
                 <button className="sidebar-logout" onClick={handleLogout}>
                     <FiLogOut />
                     <span>Sign out</span>
@@ -84,7 +125,6 @@ function SideBar({ navData }) {
     );
 }
 
-// maps icon names to react-icons components
 function getIcon(iconName) {
     const icons = {
         grid: <FiGrid />,
@@ -93,6 +133,8 @@ function getIcon(iconName) {
         file: <FiFileText />,
         users: <FiUsers />,
         folder: <FiFolder />,
+        settings: <FiSettings />,
+        shield: <FiShield />,
     };
     return icons[iconName] || null;
 }

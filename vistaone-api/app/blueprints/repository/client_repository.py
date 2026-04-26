@@ -13,6 +13,10 @@ class ClientRepository:
         return db.session.query(Client).filter_by(client_code=code).first()
 
     @staticmethod
+    def get_all_clients():
+        return Client.query.order_by(Client.client_name).all()
+
+    @staticmethod
     def create_client(client):
         try:
             db.session.add(client)
