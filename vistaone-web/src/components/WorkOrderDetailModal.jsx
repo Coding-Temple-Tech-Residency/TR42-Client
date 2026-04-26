@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ticketService } from "../services/ticketService";
 import { invoiceService } from "../services/invoiceService";
+import { useAuthContext } from "../context/AuthContext";
 
 const formatDate = (s) =>
   s
@@ -19,10 +20,12 @@ const formatStatusLabel = (status) => {
 };
 
 export default function WorkOrderDetailModal({ workOrder, onClose }) {
+  const { isAdmin } = useAuthContext();
   const [tickets, setTickets] = useState(null);
   const [invoices, setInvoices] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingInvoiceId, setUpdatingInvoiceId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,6 +51,25 @@ export default function WorkOrderDetailModal({ workOrder, onClose }) {
       cancelled = true;
     };
   }, [workOrder.id]);
+
+  const handleStatusChange = async (invoiceId, nextStatus) => {
+    setUpdatingInvoiceId(invoiceId);
+    try {
+      let updated;
+      if (nextStatus === "APPROVED") updated = await invoiceService.approve(invoiceId);
+      else if (nextStatus === "REJECTED") updated = await invoiceService.reject(invoiceId);
+      else if (nextStatus === "PENDING") updated = await invoiceService.setPending(invoiceId);
+      if (updated) {
+        setInvoices((prev) =>
+          prev.map((inv) => (inv.id === invoiceId ? { ...inv, ...updated } : inv))
+        );
+      }
+    } catch (err) {
+      setError(err.message || "Failed to update invoice status");
+    } finally {
+      setUpdatingInvoiceId(null);
+    }
+  };
 
   return (
     <div className="workorders-modal-overlay" onClick={onClose}>
@@ -162,7 +184,22 @@ export default function WorkOrderDetailModal({ workOrder, onClose }) {
                       <td>{formatDate(inv.invoice_date)}</td>
                       <td>{formatDate(inv.due_date)}</td>
                       <td>{inv.total_amount != null ? `$${Number(inv.total_amount).toFixed(2)}` : "—"}</td>
-                      <td>{inv.invoice_status}</td>
+                      <td>
+                        {isAdmin ? (
+                          <select
+                            className="invoice-status-select"
+                            value={inv.invoice_status}
+                            disabled={updatingInvoiceId === inv.id}
+                            onChange={(e) => handleStatusChange(inv.id, e.target.value)}
+                          >
+                            <option value="PENDING">Pending</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+                          </select>
+                        ) : (
+                          inv.invoice_status
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

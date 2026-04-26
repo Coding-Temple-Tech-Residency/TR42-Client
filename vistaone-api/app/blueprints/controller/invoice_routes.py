@@ -2,12 +2,15 @@ from flask import request, jsonify, Blueprint
 from app.blueprints.schema.invoice_schema import invoice_schema, invoices_schema
 from app.blueprints.services.invoice_service import InvoiceService
 from marshmallow import ValidationError
-from app.utils.util import token_required
+from app.utils.util import token_required, role_required
 import logging
 
 logger = logging.getLogger(__name__)
 
 invoice_bp = Blueprint("invoice_bp", __name__)
+
+MASTER = "MASTER"
+ADMIN = "ADMIN"
 
 
 # CREATE Invoice
@@ -77,9 +80,9 @@ def update_invoice(current_user_id, invoice_id):
         return jsonify({"error": str(e)}), 400
 
 
-# APPROVE invoice
+# APPROVE invoice (also serves as override from REJECTED/PENDING)
 @invoice_bp.route("/<string:invoice_id>/approve", methods=["PUT"])
-@token_required
+@role_required(MASTER, ADMIN)
 def approve_invoice(current_user_id, invoice_id):
     try:
         invoice = InvoiceService.approve_invoice(invoice_id, current_user_id)
@@ -90,12 +93,25 @@ def approve_invoice(current_user_id, invoice_id):
         return jsonify({"error": str(e)}), 400
 
 
-# REJECT invoice
+# REJECT invoice (also serves as override from APPROVED/PENDING)
 @invoice_bp.route("/<string:invoice_id>/reject", methods=["PUT"])
-@token_required
+@role_required(MASTER, ADMIN)
 def reject_invoice(current_user_id, invoice_id):
     try:
         invoice = InvoiceService.reject_invoice(invoice_id, current_user_id)
+        return invoice_schema.jsonify(invoice), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+# RESET invoice back to PENDING (override from APPROVED/REJECTED)
+@invoice_bp.route("/<string:invoice_id>/set-pending", methods=["PUT"])
+@role_required(MASTER, ADMIN)
+def set_pending_invoice(current_user_id, invoice_id):
+    try:
+        invoice = InvoiceService.set_pending_invoice(invoice_id, current_user_id)
         return invoice_schema.jsonify(invoice), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400

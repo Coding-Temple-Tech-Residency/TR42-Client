@@ -58,4 +58,13 @@ export const invoiceService = {
     if (!response.ok) throw new Error("Failed to reject invoice");
     return await response.json();
   },
+
+  setPending: async (invoiceId) => {
+    const response = await authFetch(
+      `${INVOICE_ENDPOINT}/${invoiceId}/set-pending`,
+      { method: "PUT" }
+    );
+    if (!response.ok) throw new Error("Failed to set invoice to pending");
+    return await response.json();
+  },
 };

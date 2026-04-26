@@ -531,3 +531,15 @@
 	background: #fff4d6;
 	color: #92400e;
 }
+
+.invoice-status-select {
+	padding: 4px 6px;
+	border: 1px solid #d1d5db;
+	border-radius: 4px;
+	font-size: 0.9em;
+	background: #fff;
+}
+.invoice-status-select:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
