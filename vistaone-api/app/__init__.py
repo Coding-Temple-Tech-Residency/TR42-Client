@@ -10,6 +10,8 @@ from app.blueprints.controller import (
     clients_bp,
     admin_bp,
     role_bp,
+    profile_bp,
+    ticket_bp,
 )
 from app.utils.logging_util import logging_setup
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -83,6 +85,7 @@ def create_app(config_name="ProductionConfig"):
     app.register_blueprint(clients_bp, url_prefix="/clients")
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(role_bp, url_prefix="/admin/roles")
+    app.register_blueprint(ticket_bp, url_prefix="/tickets")
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     CORS(

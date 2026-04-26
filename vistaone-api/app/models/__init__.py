@@ -12,6 +12,7 @@ from .msa import Msa
 from .invoice import Invoice
 from .line_item import LineItem
 from .client_vendor import ClientVendor
+from .ticket import Ticket
 from app.blueprints.enum.enums import (
     StatusEnum,
     PriorityEnum,
@@ -20,4 +21,5 @@ from app.blueprints.enum.enums import (
     WellStatusEnum,
     VendorStatus,
     ComplianceStatus,
+    TicketStatusEnum,
 )

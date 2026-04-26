@@ -7,6 +7,7 @@ from .invoice_routes import invoice_bp
 from .client_routes import clients_bp
 from .admin_routes import admin_bp
 from .role_routes import role_bp
+from .ticket_routes import ticket_bp
 
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "clients_bp",
     "admin_bp",
     "role_bp",
+    "ticket_bp",
 ]
