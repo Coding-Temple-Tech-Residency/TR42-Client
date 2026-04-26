@@ -5,7 +5,7 @@ from app.blueprints.schema.auth_schema import login_schema
 from app.blueprints.schema.register_user_schema import register_user_schema
 from app.blueprints.services.auth_service import LoginService
 from app.models.user import User
-from app.utils.util import token_required
+from app.utils.util import token_required, get_user_permissions
 import logging
 
 users_bp = Blueprint("users_bp", __name__)
@@ -50,11 +50,15 @@ def get_current_user(user_id):
         jsonify(
             {
                 "id": user.id,
+                "username": user.username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "email": user.email,
+                "client_id": user.client_id,
                 "company_id": user.client_id,
+                "status": user.status.value if user.status else None,
                 "roles": [r.name for r in user.roles],
+                "permissions": get_user_permissions(user),
             }
         ),
         200,
