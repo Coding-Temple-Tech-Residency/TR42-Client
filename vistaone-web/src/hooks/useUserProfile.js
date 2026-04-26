@@ -25,8 +25,10 @@ export function useUserProfile() {
         try {
             const res = await authService.updateProfile(formData);
             setData(res.data); // backend returns { message, data }
+            return res;
         } catch (err) {
             setError(err.message || "Update failed");
+            throw err;
         } finally {
             setLoading(false);
         }

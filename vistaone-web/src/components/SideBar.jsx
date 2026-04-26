@@ -61,17 +61,8 @@ function Sidebar({ navData }) {
         </ul>
       </nav>
 
-      {/* user profile and sign out at the bottom */}
+      {/* sign out at the bottom */}
       <div className="sidebar-bottom">
-        <div className="sidebar-user">
-          <div className="sidebar-avatar">RC</div>
-          <div>
-            <p className="sidebar-user-name">R. Chavez</p>
-            <p className="sidebar-user-role">Company Rep</p>
-          </div>
-        </div>
-
-        {/* logout button */}
         <button className="sidebar-logout" onClick={handleLogout}>
           <FiLogOut />
           <span>Sign out</span>
