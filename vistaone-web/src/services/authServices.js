@@ -7,6 +7,7 @@ const ME_ENDPOINT = '/api/users/me';
 const ADMIN_USERS_ENDPOINT = '/api/admin/users';
 const ADMIN_ROLES_ENDPOINT = '/api/admin/roles';
 const CLIENT_SETTINGS_ENDPOINT = '/api/clients/settings';
+const PROFILE_ENDPOINT = "/users/profile/";
 
 function authHeader() {
     const token = localStorage.getItem('authToken');
@@ -41,7 +42,7 @@ export const authService = {
                 city: formData.city || "",
                 state: formData.state || "",
                 zip: formData.zip || "",
-                country: formData.country || ""
+                country: formData.country || "",
             };
             const payload = {};
             Object.entries(formData).forEach(([key, value]) => {
@@ -236,5 +237,91 @@ export const authService = {
             body: JSON.stringify(settings),
         });
         return handleResponse(res);
+            const response = await fetch(
+                `${VERIFY_EMAIL_ENDPOINT}?token=${token}`,
+            );
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                return {
+                    success: false,
+                    message: payload?.message || "Verification failed.",
+                };
+            }
+            return { success: true, message: payload.message };
+        } catch (err) {
+            if (err instanceof Error) {
+                return { success: false, message: err.message };
+            }
+            return {
+                success: false,
+                message: "Unable to reach server. Please try again later.",
+            };
+        }
+    },
+
+    getProfile: async () => {
+        const res = await fetch("/api" + PROFILE_ENDPOINT, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+        });
+        let data = {};
+        try {
+            data = await res.json();
+        } catch (e) {
+            console.warn("Response is not JSON", e);
+        }
+
+        if (!res.ok) {
+            throw new Error(data.error || "Failed to fetch profile");
+        }
+
+        return data;
+    },
+
+    updateProfile: async (data) => {
+        const res = await fetch("/api" + PROFILE_ENDPOINT, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+            body: JSON.stringify(data),
+        });
+        let result = {};
+        try {
+            result = await res.json();
+        } catch (e) {
+            console.warn("Response is not JSON", e);
+        }
+
+        if (!res.ok) {
+            throw new Error(result.error || "Update failed");
+        }
+
+        return result;
+    },
+    changePassword: async (data) => {
+        const res = await fetch("/api" + PROFILE_ENDPOINT + "change-password", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        let result = {};
+        try {
+            result = await res.json();
+        } catch {
+            // response may not be JSON
+        }
+
+        if (!res.ok) {
+            throw new Error(result.error || "Password change failed");
+        }
+
+        return result;
     },
 };
