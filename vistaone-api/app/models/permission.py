@@ -11,7 +11,7 @@ class Permission(db.Model, AuditMixin):
         db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
     role_id: Mapped[str] = mapped_column(
-        db.String(36), db.ForeignKey("role.id", ondelete="CASCADE"), nullable=False
+        db.String(36), db.ForeignKey("roles.id", ondelete="CASCADE"), nullable=False
     )
     resource: Mapped[str] = mapped_column(db.String(100), nullable=False)
     can_read: Mapped[bool] = mapped_column(db.Boolean, default=False, nullable=False)
