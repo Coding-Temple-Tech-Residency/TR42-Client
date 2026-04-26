@@ -16,7 +16,6 @@ export default function CreateOrEditWellModal({
           latitude: initialData.latitude ? String(initialData.latitude) : "",
           longitude: initialData.longitude ? String(initialData.longitude) : "",
           status: initialData.status || "ACTIVE",
-          client_id: initialData.client_id || "",
         }
       : {
           well_number: "",
@@ -24,7 +23,6 @@ export default function CreateOrEditWellModal({
           latitude: "",
           longitude: "",
           status: "ACTIVE",
-          client_id: "",
         },
   );
   const [error, setError] = useState("");
