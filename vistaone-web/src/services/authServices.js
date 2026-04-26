@@ -237,26 +237,6 @@ export const authService = {
             body: JSON.stringify(settings),
         });
         return handleResponse(res);
-            const response = await fetch(
-                `${VERIFY_EMAIL_ENDPOINT}?token=${token}`,
-            );
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) {
-                return {
-                    success: false,
-                    message: payload?.message || "Verification failed.",
-                };
-            }
-            return { success: true, message: payload.message };
-        } catch (err) {
-            if (err instanceof Error) {
-                return { success: false, message: err.message };
-            }
-            return {
-                success: false,
-                message: "Unable to reach server. Please try again later.",
-            };
-        }
     },
 
     getProfile: async () => {
