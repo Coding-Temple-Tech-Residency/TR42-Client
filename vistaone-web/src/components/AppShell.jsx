@@ -1,9 +1,9 @@
 import TopBar from "./TopBar";
 import "../styles/appShell.css";
 import SideBar from "./SideBar";
+import { sidebarNav } from "../data/dashboardData";
 import LoadingOverlay from "./LoadingOverlay";
 import { useAuthContext } from "../context/AuthContext";
-import { sidebarNav } from "../data/dashboardData";
 
 function AppShell({
     title,
