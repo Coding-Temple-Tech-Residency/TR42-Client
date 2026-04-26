@@ -40,6 +40,15 @@ export const useInvoice = () => {
         return updated;
     }, []);
 
+    // Reset an invoice to PENDING (undo a prior approval/rejection)
+    const setInvoicePending = useCallback(async (invoiceId) => {
+        const updated = await invoiceService.setPending(invoiceId);
+        setInvoices((prev) =>
+            prev.map((inv) => (inv.id === invoiceId ? updated : inv))
+        );
+        return updated;
+    }, []);
+
     return {
         invoices,
         loading,
@@ -47,5 +56,6 @@ export const useInvoice = () => {
         createInvoice,
         approveInvoice,
         rejectInvoice,
+        setInvoicePending,
     };
 };

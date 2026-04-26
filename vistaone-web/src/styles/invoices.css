@@ -264,3 +264,16 @@
   background: #fef2f2;
   color: #991b1b;
 }
+
+.inv-btn-undo {
+	flex: 1;
+	padding: 10px;
+	border: 1px solid #6b7280;
+	border-radius: 6px;
+	background: #fff;
+	color: #374151;
+	font-weight: 600;
+	cursor: pointer;
+}
+.inv-btn-undo:hover { background: #f3f4f6; }
+.inv-btn-undo:disabled { opacity: 0.6; cursor: not-allowed; }
