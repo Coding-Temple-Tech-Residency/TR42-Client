@@ -16,7 +16,6 @@ export default function CreateOrEditWellModal({
           latitude: initialData.latitude ? String(initialData.latitude) : "",
           longitude: initialData.longitude ? String(initialData.longitude) : "",
           status: initialData.status || "ACTIVE",
-          client_id: initialData.client_id || "",
         }
       : {
           well_number: "",
@@ -24,7 +23,6 @@ export default function CreateOrEditWellModal({
           latitude: "",
           longitude: "",
           status: "ACTIVE",
-          client_id: "",
         },
   );
   const [error, setError] = useState("");
@@ -107,11 +105,7 @@ export default function CreateOrEditWellModal({
     }
     setLoading(true);
     try {
-      const formWithClient = {
-        ...form,
-        client_id: "11111111-1111-1111-1111-111111111111",
-      };
-      await onSubmit(formWithClient);
+      await onSubmit(form);
     } catch (err) {
       console.error(err);
       setError(`Failed to ${mode === "edit" ? "update" : "create"} well.`);
