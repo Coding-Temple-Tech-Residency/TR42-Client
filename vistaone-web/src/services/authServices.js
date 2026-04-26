@@ -6,12 +6,13 @@ const REGISTER_CLIENT_ENDPOINT = '/api/clients/register';
 const ME_ENDPOINT = '/api/users/me';
 const ADMIN_USERS_ENDPOINT = '/api/admin/users';
 const ADMIN_ROLES_ENDPOINT = '/api/admin/roles';
+const MASTER_TRANSFER_ENDPOINT = '/api/admin/master/transfer';
 const CLIENT_SETTINGS_ENDPOINT = '/api/clients/settings';
-const PROFILE_ENDPOINT = "/users/profile/";
+const PROFILE_ENDPOINT = '/api/users/profile/';
 
 function authHeader() {
     const token = localStorage.getItem('authToken');
-    return { Authorization: `Bearer ${token}` };
+    return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 async function handleResponse(res) {
@@ -164,7 +165,7 @@ export const authService = {
     },
 
     transferMaster: async (targetUserId) => {
-        const res = await fetch('/api/admin/master/transfer', {
+        const res = await fetch(MASTER_TRANSFER_ENDPOINT, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...authHeader() },
             body: JSON.stringify({ target_user_id: targetUserId }),
@@ -240,68 +241,25 @@ export const authService = {
     },
 
     getProfile: async () => {
-        const res = await fetch("/api" + PROFILE_ENDPOINT, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-        });
-        let data = {};
-        try {
-            data = await res.json();
-        } catch (e) {
-            console.warn("Response is not JSON", e);
-        }
-
-        if (!res.ok) {
-            throw new Error(data.error || "Failed to fetch profile");
-        }
-
-        return data;
+        const res = await fetch(PROFILE_ENDPOINT, { headers: authHeader() });
+        return handleResponse(res);
     },
 
     updateProfile: async (data) => {
-        const res = await fetch("/api" + PROFILE_ENDPOINT, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
+        const res = await fetch(PROFILE_ENDPOINT, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...authHeader() },
             body: JSON.stringify(data),
         });
-        let result = {};
-        try {
-            result = await res.json();
-        } catch (e) {
-            console.warn("Response is not JSON", e);
-        }
-
-        if (!res.ok) {
-            throw new Error(result.error || "Update failed");
-        }
-
-        return result;
+        return handleResponse(res);
     },
+
     changePassword: async (data) => {
-        const res = await fetch("/api" + PROFILE_ENDPOINT + "change-password", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
+        const res = await fetch(`${PROFILE_ENDPOINT}change-password`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', ...authHeader() },
             body: JSON.stringify(data),
         });
-
-        let result = {};
-        try {
-            result = await res.json();
-        } catch {
-            // response may not be JSON
-        }
-
-        if (!res.ok) {
-            throw new Error(result.error || "Password change failed");
-        }
-
-        return result;
+        return handleResponse(res);
     },
 };
