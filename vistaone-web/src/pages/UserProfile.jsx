@@ -11,6 +11,8 @@ export default function UserProfile() {
     const [formData, setFormData] = useState({});
     const [editMode, setEditMode] = useState(false);
     const [showPwModal, setShowPwModal] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [addressError, setAddressError] = useState("");
 
     useEffect(() => {
         setFormData(data || {});
@@ -18,6 +20,9 @@ export default function UserProfile() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        // Clear feedback as soon as the user keeps typing
+        setSuccessMessage("");
+        setAddressError("");
         if (ADDRESS_FIELDS.includes(name)) {
             setFormData((prev) => ({
                 ...prev,
@@ -29,8 +34,25 @@ export default function UserProfile() {
     };
 
     const handleSave = async () => {
-        // Strip empty fields so the backend's strict validation (required
-        // address sub-fields, typed date) doesn't reject the payload.
+        setSuccessMessage("");
+        setAddressError("");
+
+        const addr = formData.address || {};
+        const addrFilled = ADDRESS_FIELDS.filter(
+            (f) => addr[f] && String(addr[f]).trim() !== "",
+        );
+        const addrTouched = addrFilled.length > 0;
+        const addrComplete = addrFilled.length === ADDRESS_FIELDS.length;
+
+        // If the user filled some address fields but not all, warn them.
+        // Otherwise the backend would silently reject the address.
+        if (addrTouched && !addrComplete) {
+            setAddressError(
+                "Address requires all 5 fields (street, city, state, ZIP, country). Fill them all or clear them.",
+            );
+            return;
+        }
+
         const payload = {};
         const editableFields = [
             "first_name",
@@ -45,12 +67,6 @@ export default function UserProfile() {
             if (v !== undefined && v !== null && v !== "") payload[f] = v;
         });
 
-        // Only include address if all 5 fields are present (AddressSchema
-        // requires all of them).
-        const addr = formData.address || {};
-        const addrComplete = ADDRESS_FIELDS.every(
-            (f) => addr[f] && String(addr[f]).trim() !== "",
-        );
         if (addrComplete) {
             payload.address = {
                 street: addr.street,
@@ -61,12 +77,19 @@ export default function UserProfile() {
             };
         }
 
-        await updateProfile(payload);
-        if (!error) setEditMode(false);
+        try {
+            await updateProfile(payload);
+            setSuccessMessage("Profile updated successfully.");
+            setEditMode(false);
+        } catch {
+            // Error already surfaced via the hook's `error` state
+        }
     };
 
     const handleCancel = () => {
         setFormData(data || {});
+        setSuccessMessage("");
+        setAddressError("");
         setEditMode(false);
     };
 
@@ -78,6 +101,12 @@ export default function UserProfile() {
             loadingText="Loading profile..."
         >
             {error && <div className="profile-error">{error}</div>}
+            {successMessage && (
+                <div className="profile-success">{successMessage}</div>
+            )}
+            {addressError && (
+                <div className="profile-error">{addressError}</div>
+            )}
 
             <div className="profile-grid">
                 <section className="profile-card">
