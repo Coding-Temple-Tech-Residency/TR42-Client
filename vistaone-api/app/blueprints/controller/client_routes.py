@@ -4,7 +4,7 @@ from app.blueprints.schema.register_client_schema import register_client_schema
 from app.blueprints.services.auth_service import LoginService
 from app.utils.util import role_required
 from app.models.user import User
-from app.extensions import db
+from app.extensions import db, limiter
 import logging
 
 clients_bp = Blueprint("clients_bp", __name__)
@@ -14,12 +14,13 @@ MASTER = "MASTER"
 
 
 @clients_bp.route("", methods=["GET"])
+@limiter.limit("30 per minute")
 def list_clients():
     """Public endpoint — returns minimal client info for the registration dropdown."""
     from app.blueprints.repository.client_repository import ClientRepository
     clients = ClientRepository.get_all_clients()
     return jsonify([
-        {"id": c.id, "client_name": c.client_name, "client_code": c.client_code}
+        {"id": c.id, "client_name": c.client_name}
         for c in clients
     ]), 200
 

@@ -118,7 +118,6 @@ function CompanyCombobox({ companies, value, onChange, error, loading, fetchErro
                     <span className="d-flex align-items-center gap-2">
                         <Building2 size={15} className="text-muted flex-shrink-0" />
                         <span>{selected.client_name}</span>
-                        <span className="text-muted small">({selected.client_code})</span>
                     </span>
                 ) : (
                     <span className="text-muted">Select your company</span>
@@ -201,9 +200,6 @@ function CompanyCombobox({ companies, value, onChange, error, loading, fetchErro
                                 >
                                     <Building2 size={14} className="flex-shrink-0" />
                                     <span className="flex-grow-1">{c.client_name}</span>
-                                    <span className={`small ${c.id === value ? "text-white-50" : "text-muted"}`}>
-                                        {c.client_code}
-                                    </span>
                                 </li>
                             ))
                         )}
