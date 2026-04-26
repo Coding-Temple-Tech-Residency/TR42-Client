@@ -10,10 +10,22 @@ logger = logging.getLogger(__name__)
 
 SECRET_KEY = os.environ.get("SECRET_KEY") or "custom key"
 
+ALL_RESOURCES = [
+    "dashboard",
+    "wells",
+    "workorders",
+    "vendors",
+    "vendor_marketplace",
+    "contracts",
+    "invoices",
+    "users",
+    "promote_admin",
+]
+
 
 def encode_token(user_id):
     payload = {
-        "exp": datetime.now(timezone.utc) + timedelta(days=0, hours=1),
+        "exp": datetime.now(timezone.utc) + timedelta(days=0, hours=5),
         "iat": datetime.now(timezone.utc),
         "sub": str(user_id),
         "jti": str(user_id) + "-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S"),
@@ -35,9 +47,7 @@ def _decode_request_token():
         if jti in blacklist:
             logger.warning(f"Attempted access with revoked token: {jti}")
             return None, (jsonify({"message": "Token has been revoked!"}), 401)
-        user_id = data["sub"]
-        logger.info(f"User ID: {user_id}")
-        return user_id, None
+        return data["sub"], None
     except jwt.ExpiredSignatureError:
         return None, (jsonify({"message": "Token has expired!"}), 401)
     except jwt.InvalidTokenError:
@@ -54,6 +64,85 @@ def token_required(f):
         if err:
             return err
         g.current_user_id = user_id
+        logger.info(f"Authenticated user: {user_id}")
         return f(user_id, *args, **kwargs)
 
     return decorated
+
+
+def role_required(*allowed_roles):
+    """Decorator that checks the user has at least one of the allowed role names."""
+
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            user_id, err = _decode_request_token()
+            if err:
+                return err
+            g.current_user_id = user_id
+
+            from app.models.user import User
+
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({"message": "User not found"}), 404
+
+            user_role_names = {r.name for r in user.roles}
+            if not user_role_names.intersection(set(allowed_roles)):
+                return jsonify({"message": "Insufficient permissions"}), 403
+
+            return f(user_id, *args, **kwargs)
+
+        return decorated
+
+    return decorator
+
+
+def get_user_permissions(user):
+    """Return aggregated permissions dict for a user.
+    MASTER gets full access on all resources.
+    Others get their actual DB permissions.
+    """
+    role_names = {r.name for r in user.roles}
+    if "MASTER" in role_names:
+        return {
+            res: {"read": True, "write": True, "delete": True} for res in ALL_RESOURCES
+        }
+
+    from app.blueprints.repository.permission_repository import PermissionRepository
+
+    role_ids = [r.id for r in user.roles]
+    return PermissionRepository.aggregate_permissions(role_ids)
+
+
+def permission_required(resource, action="read"):
+    """Decorator that checks the user has a specific permission on a resource.
+    MASTER bypasses all checks.
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            user_id, err = _decode_request_token()
+            if err:
+                return err
+            g.current_user_id = user_id
+
+            from app.models.user import User
+
+            user = User.query.get(user_id)
+            if not user:
+                return jsonify({"message": "User not found"}), 404
+
+            role_names = {r.name for r in user.roles}
+            if "MASTER" not in role_names:
+                perms = get_user_permissions(user)
+                resource_perms = perms.get(resource, {})
+                if not resource_perms.get(action, False):
+                    return jsonify({"message": "Insufficient permissions"}), 403
+
+            return f(user_id, *args, **kwargs)
+
+        return decorated
+
+    return decorator
