@@ -107,11 +107,7 @@ export default function CreateOrEditWellModal({
     }
     setLoading(true);
     try {
-      const formWithClient = {
-        ...form,
-        client_id: "11111111-1111-1111-1111-111111111111",
-      };
-      await onSubmit(formWithClient);
+      await onSubmit(form);
     } catch (err) {
       console.error(err);
       setError(`Failed to ${mode === "edit" ? "update" : "create"} well.`);

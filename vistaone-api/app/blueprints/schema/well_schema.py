@@ -6,6 +6,7 @@ from app.blueprints.enum.enums import WellStatusEnum
 
 class WellSchema(ma.SQLAlchemyAutoSchema):
     status = EnumField(WellStatusEnum, by_value=True)
+    client_id = ma.auto_field(dump_only=True)
 
     class Meta:
         model = Well
