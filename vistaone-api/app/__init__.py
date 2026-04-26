@@ -46,7 +46,7 @@ def create_app(config_name="ProductionConfig"):
     app.register_blueprint(profile_bp, url_prefix="/users/profile")
     app.register_blueprint(workorder_bp, url_prefix="/workorders")
     app.register_blueprint(well_bp, url_prefix="/wells")
-    app.register_blueprint(vendor_bp, url_prefix='/vendors')
+    app.register_blueprint(vendor_bp, url_prefix="/vendors")
     app.register_blueprint(msa_bp, url_prefix="/msa")
     app.register_blueprint(invoice_bp, url_prefix="/invoices")
     app.register_blueprint(clients_bp, url_prefix="/clients")
@@ -55,7 +55,10 @@ def create_app(config_name="ProductionConfig"):
 
     CORS(
         app,
-        origins=["http://localhost:5173"],
+        origins=[
+            "http://localhost:5173",
+            "https://client-web-dashboard-q67uq3u77-dhanushkas-projects-bab7974e.vercel.app",
+        ],
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     )
@@ -96,7 +99,9 @@ def _register_audit_hooks(db):
         from flask import g, has_request_context
         from app.models.user import User
 
-        actor_id = getattr(g, "current_user_id", None) if has_request_context() else None
+        actor_id = (
+            getattr(g, "current_user_id", None) if has_request_context() else None
+        )
 
         for obj in session.new:
             if not hasattr(obj, "created_by"):
