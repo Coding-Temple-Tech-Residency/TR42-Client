@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import AppShell from "../components/AppShell";
 import { useWorkOrder } from "../hooks/useWorkOrder";
 import CreateWorkOrderModal from "../components/CreateWorkOrderModal";
+import { ticketService } from "../services/ticketService";
 import "../styles/workorder.css";
 
 const statusOptions = [
@@ -19,6 +20,10 @@ export default function WorkOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [showModal, setShowModal] = useState(false);
+  const [expanded, setExpanded] = useState(() => new Set());
+  const [ticketsByWO, setTicketsByWO] = useState({});
+  const [ticketsLoading, setTicketsLoading] = useState(() => new Set());
+  const [ticketsError, setTicketsError] = useState({});
   const {
     workOrders,
     loading,
@@ -27,6 +32,30 @@ export default function WorkOrders() {
     // updateWorkOrder,
     // removeWorkOrder
   } = useWorkOrder();
+
+  const toggleExpand = async (workOrder) => {
+    const id = workOrder.id;
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    if (ticketsByWO[id] !== undefined || ticketsLoading.has(id)) return;
+    setTicketsLoading((prev) => new Set(prev).add(id));
+    try {
+      const tickets = await ticketService.getAll({ work_order_id: id });
+      setTicketsByWO((prev) => ({ ...prev, [id]: tickets }));
+    } catch (err) {
+      setTicketsError((prev) => ({ ...prev, [id]: err.message || "Failed to load tickets" }));
+    } finally {
+      setTicketsLoading((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
 
   useEffect(() => {
     fetchWorkOrders();
@@ -114,6 +143,7 @@ export default function WorkOrders() {
           <table className="workorders-table">
             <thead>
               <tr>
+                <th style={{ width: 32 }}></th>
                 <th>Order ID</th>
                 <th>Vendor</th>
                 <th>Job Type</th>
@@ -121,31 +151,82 @@ export default function WorkOrders() {
                 <th>Location</th>
                 <th>Date</th>
                 <th>Status</th>
-                {/* <th>Actions</th> */}
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order) => (
-                <tr key={order.work_order_id}>
-                  <td>{order.work_order_id}</td>
-                  <td>{order.vendor.name}</td>
-                  <td>{order.service_type.service}</td>
-                  <td>{order.location_type}</td>
-                  <td>{`${order.latitude}, ${order.longitude}`}</td>
-                  <td>{formatDate(order.created_at)}</td>
-                  <td>
-                    <span
-                      className={`status-badge status-${order.status?.toLowerCase()}`}
-                    >
-                      {formatStatusLabel(order.status || "")}
-                    </span>
-                  </td>
-                  {/* <td className="workorders-actions-cell">
-                                        <button className="workorders-action-btn">View</button>
-                                        <button className="workorders-action-btn workorders-action-btn-secondary">Edit</button>
-                                    </td> */}
-                </tr>
-              ))}
+              {filteredOrders.map((order) => {
+                const isOpen = expanded.has(order.id);
+                const tickets = ticketsByWO[order.id];
+                const isLoadingTickets = ticketsLoading.has(order.id);
+                const loadError = ticketsError[order.id];
+                return (
+                  <React.Fragment key={order.work_order_id}>
+                    <tr>
+                      <td>
+                        <button
+                          type="button"
+                          className="workorders-expand-btn"
+                          aria-label={isOpen ? "Collapse tickets" : "Expand tickets"}
+                          aria-expanded={isOpen}
+                          onClick={() => toggleExpand(order)}
+                        >
+                          {isOpen ? "▾" : "▸"}
+                        </button>
+                      </td>
+                      <td>{order.work_order_id}</td>
+                      <td>{order.vendor.name}</td>
+                      <td>{order.service_type.service}</td>
+                      <td>{order.location_type}</td>
+                      <td>{`${order.latitude}, ${order.longitude}`}</td>
+                      <td>{formatDate(order.created_at)}</td>
+                      <td>
+                        <span
+                          className={`status-badge status-${order.status?.toLowerCase()}`}
+                        >
+                          {formatStatusLabel(order.status || "")}
+                        </span>
+                      </td>
+                    </tr>
+                    {isOpen && (
+                      <tr className="workorders-tickets-row">
+                        <td></td>
+                        <td colSpan={7}>
+                          {isLoadingTickets ? (
+                            <div className="workorders-tickets-state">Loading tickets…</div>
+                          ) : loadError ? (
+                            <div className="workorders-tickets-state workorders-tickets-error">{loadError}</div>
+                          ) : !tickets || tickets.length === 0 ? (
+                            <div className="workorders-tickets-state">No tickets for this work order.</div>
+                          ) : (
+                            <table className="workorders-tickets-table">
+                              <thead>
+                                <tr>
+                                  <th>Ticket ID</th>
+                                  <th>Description</th>
+                                  <th>Priority</th>
+                                  <th>Status</th>
+                                  <th>Due</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {tickets.map((t) => (
+                                  <tr key={t.id}>
+                                    <td>{t.id.slice(0, 8)}</td>
+                                    <td>{t.description}</td>
+                                    <td>{t.priority}</td>
+                                    <td>{t.status}</td>
+                                    <td>{t.due_date ? formatDate(t.due_date) : "—"}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         )}
