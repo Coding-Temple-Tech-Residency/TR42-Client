@@ -48,6 +48,10 @@ class User(db.Model, AuditMixin):
         return self.client_user_record.client_id if self.client_user_record else None
 
     @property
+    def client(self):
+        return self.client_user_record.client if self.client_user_record else None
+
+    @property
     def status(self):
         return self.client_user_record.status if self.client_user_record else None
 
