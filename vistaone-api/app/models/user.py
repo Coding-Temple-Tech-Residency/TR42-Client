@@ -17,17 +17,17 @@ class User(db.Model, AuditMixin):
     )
     username: Mapped[str] = mapped_column(db.String(40), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(db.String(100), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    password_hash: Mapped[str] = mapped_column(db.String(400), nullable=False)
     user_type: Mapped[UserType] = mapped_column(db.Enum(UserType), nullable=False)
     status: Mapped[UserStatus] = mapped_column(db.Enum(UserStatus), nullable=False)
     is_active: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=True)
-    first_name: Mapped[str] = mapped_column(db.String(80), nullable=False)
+    first_name: Mapped[str] = mapped_column(db.String(80), nullable=True)
     middle_name: Mapped[str] = mapped_column(db.String(80), nullable=True)
-    last_name: Mapped[str] = mapped_column(db.String(80), nullable=False)
+    last_name: Mapped[str] = mapped_column(db.String(80), nullable=True)
     profile_photo_url: Mapped[str] = mapped_column(db.String(255), nullable=True)
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=True)
     ssn_last_four: Mapped[str] = mapped_column(db.CHAR(4), nullable=True)
-    contact_number: Mapped[str] = mapped_column(db.String(30), nullable=False)
+    contact_number: Mapped[str] = mapped_column(db.String(30), nullable=True)
     alternate_number: Mapped[str] = mapped_column(db.String(30), nullable=True)
 
     client_id: Mapped[str] = mapped_column(
@@ -36,7 +36,7 @@ class User(db.Model, AuditMixin):
     client = db.relationship("Client", foreign_keys=[client_id], back_populates="users")
 
     address_id: Mapped[str] = mapped_column(
-        db.String(36), db.ForeignKey("address.id"), nullable=False
+        db.String(36), db.ForeignKey("address.id"), nullable=True
     )
     address = db.relationship("Address", foreign_keys=[address_id])
 
