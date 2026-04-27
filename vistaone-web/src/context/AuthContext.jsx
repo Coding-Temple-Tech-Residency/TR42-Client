@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
 const AuthContext = createContext();
 
@@ -13,6 +13,15 @@ export function AuthProvider({ children }) {
       return JSON.parse(localStorage.getItem("userProfile")) || null;
     } catch {
       return null;
+    }
+  });
+  // true once we have fresh permissions from the server (or confirmed no token)
+  const [profileReady, setProfileReady] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("userProfile"));
+      return !!(stored?.permissions);
+    } catch {
+      return false;
     }
   });
 
@@ -54,12 +63,36 @@ export function AuthProvider({ children }) {
     [user]
   );
 
+  // Re-fetch profile on every app load so permissions are always fresh from the server.
+  // This ensures that when MASTER changes a user's role/permissions, it takes effect
+  // on the next page load without requiring the user to log out and back in.
+  useEffect(() => {
+    const storedToken = localStorage.getItem("authToken");
+    if (!storedToken) {
+      setProfileReady(true);
+      return;
+    }
+
+    fetch("/api/users/me", {
+      headers: { Authorization: `Bearer ${storedToken}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((profile) => {
+        if (profile) {
+          setUser(profile);
+          localStorage.setItem("userProfile", JSON.stringify(profile));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setProfileReady(true));
+  }, []);
+
   const isMaster = hasRole("MASTER");
   const isAdmin = hasRole("MASTER", "ADMIN");
 
   return (
     <AuthContext.Provider
-      value={{ token, user, setAuth, clearAuth, hasRole, hasPermission, isMaster, isAdmin }}
+      value={{ token, user, setAuth, clearAuth, hasRole, hasPermission, isMaster, isAdmin, profileReady }}
     >
       {children}
     </AuthContext.Provider>
