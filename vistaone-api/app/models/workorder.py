@@ -22,7 +22,7 @@ class WorkOrder(db.Model, AuditMixin):
     client_id = mapped_column(db.String(36), db.ForeignKey("client.id"), nullable=False)
     vendor_id = mapped_column(db.String(36), db.ForeignKey("vendor.id"), nullable=False)
     service_type_id = mapped_column(
-        db.String(36), db.ForeignKey("service_type.id"), nullable=False
+        db.String(36), db.ForeignKey("service.id"), nullable=False
     )
 
     description = mapped_column(db.String(500))
@@ -65,7 +65,7 @@ class WorkOrder(db.Model, AuditMixin):
     ## Relationships
     client = relationship("Client", back_populates="workorders")
     vendor = relationship("Vendor", back_populates="workorders")
-    service_type = relationship("ServiceType")
+    service_type = relationship("Service")
     well = relationship("Well")
     address = relationship("Address")
     tickets = relationship(

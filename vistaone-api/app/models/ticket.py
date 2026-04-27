@@ -27,9 +27,7 @@ class Ticket(db.Model, AuditMixin):
         nullable=False,
         default=TicketStatusEnum.UNASSIGNED,
     )
-    vendor_id = mapped_column(
-        db.String(36), db.ForeignKey("vendor.id"), nullable=False
-    )
+    vendor_id = mapped_column(db.String(36), db.ForeignKey("vendor.id"), nullable=False)
 
     start_time = mapped_column(db.DateTime(timezone=True), nullable=True)
     due_date = mapped_column(db.DateTime(timezone=True), nullable=False)
@@ -38,7 +36,7 @@ class Ticket(db.Model, AuditMixin):
     estimated_duration = mapped_column(db.Interval, nullable=True)
 
     service_type = mapped_column(
-        db.String(36), db.ForeignKey("service_type.id"), nullable=False
+        db.String(36), db.ForeignKey("service.id"), nullable=False
     )
 
     notes = mapped_column(db.Text, nullable=True)
@@ -55,4 +53,4 @@ class Ticket(db.Model, AuditMixin):
     work_order = relationship("WorkOrder", back_populates="tickets")
     vendor = relationship("Vendor")
     invoice = relationship("Invoice", back_populates="tickets")
-    service = relationship("ServiceType", foreign_keys=[service_type])
+    service = relationship("Service", foreign_keys=[service_type])

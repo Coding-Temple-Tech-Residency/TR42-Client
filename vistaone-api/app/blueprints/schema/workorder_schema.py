@@ -2,7 +2,7 @@ from app.extensions import ma
 from marshmallow import EXCLUDE, fields, validates_schema, ValidationError
 from app.models import WorkOrder
 from app.blueprints.schema.vendor_schema import VendorSchema
-from app.blueprints.schema.service_type_schema import ServiceTypeSchema
+from app.blueprints.schema.service_schema import ServiceSchema
 from app.blueprints.enum.enums import (
     PriorityEnum,
     FrequencyEnum,
@@ -65,7 +65,7 @@ class WorkOrderSchema(ma.SQLAlchemyAutoSchema):
     display_status = fields.Method("compute_display_status", dump_only=True)
 
     vendor = fields.Nested("VendorSchema", dump_only=True)
-    service_type = fields.Nested("ServiceTypeSchema", dump_only=True)
+    service_type = fields.Nested("ServiceSchema", dump_only=True)
 
     def compute_display_status(self, obj):
         from app.models.invoice import Invoice
