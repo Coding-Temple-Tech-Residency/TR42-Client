@@ -152,6 +152,10 @@
 		grid-template-columns: 1fr;
 	}
 
+	.app-shell-main {
+		padding-top: 52px; /* room for the hamburger button */
+	}
+
 	.app-shell-nav {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
