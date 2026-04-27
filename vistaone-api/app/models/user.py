@@ -10,7 +10,7 @@ from app.models.role import user_role
 
 
 class User(db.Model, AuditMixin):
-    __tablename__ = "user"
+    __tablename__ = "auth_user"
 
     id: Mapped[str] = mapped_column(
         db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
@@ -20,6 +20,9 @@ class User(db.Model, AuditMixin):
     password_hash: Mapped[str] = mapped_column(db.String(255), nullable=False)
     user_type: Mapped[UserType] = mapped_column(db.Enum(UserType), nullable=False)
     status: Mapped[UserStatus] = mapped_column(db.Enum(UserStatus), nullable=False)
+    is_active: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=True)
+    is_admin: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=False)
+    token_version: Mapped[int] = mapped_column(db.Integer, nullable=False, default=0)
     first_name: Mapped[str] = mapped_column(db.String(80), nullable=False)
     middle_name: Mapped[str] = mapped_column(db.String(80), nullable=True)
     last_name: Mapped[str] = mapped_column(db.String(80), nullable=False)
