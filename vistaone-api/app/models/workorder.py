@@ -38,6 +38,8 @@ class WorkOrder(db.Model, AuditMixin):
 
     units = mapped_column(db.String(100))
     estimated_quantity = mapped_column(db.Float, nullable=True)
+    estimated_cost = mapped_column(db.Numeric, nullable=True)
+    estimated_duration = mapped_column(db.Interval, nullable=True)
 
     priority = mapped_column(db.Enum(PriorityEnum), nullable=False)
 
