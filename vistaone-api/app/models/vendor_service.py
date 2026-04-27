@@ -18,3 +18,9 @@ class VendorService(db.Model, AuditMixin):
     ## Relationships
     vendor = relationship("Vendor", back_populates="vendor_services")
     service_type = relationship("ServiceType", back_populates="vendor_services")
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "vendor_id", "service_type_id", name="uq_vendor_service"
+        ),
+    )
