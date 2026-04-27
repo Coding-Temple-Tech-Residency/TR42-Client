@@ -21,8 +21,6 @@ class User(db.Model, AuditMixin):
     user_type: Mapped[UserType] = mapped_column(db.Enum(UserType), nullable=False)
     status: Mapped[UserStatus] = mapped_column(db.Enum(UserStatus), nullable=False)
     is_active: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=True)
-    is_admin: Mapped[bool] = mapped_column(db.Boolean, nullable=False, default=False)
-    token_version: Mapped[int] = mapped_column(db.Integer, nullable=False, default=0)
     first_name: Mapped[str] = mapped_column(db.String(80), nullable=False)
     middle_name: Mapped[str] = mapped_column(db.String(80), nullable=True)
     last_name: Mapped[str] = mapped_column(db.String(80), nullable=False)
