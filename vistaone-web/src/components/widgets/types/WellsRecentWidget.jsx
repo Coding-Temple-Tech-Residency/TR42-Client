@@ -46,10 +46,10 @@ export default function WellsRecentWidget() {
                     <li key={w.id} className="widget-list__row">
                         <div className="widget-list__primary">
                             <span className="widget-list__name">
-                                {w.well_name || `Well #${w.well_number || w.id}`}
+                                {w.well_name || `Well #${w.api_number || w.id}`}
                             </span>
                             <span className="widget-list__meta">
-                                {w.well_number ? `#${w.well_number}` : ""}
+                                {w.api_number ? `#${w.api_number}` : ""}
                             </span>
                         </div>
                         <div className="widget-list__secondary">
