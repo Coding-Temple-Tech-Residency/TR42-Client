@@ -54,5 +54,5 @@ class Ticket(db.Model, AuditMixin):
 
     work_order = relationship("WorkOrder", back_populates="tickets")
     vendor = relationship("Vendor")
-    invoice = relationship("Invoice")
+    invoice = relationship("Invoice", back_populates="tickets")
     service = relationship("ServiceType", foreign_keys=[service_type])
