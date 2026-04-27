@@ -1,6 +1,8 @@
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload, selectinload
 from app.extensions import db
 from app.models.ticket import Ticket
+from app.models.invoice import Invoice
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,7 +12,11 @@ class TicketRepository:
 
     @staticmethod
     def get_all(work_order_id=None, vendor_id=None, status=None):
-        query = select(Ticket)
+        query = select(Ticket).options(
+            joinedload(Ticket.vendor),
+            joinedload(Ticket.invoice),
+            joinedload(Ticket.work_order),
+        )
         if work_order_id:
             query = query.where(Ticket.work_order_id == work_order_id)
         if vendor_id:
@@ -22,7 +28,16 @@ class TicketRepository:
 
     @staticmethod
     def get_by_id(ticket_id):
-        query = select(Ticket).where(Ticket.id == ticket_id)
+        query = (
+            select(Ticket)
+            .where(Ticket.id == ticket_id)
+            .options(
+                joinedload(Ticket.vendor),
+                joinedload(Ticket.service),
+                joinedload(Ticket.work_order),
+                joinedload(Ticket.invoice).selectinload(Invoice.line_items),
+            )
+        )
         return db.session.execute(query).scalars().first()
 
     @staticmethod
