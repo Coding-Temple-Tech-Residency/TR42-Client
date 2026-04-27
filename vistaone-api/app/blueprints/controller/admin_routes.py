@@ -140,6 +140,6 @@ def _serialize_user(u):
         "first_name": u.first_name,
         "last_name": u.last_name,
         "contact_number": u.contact_number,
-        "status": u.status.value,
+        "status": u.status.value if u.status else None,
         "roles": [r.name for r in u.roles],
     }

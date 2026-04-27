@@ -26,7 +26,7 @@ class Client(db.Model, AuditMixin):
     address = db.relationship("Address")
 
     users = db.relationship(
-        "User", foreign_keys="User.client_id", back_populates="client"
+        "ClientUser", foreign_keys="[ClientUser.client_id]", back_populates="client"
     )
     wells = db.relationship("Well", back_populates="client")
     workorders = db.relationship("WorkOrder", back_populates="client")

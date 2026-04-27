@@ -65,6 +65,8 @@ class UserStatus(str, Enum):
     REJECTED = "rejected"
     INACTIVE = "inactive"
     DELETED = "deleted"
+
+
 class InvoiceStatusEnum(Enum):
     PENDING = "PENDING"
     APPROVED = "APPROVED"

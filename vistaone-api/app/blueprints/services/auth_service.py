@@ -109,7 +109,8 @@ class LoginService:
         address = AddressRepository.get_or_create_address(address_data)
         user_data["address_id"] = address.id
         password = user_data.pop("password", None)
-        user_data["status"] = UserStatus.PENDING_EMAIL_VERIFICATION
+        client_id = user_data.pop("client_id", None)
+        user_data.pop("status", None)
 
         user_data["user_type"] = UserType.CLIENT
         user_data.pop("address", None)
@@ -118,7 +119,6 @@ class LoginService:
             user.set_password(password)
 
         # Assign the default role (USER) for the user's company
-        client_id = user_data.get("client_id")
         if client_id:
             from app.models.role import Role
             default_role = Role.query.filter_by(client_id=client_id, is_default=True).first()
@@ -126,6 +126,18 @@ class LoginService:
                 user.roles.append(default_role)
 
         created_user = UserRepository.create_user(user)
+
+        # Create ClientUser record linking user to their client
+        if client_id:
+            from app.models.client_user import ClientUser
+            from app.extensions import db as _db
+            client_user_rec = ClientUser(
+                user_id=created_user.id,
+                client_id=client_id,
+                status=UserStatus.PENDING_EMAIL_VERIFICATION,
+            )
+            _db.session.add(client_user_rec)
+            _db.session.commit()
         # Generate a token for email verification
         s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
         token = s.dumps(created_user.email, salt="email-verify")
@@ -173,15 +185,22 @@ class LoginService:
             password = admin_data.pop("password")
             admin_user = User(
                 **admin_data,
-                client_id=client.id,
                 address_id=address.id,
-                status=UserStatus.PENDING_EMAIL_VERIFICATION,
                 user_type=UserType.CLIENT,
             )
             admin_user.set_password(password)
             if master_role:
                 admin_user.roles.append(master_role)
             db.session.add(admin_user)
+            db.session.flush()
+
+            from app.models.client_user import ClientUser
+            admin_client_user = ClientUser(
+                user_id=admin_user.id,
+                client_id=client.id,
+                status=UserStatus.PENDING_EMAIL_VERIFICATION,
+            )
+            db.session.add(admin_client_user)
             db.session.commit()
 
             s = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
