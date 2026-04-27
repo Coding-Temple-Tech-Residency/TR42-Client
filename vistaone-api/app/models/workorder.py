@@ -52,6 +52,8 @@ class WorkOrder(db.Model, AuditMixin):
 
     estimated_start_date = mapped_column(db.DateTime, nullable=True)
     estimated_end_date = mapped_column(db.DateTime, nullable=True)
+    assigned_at = mapped_column(db.DateTime(timezone=True), nullable=True)
+    completed_at = mapped_column(db.DateTime(timezone=True), nullable=True)
     cancelled_by = mapped_column(db.String(100))
     cancelled_at = mapped_column(db.DateTime(timezone=True))
     cancellation_reason = mapped_column(db.String(255), nullable=True)
