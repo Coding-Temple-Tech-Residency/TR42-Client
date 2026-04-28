@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ticketService } from "../services/ticketService";
 import { invoiceService } from "../services/invoiceService";
 
@@ -49,7 +50,15 @@ export default function WorkOrderDetailModal({ workOrder, onClose }) {
     };
   }, [workOrder.id]);
 
-  return (
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return createPortal(
     <div className="workorders-modal-overlay" onClick={onClose}>
       <div
         className="workorders-modal workorder-detail-modal"
@@ -171,6 +180,7 @@ export default function WorkOrderDetailModal({ workOrder, onClose }) {
           </section>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

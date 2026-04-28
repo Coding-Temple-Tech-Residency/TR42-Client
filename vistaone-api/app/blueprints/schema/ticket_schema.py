@@ -1,7 +1,27 @@
 from app.extensions import ma
 from marshmallow import fields, EXCLUDE
 from app.models.ticket import Ticket
+from app.models.workorder import WorkOrder
 from app.blueprints.enum.enums import TicketStatusEnum, PriorityEnum
+from app.blueprints.schema.invoice_schema import InvoiceSchema
+from app.blueprints.schema.service_type_schema import ServiceTypeSchema
+
+
+class WorkOrderSummarySchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = WorkOrder
+        fields = (
+            "id",
+            "work_order_id",
+            "description",
+            "estimated_cost",
+            "estimated_duration",
+            "estimated_quantity",
+            "units",
+        )
+
+    estimated_cost = fields.Float()
+    estimated_duration = fields.TimeDelta()
 
 
 class TicketSchema(ma.SQLAlchemyAutoSchema):
@@ -40,6 +60,23 @@ class TicketSchema(ma.SQLAlchemyAutoSchema):
     route = fields.String(allow_none=True)
 
     vendor = fields.Nested("VendorSchema", dump_only=True)
+    invoice = fields.Nested(InvoiceSchema, dump_only=True)
+    service = fields.Nested(ServiceTypeSchema, dump_only=True)
+    work_order = fields.Nested(WorkOrderSummarySchema, dump_only=True)
+
+    actual_duration_seconds = fields.Method(
+        "_actual_duration_seconds", dump_only=True
+    )
+
+    def _actual_duration_seconds(self, obj):
+        start = getattr(obj, "start_time", None)
+        end = getattr(obj, "end_time", None)
+        if start is None or end is None:
+            return None
+        delta = end - start
+        if delta.total_seconds() < 0:
+            return None
+        return delta.total_seconds()
 
 
 ticket_schema = TicketSchema()

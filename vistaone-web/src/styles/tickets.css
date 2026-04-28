@@ -321,3 +321,78 @@
   display: flex;
   gap: 8px;
 }
+
+.tickets-row-clickable {
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.tickets-row-clickable:hover {
+  background-color: #f5f8fc;
+}
+
+.tickets-row-clickable:focus-visible {
+  outline: 2px solid #2b6cb0;
+  outline-offset: -2px;
+}
+
+.tickets-table-flat {
+  background: #ffffff;
+}
+
+.tickets-table-wrap {
+  border: 1px solid #e5e8ee;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.tickets-table-flat th {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+}
+
+.tickets-cell-wo {
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+.tickets-cell-cost {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.tickets-th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.tickets-th-sortable:hover {
+  background-color: #eef2f7;
+  color: #1f2937;
+}
+
+.tickets-th-sortable:focus-visible {
+  outline: 2px solid #2b6cb0;
+  outline-offset: -2px;
+}
+
+.tickets-th-sortable.is-active {
+  color: #1f2937;
+}
+
+.tickets-sort-arrow {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 10px;
+  color: #2b6cb0;
+}
+
+.ticket-modal-overlay {
+  z-index: 2000;
+}
