@@ -17,6 +17,14 @@ function authHeader() {
 
 async function handleResponse(res) {
     const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userProfile');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
+    }
     if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
     return data;
 }
