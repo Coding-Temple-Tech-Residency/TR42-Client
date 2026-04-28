@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "../components/AppShell";
+import InvoiceDetailModal from "../components/InvoiceDetailModal";
 import { useInvoice } from "../hooks/useInvoice";
-import { useAuthContext } from "../context/AuthContext";
 import "../styles/invoices.css";
 
 const statusOptions = [
@@ -11,12 +11,95 @@ const statusOptions = [
   { value: "REJECTED", label: "Rejected" },
 ];
 
+const STATUS_RANK = { PENDING: 0, APPROVED: 1, REJECTED: 2 };
+
+const HEADER_SORT_DEFAULTS = {
+  vendor: "asc",
+  amount: "desc",
+  invoice_date: "desc",
+  due_date: "asc",
+  status: "asc",
+};
+
+function dateValue(value) {
+  if (!value) return 0;
+  const t = new Date(value).getTime();
+  return Number.isNaN(t) ? 0 : t;
+}
+
+function vendorLabel(inv) {
+  return (inv.vendor?.company_name || inv.vendor?.name || "").toLowerCase();
+}
+
+function parseSort(sortBy) {
+  const m = sortBy?.match(/^(.*)_(asc|desc)$/);
+  if (!m) return { column: null, direction: null };
+  return { column: m[1], direction: m[2] };
+}
+
+function nextSortFor(column, sortBy) {
+  const current = parseSort(sortBy);
+  const def = HEADER_SORT_DEFAULTS[column] || "asc";
+  if (current.column !== column) return `${column}_${def}`;
+  return current.direction === "asc" ? `${column}_desc` : `${column}_asc`;
+}
+
+function sortInvoices(list, sortBy) {
+  const sorted = [...list];
+  switch (sortBy) {
+    case "vendor_asc":
+      sorted.sort((a, b) => vendorLabel(a).localeCompare(vendorLabel(b)));
+      break;
+    case "vendor_desc":
+      sorted.sort((a, b) => vendorLabel(b).localeCompare(vendorLabel(a)));
+      break;
+    case "amount_asc":
+      sorted.sort(
+        (a, b) => Number(a.total_amount || 0) - Number(b.total_amount || 0),
+      );
+      break;
+    case "amount_desc":
+      sorted.sort(
+        (a, b) => Number(b.total_amount || 0) - Number(a.total_amount || 0),
+      );
+      break;
+    case "invoice_date_asc":
+      sorted.sort((a, b) => dateValue(a.invoice_date) - dateValue(b.invoice_date));
+      break;
+    case "invoice_date_desc":
+      sorted.sort((a, b) => dateValue(b.invoice_date) - dateValue(a.invoice_date));
+      break;
+    case "due_date_asc":
+      sorted.sort((a, b) => dateValue(a.due_date) - dateValue(b.due_date));
+      break;
+    case "due_date_desc":
+      sorted.sort((a, b) => dateValue(b.due_date) - dateValue(a.due_date));
+      break;
+    case "status_asc":
+      sorted.sort(
+        (a, b) =>
+          (STATUS_RANK[a.invoice_status] ?? 99) -
+          (STATUS_RANK[b.invoice_status] ?? 99),
+      );
+      break;
+    case "status_desc":
+      sorted.sort(
+        (a, b) =>
+          (STATUS_RANK[b.invoice_status] ?? 99) -
+          (STATUS_RANK[a.invoice_status] ?? 99),
+      );
+      break;
+    default:
+      break;
+  }
+  return sorted;
+}
+
 export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("invoice_date_desc");
   const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [actionMessage, setActionMessage] = useState("");
   const {
     invoices,
     loading,
@@ -25,7 +108,6 @@ export default function Invoices() {
     rejectInvoice,
     setInvoicePending,
   } = useInvoice();
-  const { isAdmin } = useAuthContext();
 
   useEffect(() => {
     fetchInvoices();
@@ -33,7 +115,7 @@ export default function Invoices() {
 
   const filteredInvoices = useMemo(() => {
     const search = searchTerm.trim().toLowerCase();
-    return invoices.filter((inv) => {
+    const matched = invoices.filter((inv) => {
       const matchesStatus =
         statusFilter === "ALL" || inv.invoice_status === statusFilter;
       const matchesSearch =
@@ -42,7 +124,40 @@ export default function Invoices() {
         (inv.client_id || "").toLowerCase().includes(search);
       return matchesStatus && matchesSearch;
     });
-  }, [invoices, searchTerm, statusFilter]);
+    return sortInvoices(matched, sortBy);
+  }, [invoices, searchTerm, statusFilter, sortBy]);
+
+  const activeSort = parseSort(sortBy);
+  const handleHeaderSort = (column) => setSortBy(nextSortFor(column, sortBy));
+  const sortIndicator = (column) => {
+    if (activeSort.column !== column) return null;
+    return (
+      <span className="inv-sort-arrow" aria-hidden="true">
+        {activeSort.direction === "asc" ? "▲" : "▼"}
+      </span>
+    );
+  };
+  const headerProps = (column, label) => ({
+    onClick: () => handleHeaderSort(column),
+    onKeyDown: (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleHeaderSort(column);
+      }
+    },
+    tabIndex: 0,
+    role: "button",
+    className: `inv-th-sortable ${
+      activeSort.column === column ? "is-active" : ""
+    }`,
+    "aria-sort":
+      activeSort.column === column
+        ? activeSort.direction === "asc"
+          ? "ascending"
+          : "descending"
+        : "none",
+    "aria-label": `Sort by ${label}`,
+  });
 
   const formatDate = (dateString) => {
     if (!dateString) return "-";
@@ -62,45 +177,21 @@ export default function Invoices() {
   };
 
   const handleApprove = async (invoiceId) => {
-    setActionLoading(true);
-    setActionMessage("");
-    try {
-      const updated = await approveInvoice(invoiceId);
-      setSelectedInvoice(updated);
-      setActionMessage("Invoice approved successfully");
-    } catch (err) {
-      setActionMessage(err.message || "Failed to approve");
-    } finally {
-      setActionLoading(false);
-    }
+    const updated = await approveInvoice(invoiceId);
+    setSelectedInvoice(updated);
+    return updated;
   };
 
   const handleReject = async (invoiceId) => {
-    setActionLoading(true);
-    setActionMessage("");
-    try {
-      const updated = await rejectInvoice(invoiceId);
-      setSelectedInvoice(updated);
-      setActionMessage("Invoice rejected");
-    } catch (err) {
-      setActionMessage(err.message || "Failed to reject");
-    } finally {
-      setActionLoading(false);
-    }
+    const updated = await rejectInvoice(invoiceId);
+    setSelectedInvoice(updated);
+    return updated;
   };
 
   const handleUndo = async (invoiceId) => {
-    setActionLoading(true);
-    setActionMessage("");
-    try {
-      const updated = await setInvoicePending(invoiceId);
-      setSelectedInvoice(updated);
-      setActionMessage("Invoice reset to pending");
-    } catch (err) {
-      setActionMessage(err.message || "Failed to undo");
-    } finally {
-      setActionLoading(false);
-    }
+    const updated = await setInvoicePending(invoiceId);
+    setSelectedInvoice(updated);
+    return updated;
   };
 
   const statusCounts = useMemo(() => {
@@ -159,30 +250,51 @@ export default function Invoices() {
         </select>
       </section>
 
-      <div className="inv-layout">
-        {/* Invoice list */}
-        <section className="inv-table-wrap">
+      <section className="inv-table-wrap">
           {!loading && filteredInvoices.length === 0 ? (
             <div className="inv-empty">No invoices found</div>
           ) : (
-            <table className="inv-table">
+            <table className="inv-table inv-table-flat">
               <thead>
                 <tr>
-                  <th>Vendor</th>
-                  <th>Amount</th>
-                  <th>Invoice Date</th>
-                  <th>Due Date</th>
-                  <th>Status</th>
-                  <th>Action</th>
+                  <th {...headerProps("vendor", "vendor")}>
+                    Vendor {sortIndicator("vendor")}
+                  </th>
+                  <th {...headerProps("amount", "amount")}>
+                    Amount {sortIndicator("amount")}
+                  </th>
+                  <th {...headerProps("invoice_date", "invoice date")}>
+                    Invoice Date {sortIndicator("invoice_date")}
+                  </th>
+                  <th {...headerProps("due_date", "due date")}>
+                    Due Date {sortIndicator("due_date")}
+                  </th>
+                  <th {...headerProps("status", "status")}>
+                    Status {sortIndicator("status")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {filteredInvoices.map((inv) => (
                   <tr
                     key={inv.id}
-                    className={`inv-row ${
+                    className={`inv-row inv-row-clickable ${
                       selectedInvoice?.id === inv.id ? "inv-row-selected" : ""
                     }`}
+                    onClick={() => {
+                      setSelectedInvoice(inv);
+                      setActionMessage("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedInvoice(inv);
+                        setActionMessage("");
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Review invoice ${inv.id?.slice(0, 8)}`}
                   >
                     <td>{inv.vendor?.company_name || inv.vendor?.name || "-"}</td>
                     <td className="inv-amount">{formatCurrency(inv.total_amount)}</td>
@@ -193,17 +305,6 @@ export default function Invoices() {
                         {inv.invoice_status}
                       </span>
                     </td>
-                    <td>
-                      <button
-                        className="inv-review-btn"
-                        onClick={() => {
-                          setSelectedInvoice(inv);
-                          setActionMessage("");
-                        }}
-                      >
-                        Review
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -211,165 +312,15 @@ export default function Invoices() {
           )}
         </section>
 
-        {/* Invoice detail panel */}
         {selectedInvoice && (
-          <section className="inv-detail-panel">
-            <div className="inv-detail-header">
-              <h3>Invoice Review</h3>
-              <button
-                className="inv-detail-close"
-                onClick={() => {
-                  setSelectedInvoice(null);
-                  setActionMessage("");
-                }}
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="inv-detail-body">
-              <div className="inv-detail-row">
-                <span className="inv-detail-label">Invoice ID</span>
-                <span className="inv-detail-value">{selectedInvoice.id}</span>
-              </div>
-              <div className="inv-detail-row">
-                <span className="inv-detail-label">Vendor</span>
-                <span className="inv-detail-value">
-                  {selectedInvoice.vendor?.company_name || selectedInvoice.vendor?.name || "-"}
-                </span>
-              </div>
-              <div className="inv-detail-row">
-                <span className="inv-detail-label">Amount</span>
-                <span className="inv-detail-value inv-detail-amount">
-                  {formatCurrency(selectedInvoice.total_amount)}
-                </span>
-              </div>
-              <div className="inv-detail-row">
-                <span className="inv-detail-label">Status</span>
-                <span className={`inv-badge inv-badge-${selectedInvoice.invoice_status?.toLowerCase()}`}>
-                  {selectedInvoice.invoice_status}
-                </span>
-              </div>
-              <div className="inv-detail-row">
-                <span className="inv-detail-label">Invoice Date</span>
-                <span className="inv-detail-value">{formatDate(selectedInvoice.invoice_date)}</span>
-              </div>
-              <div className="inv-detail-row">
-                <span className="inv-detail-label">Due Date</span>
-                <span className="inv-detail-value">{formatDate(selectedInvoice.due_date)}</span>
-              </div>
-              {selectedInvoice.period_start && (
-                <div className="inv-detail-row">
-                  <span className="inv-detail-label">Period</span>
-                  <span className="inv-detail-value">
-                    {formatDate(selectedInvoice.period_start)} - {formatDate(selectedInvoice.period_end)}
-                  </span>
-                </div>
-              )}
-              {selectedInvoice.approved_at && (
-                <div className="inv-detail-row">
-                  <span className="inv-detail-label">Approved At</span>
-                  <span className="inv-detail-value">{formatDate(selectedInvoice.approved_at)}</span>
-                </div>
-              )}
-              {selectedInvoice.rejected_at && (
-                <div className="inv-detail-row">
-                  <span className="inv-detail-label">Rejected At</span>
-                  <span className="inv-detail-value">{formatDate(selectedInvoice.rejected_at)}</span>
-                </div>
-              )}
-
-              {/* Line items */}
-              {selectedInvoice.line_items && selectedInvoice.line_items.length > 0 && (
-                <div className="inv-line-items">
-                  <h4>Line Items</h4>
-                  <table className="inv-line-table">
-                    <thead>
-                      <tr>
-                        <th>Description</th>
-                        <th>Qty</th>
-                        <th>Rate</th>
-                        <th>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedInvoice.line_items.map((item, i) => (
-                        <tr key={item.id || i}>
-                          <td>{item.description || "-"}</td>
-                          <td>{item.quantity}</td>
-                          <td>{formatCurrency(item.rate)}</td>
-                          <td>{formatCurrency(item.amount)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {actionMessage && (
-                <div className="inv-action-message">{actionMessage}</div>
-              )}
-
-              {selectedInvoice.invoice_status === "PENDING" && (
-                <div className="inv-detail-actions">
-                  <button
-                    className="inv-btn-approve"
-                    onClick={() => handleApprove(selectedInvoice.id)}
-                    disabled={actionLoading}
-                  >
-                    {actionLoading ? "Processing..." : "Approve Invoice"}
-                  </button>
-                  <button
-                    className="inv-btn-reject"
-                    onClick={() => handleReject(selectedInvoice.id)}
-                    disabled={actionLoading}
-                  >
-                    {actionLoading ? "Processing..." : "Reject Invoice"}
-                  </button>
-                </div>
-              )}
-
-              {selectedInvoice.invoice_status === "APPROVED" && (
-                <>
-                  <p className="inv-detail-note inv-detail-note-success">
-                    This invoice has been approved.
-                  </p>
-                  {isAdmin && (
-                    <div className="inv-detail-actions">
-                      <button
-                        className="inv-btn-undo"
-                        onClick={() => handleUndo(selectedInvoice.id)}
-                        disabled={actionLoading}
-                      >
-                        {actionLoading ? "Processing..." : "Undo Approval (set Pending)"}
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {selectedInvoice.invoice_status === "REJECTED" && (
-                <>
-                  <p className="inv-detail-note inv-detail-note-error">
-                    This invoice was rejected. The vendor will need to resubmit.
-                  </p>
-                  {isAdmin && (
-                    <div className="inv-detail-actions">
-                      <button
-                        className="inv-btn-undo"
-                        onClick={() => handleUndo(selectedInvoice.id)}
-                        disabled={actionLoading}
-                      >
-                        {actionLoading ? "Processing..." : "Undo Rejection (set Pending)"}
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </section>
+          <InvoiceDetailModal
+            invoice={selectedInvoice}
+            onClose={() => setSelectedInvoice(null)}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onUndo={handleUndo}
+          />
         )}
-      </div>
     </AppShell>
   );
 }

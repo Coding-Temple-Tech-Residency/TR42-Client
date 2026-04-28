@@ -22,4 +22,31 @@ export const ticketService = {
     if (!response.ok) throw new Error("Failed to fetch ticket");
     return await response.json();
   },
+
+  approve: async (ticketId) => {
+    const response = await authFetch(
+      `${TICKET_ENDPOINT}/${ticketId}/approve`,
+      { method: "PUT" },
+    );
+    if (!response.ok) throw new Error("Failed to approve ticket");
+    return await response.json();
+  },
+
+  reject: async (ticketId) => {
+    const response = await authFetch(
+      `${TICKET_ENDPOINT}/${ticketId}/reject`,
+      { method: "PUT" },
+    );
+    if (!response.ok) throw new Error("Failed to reject ticket");
+    return await response.json();
+  },
+
+  setPending: async (ticketId) => {
+    const response = await authFetch(
+      `${TICKET_ENDPOINT}/${ticketId}/set-pending`,
+      { method: "PUT" },
+    );
+    if (!response.ok) throw new Error("Failed to set ticket to pending approval");
+    return await response.json();
+  },
 };

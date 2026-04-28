@@ -195,7 +195,20 @@ export default function VendorDetail() {
                   </thead>
                   <tbody>
                     {recentWorkOrders.map((wo) => (
-                      <tr key={wo.id}>
+                      <tr
+                        key={wo.id}
+                        className="vendor-history-row-clickable"
+                        onClick={() => navigate("/workorders")}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            navigate("/workorders");
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Open work order ${wo.work_order_id ?? wo.id?.slice(0, 8)}`}
+                      >
                         <td>{wo.work_order_id ?? wo.id?.slice(0, 8)}</td>
                         <td>
                           {wo.service_type?.service ||
@@ -237,7 +250,20 @@ export default function VendorDetail() {
                   </thead>
                   <tbody>
                     {recentInvoices.map((inv) => (
-                      <tr key={inv.id}>
+                      <tr
+                        key={inv.id}
+                        className="vendor-history-row-clickable"
+                        onClick={() => navigate("/invoices")}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            navigate("/invoices");
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Open invoice ${inv.id?.slice(0, 8)}`}
+                      >
                         <td>{inv.id?.slice(0, 8)}</td>
                         <td>{formatCurrency(inv.total_amount)}</td>
                         <td>

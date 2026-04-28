@@ -133,17 +133,14 @@ export default function VendorFavorites() {
                                 >
                                     View History
                                 </button>
-                                {vendor.status === "active" &&
-                                    vendor.compliance_status === "complete" && (
-                                        <button
-                                            className="vm-card-create-wo"
-                                            onClick={() =>
-                                                setCreateWOForVendor(vendor.id)
-                                            }
-                                        >
-                                            + Work Order
-                                        </button>
-                                    )}
+                                <button
+                                    className="vm-card-create-wo"
+                                    onClick={() =>
+                                        setCreateWOForVendor(vendor.id)
+                                    }
+                                >
+                                    + Work Order
+                                </button>
                                 <button
                                     className="vm-card-remove"
                                     onClick={() =>

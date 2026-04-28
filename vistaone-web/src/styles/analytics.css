@@ -35,6 +35,25 @@
   margin-top: 4px;
 }
 
+.analytics-kpi-sub {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-kpi-pending {
+  border-left: 3px solid #f59e0b;
+}
+
+.analytics-kpi-approved {
+  border-left: 3px solid #10b981;
+}
+
+.analytics-kpi-rejected {
+  border-left: 3px solid #ef4444;
+}
+
 .analytics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
