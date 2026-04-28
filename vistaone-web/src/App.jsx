@@ -14,9 +14,15 @@ import Tickets from "./pages/Tickets";
 import Analytics from "./pages/Analytics";
 import Fraud from "./pages/Fraud";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import RoleProtectedRoute from "./routes/RoleProtectedRoute";
+import PermissionRoute from "./routes/PermissionRoute";
+import AccessDenied from "./pages/AccessDenied";
 import RegisterUser from "./pages/RegisterUser";
 import RegisterClient from "./pages/RegisterClient";
 import VerifyEmail from "./pages/VerifyEmail";
+import UserManagement from "./pages/UserManagement";
+import Settings from "./pages/Settings";
+import RoleManagement from "./pages/RoleManagement";
 import Profile from "./pages/UserProfile";
 
 function App() {
@@ -29,73 +35,97 @@ function App() {
             <Route
                 path="/dashboard"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="dashboard">
                         <Dashboard />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/workorders"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="workorders">
                         <WorkOrders />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/wells"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="wells">
                         <Wells />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/vendors"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="vendors">
                         <Vendors />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/vendor-marketplace"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="vendor_marketplace">
                         <VendorMarketplace />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/vendor-favorites"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="vendors">
                         <VendorFavorites />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/vendors/:vendorId"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="vendors">
                         <VendorDetail />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/contracts"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="contracts">
                         <Contracts />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                 }
             />
             <Route
                 path="/invoices"
                 element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="invoices">
                         <Invoices />
-                    </ProtectedRoute>
+                    </PermissionRoute>
+                }
+            />
+            <Route
+                path="/admin/users"
+                element={
+                    <RoleProtectedRoute roles={["MASTER", "ADMIN"]}>
+                        <UserManagement />
+                    </RoleProtectedRoute>
+                }
+            />
+            <Route
+                path="/admin/roles"
+                element={
+                    <RoleProtectedRoute roles={["MASTER"]}>
+                        <RoleManagement />
+                    </RoleProtectedRoute>
+                }
+            />
+            <Route
+                path="/settings"
+                element={
+                    <RoleProtectedRoute roles={["MASTER"]}>
+                        <Settings />
+                    </RoleProtectedRoute>
                 }
             />
             <Route
@@ -106,13 +136,13 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-                  
+
             <Route
                  path="/tickets"
                  element={
-                    <ProtectedRoute>
+                    <PermissionRoute resource="workorders">
                        <Tickets />
-                    </ProtectedRoute>
+                    </PermissionRoute>
                   }
               />
 
@@ -134,7 +164,7 @@ function App() {
                 }
               />
                   
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/access-denied" element={<AccessDenied />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
 
         </Routes>

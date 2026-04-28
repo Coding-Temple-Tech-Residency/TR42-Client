@@ -81,6 +81,92 @@ export function vendorsBySharedService(vendors) {
   return rows;
 }
 
+export function costByService(invoices, workOrders) {
+  const woMap = new Map();
+  workOrders.forEach((wo) => woMap.set(wo.id, wo));
+
+  const m = new Map();
+  invoices.forEach((inv) => {
+    const wo = woMap.get(inv.work_order_id);
+    const serviceName =
+      wo?.service_type?.service || wo?.service_type || "Unknown";
+    const amount = Number(inv.total_amount) || 0;
+    if (!m.has(serviceName)) {
+      m.set(serviceName, {
+        service: serviceName,
+        invoiceCount: 0,
+        total: 0,
+        approved: 0,
+        pending: 0,
+        rejected: 0,
+        paid: 0,
+      });
+    }
+    const slot = m.get(serviceName);
+    slot.invoiceCount += 1;
+    slot.total += amount;
+    if (inv.invoice_status === "APPROVED") slot.approved += amount;
+    else if (inv.invoice_status === "PENDING") slot.pending += amount;
+    else if (inv.invoice_status === "REJECTED") slot.rejected += amount;
+    else if (inv.invoice_status === "PAID") slot.paid += amount;
+  });
+  const rows = Array.from(m.values());
+  rows.sort((a, b) => b.total - a.total);
+  return rows;
+}
+
+export function invoicePipelineStats(invoices) {
+  const stats = {
+    pending: { count: 0, amount: 0 },
+    approved: { count: 0, amount: 0 },
+    rejected: { count: 0, amount: 0 },
+    paid: { count: 0, amount: 0 },
+    draft: { count: 0, amount: 0 },
+    submitted: { count: 0, amount: 0 },
+  };
+  invoices.forEach((inv) => {
+    const amount = Number(inv.total_amount) || 0;
+    const key = (inv.invoice_status || "").toLowerCase();
+    if (stats[key]) {
+      stats[key].count += 1;
+      stats[key].amount += amount;
+    }
+  });
+  return stats;
+}
+
+export function invoiceApprovalByVendor(invoices, vendors) {
+  const lookup = vendorMap(vendors);
+  const m = new Map();
+  invoices.forEach((inv) => {
+    const vId = inv.vendor_id;
+    if (!vId) return;
+    if (!m.has(vId)) {
+      m.set(vId, { approved: 0, rejected: 0, pending: 0 });
+    }
+    const slot = m.get(vId);
+    if (inv.invoice_status === "APPROVED") slot.approved += 1;
+    else if (inv.invoice_status === "REJECTED") slot.rejected += 1;
+    else if (inv.invoice_status === "PENDING") slot.pending += 1;
+  });
+  const rows = [];
+  m.forEach((counts, vendorId) => {
+    const v = lookup.get(vendorId);
+    const reviewed = counts.approved + counts.rejected;
+    rows.push({
+      vendorId,
+      vendorName: v?.company_name || v?.name || vendorId.slice(0, 8),
+      approved: counts.approved,
+      rejected: counts.rejected,
+      pending: counts.pending,
+      total: counts.approved + counts.rejected + counts.pending,
+      approvalRate: reviewed > 0 ? counts.approved / reviewed : null,
+    });
+  });
+  rows.sort((a, b) => b.total - a.total);
+  return rows;
+}
+
 export function invoicesOutstandingByVendor(invoices, vendors) {
   const lookup = vendorMap(vendors);
   const m = new Map();

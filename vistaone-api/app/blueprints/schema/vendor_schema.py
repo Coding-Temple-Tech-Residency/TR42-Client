@@ -21,9 +21,9 @@ class VendorSchema(ma.SQLAlchemyAutoSchema):
 
     def get_services(self, obj):
         return [
-            {"id": vs.service_type.id, "service": vs.service_type.service}
+            {"id": vs.service.id, "service": vs.service.service}
             for vs in (obj.vendor_services or [])
-            if vs.service_type
+            if vs.service
         ]
 
 

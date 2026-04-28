@@ -266,7 +266,7 @@ class WorkOrderService:
             workorder.last_modified_by = current_user_id
             workorder.last_modified_date = datetime.now()
             workorder.cancelled_by = current_user_id
-            workorder.cancelled_date = datetime.now()
+            workorder.cancelled_at = datetime.now()
             workorder.cancellation_reason = cancellation_reason
             WorkOrderRepository.update(workorder)
 

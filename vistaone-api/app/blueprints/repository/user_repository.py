@@ -14,14 +14,23 @@ class UserRepository:
 
     @staticmethod
     def get_users_by_client(client_id):
-        return User.query.filter_by(client_id=client_id).all()
+        from app.models.client_user import ClientUser
+        return (User.query
+                .join(ClientUser, User.id == ClientUser.user_id)
+                .filter(ClientUser.client_id == client_id)
+                .all())
 
     @staticmethod
     def get_pending_users_by_client(client_id):
+        from app.models.client_user import ClientUser
         from app.blueprints.enum.enums import UserStatus
-        return User.query.filter_by(
-            client_id=client_id, status=UserStatus.PENDING_APPROVAL
-        ).all()
+        return (User.query
+                .join(ClientUser, User.id == ClientUser.user_id)
+                .filter(
+                    ClientUser.client_id == client_id,
+                    ClientUser.status == UserStatus.PENDING_APPROVAL
+                )
+                .all())
 
     @staticmethod
     def create_user(user: User):
@@ -35,7 +44,7 @@ class UserRepository:
 
     @staticmethod
     def update_user(user, data):
-        allowed = {"first_name", "last_name", "contact_number", "status"}
+        allowed = {"first_name", "last_name", "contact_number"}
         for field in allowed:
             if field in data:
                 setattr(user, field, data[field])
@@ -48,7 +57,8 @@ class UserRepository:
 
     @staticmethod
     def update_user_status(user, status):
-        user.status = status
+        if user.client_user_record:
+            user.client_user_record.status = status
         try:
             db.session.commit()
         except Exception:

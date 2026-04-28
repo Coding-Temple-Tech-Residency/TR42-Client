@@ -181,8 +181,45 @@
 .workorders-table-wrap {
 	border: 1px solid var(--wo-border);
 	border-radius: 0.85rem;
-	overflow: hidden;
 	background: var(--wo-card);
+}
+
+.workorders-table-flat thead th {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: #f8f9fa;
+	box-shadow: inset 0 -1px 0 #eef1f5;
+}
+
+.workorders-th-sortable {
+	cursor: pointer;
+	user-select: none;
+	transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.workorders-th-sortable:hover {
+	background-color: #eef2f7 !important;
+	color: #1f2937;
+}
+
+.workorders-th-sortable:focus-visible {
+	outline: 2px solid #2b6cb0;
+	outline-offset: -2px;
+}
+
+.workorders-sort-arrow {
+	display: inline-block;
+	margin-left: 6px;
+	font-size: 10px;
+	color: #2b6cb0;
+}
+
+@media (max-width: 980px) {
+	.workorders-table-wrap {
+		height: auto;
+		max-height: 70vh;
+	}
 }
 
 .workorders-table {
@@ -453,3 +490,82 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+/* ── Click-to-detail row + detail modal ─────────────────────────────────── */
+.workorders-row-clickable { cursor: pointer; }
+.workorders-row-clickable:hover { background: #f5f8ff; }
+.workorders-row-clickable:focus-visible {
+	outline: 2px solid #007bff;
+	outline-offset: -2px;
+}
+
+.workorder-detail-modal {
+	max-width: 900px;
+	width: 90%;
+	max-height: 85vh;
+	overflow-y: auto;
+}
+.workorder-detail-body {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	padding: 16px 20px 24px 20px;
+}
+.workorder-detail-section h3 {
+	font-size: 1em;
+	font-weight: 600;
+	color: #1f2937;
+	margin: 0 0 10px 0;
+	border-bottom: 1px solid #e3e8ef;
+	padding-bottom: 6px;
+}
+.workorder-detail-grid {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 6px 16px;
+	margin: 0;
+}
+.workorder-detail-grid dt {
+	color: #6b7280;
+	font-size: 0.9em;
+}
+.workorder-detail-grid dd {
+	margin: 0;
+	color: #111827;
+	font-size: 0.95em;
+}
+
+.workorders-tickets-state {
+	color: #6b7280;
+	font-style: italic;
+	padding: 6px 0;
+}
+.workorders-tickets-error { color: #c0392b; font-style: normal; }
+
+.workorders-tickets-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.92em;
+}
+.workorders-tickets-table th,
+.workorders-tickets-table td {
+	padding: 6px 10px;
+	text-align: left;
+	border-bottom: 1px solid #e3e8ef;
+}
+.workorders-tickets-table th {
+	font-weight: 600;
+	color: #4b5563;
+	background: transparent;
+}
+
+/* Derived display statuses (computed server-side from invoice state) */
+.status-badge.status-invoice_rejected {
+	background: #fde2e2;
+	color: #991b1b;
+}
+.status-badge.status-pending_review {
+	background: #fff4d6;
+	color: #92400e;
+}
+

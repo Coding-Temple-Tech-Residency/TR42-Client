@@ -124,6 +124,8 @@ def transfer_master(user_id):
         return jsonify({"message": "Target user not found"}), 404
     if target.id == user_id:
         return jsonify({"message": "Cannot transfer MASTER role to yourself"}), 400
+    if target.status != UserStatus.ACTIVE:
+        return jsonify({"message": "Target user must be active"}), 400
 
     UserRepository.set_user_roles(target, ["MASTER"], current_user.client_id)
     UserRepository.set_user_roles(current_user, ["ADMIN"], current_user.client_id)
@@ -138,6 +140,6 @@ def _serialize_user(u):
         "first_name": u.first_name,
         "last_name": u.last_name,
         "contact_number": u.contact_number,
-        "status": u.status.value,
+        "status": u.status.value if u.status else None,
         "roles": [r.name for r in u.roles],
     }

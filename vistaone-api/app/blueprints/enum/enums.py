@@ -35,6 +35,15 @@ class WellStatusEnum(Enum):
     INACTIVE = "INACTIVE"
 
 
+class WellTypeEnum(Enum):
+    OIL = "OIL"
+    GAS = "GAS"
+    OIL_AND_GAS = "OIL_AND_GAS"
+    INJECTION = "INJECTION"
+    WATER_DISPOSAL = "WATER_DISPOSAL"
+    OBSERVATION = "OBSERVATION"
+
+
 class VendorStatus(str, Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
@@ -65,12 +74,12 @@ class UserStatus(str, Enum):
     REJECTED = "rejected"
     INACTIVE = "inactive"
     DELETED = "deleted"
+
+
 class InvoiceStatusEnum(Enum):
-    DRAFT = "DRAFT"
-    SUBMITTED = "SUBMITTED"
+    PENDING = "PENDING"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
-    PAID = "PAID"
 
 
 class TicketStatusEnum(Enum):

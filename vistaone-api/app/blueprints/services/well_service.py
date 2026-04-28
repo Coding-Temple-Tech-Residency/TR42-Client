@@ -1,5 +1,6 @@
 from uuid import UUID
 from app.models.well import Well
+from app.models.user import User
 from app.blueprints.repository.well_repository import WellRepository
 from app.extensions import db
 import logging
@@ -12,6 +13,10 @@ class WellService:
     @staticmethod
     def create_well(well: Well, current_user_id: str):
         try:
+            user = User.query.get(current_user_id)
+            if not user or not user.client_id:
+                raise ValueError("Authenticated user has no associated client")
+            well.client_id = user.client_id
             well.created_by = current_user_id
             well.created_date = datetime.now()
             return WellRepository.create(well)

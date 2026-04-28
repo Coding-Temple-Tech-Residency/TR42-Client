@@ -11,20 +11,18 @@ export default function CreateOrEditWellModal({
   const [form, setForm] = useState(() =>
     initialData
       ? {
-          well_number: initialData.well_number || "",
+          api_number: initialData.api_number || "",
           well_name: initialData.well_name || "",
           latitude: initialData.latitude ? String(initialData.latitude) : "",
           longitude: initialData.longitude ? String(initialData.longitude) : "",
           status: initialData.status || "ACTIVE",
-          client_id: initialData.client_id || "",
         }
       : {
-          well_number: "",
+          api_number: "",
           well_name: "",
           latitude: "",
           longitude: "",
           status: "ACTIVE",
-          client_id: "",
         },
   );
   const [error, setError] = useState("");
@@ -65,7 +63,7 @@ export default function CreateOrEditWellModal({
   // Show state/county name as user types API number
   const apiNumberInfo = useMemo(() => {
     const apiPattern = /^(\d{2})-(\d{3})/;
-    const match = form.well_number.match(apiPattern);
+    const match = form.api_number.match(apiPattern);
     if (!match) return { state: "", county: "" };
     const stateCode = match[1];
     const countyCode = match[2];
@@ -75,13 +73,13 @@ export default function CreateOrEditWellModal({
       state && state.counties.find((c) => c.county_code === countyCode);
     const countyName = county ? county.county_name : "";
     return { state: stateName, county: countyName };
-  }, [form.well_number, stateData]);
+  }, [form.api_number, stateData]);
 
   const validateForm = () => {
-    if (!form.well_number.trim()) {
+    if (!form.api_number.trim()) {
       return "Well number is required.";
     }
-    const apiError = validateApiWellNumber(form.well_number.trim());
+    const apiError = validateApiWellNumber(form.api_number.trim());
     if (apiError) {
       return apiError;
     }
@@ -107,11 +105,7 @@ export default function CreateOrEditWellModal({
     }
     setLoading(true);
     try {
-      const formWithClient = {
-        ...form,
-        client_id: "11111111-1111-1111-1111-111111111111",
-      };
-      await onSubmit(formWithClient);
+      await onSubmit(form);
     } catch (err) {
       console.error(err);
       setError(`Failed to ${mode === "edit" ? "update" : "create"} well.`);
@@ -156,13 +150,13 @@ export default function CreateOrEditWellModal({
           <label>
             Well Number
             <input
-              name="well_number"
-              value={form.well_number}
+              name="api_number"
+              value={form.api_number}
               onChange={handleChange}
               required
               placeholder="XX-XXX-XXXXX-XX-XX"
             />
-            {form.well_number &&
+            {form.api_number &&
               (apiNumberInfo.state || apiNumberInfo.county) && (
                 <div
                   style={{ fontSize: "0.9em", color: "#007bff", marginTop: 2 }}

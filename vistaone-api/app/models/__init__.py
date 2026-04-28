@@ -6,10 +6,11 @@ from .address import Address
 from .well import Well
 from .vendor import Vendor
 from .client import Client
-from .service_type import ServiceType
+from .service import Service
 from .vendor_service import VendorService
 from .msa import Msa
 from .invoice import Invoice
+from .client_user import ClientUser
 from .line_item import LineItem
 from .client_vendor import ClientVendor
 from .ticket import Ticket

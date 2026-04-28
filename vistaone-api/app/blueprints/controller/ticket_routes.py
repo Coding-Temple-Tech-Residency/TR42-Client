@@ -67,3 +67,42 @@ def update_ticket(current_user_id, ticket_id):
         return jsonify({"error": "Ticket not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@ticket_bp.route("/<string:ticket_id>/approve", methods=["PUT"])
+@token_required
+def approve_ticket(current_user_id, ticket_id):
+    try:
+        ticket = TicketService.approve_ticket(ticket_id, current_user_id)
+        return ticket_schema.jsonify(ticket), 200
+    except ValueError:
+        return jsonify({"error": "Ticket not found"}), 404
+    except Exception as e:
+        logger.error(f"Error approving ticket: {e}")
+        return jsonify({"error": str(e)}), 400
+
+
+@ticket_bp.route("/<string:ticket_id>/reject", methods=["PUT"])
+@token_required
+def reject_ticket(current_user_id, ticket_id):
+    try:
+        ticket = TicketService.reject_ticket(ticket_id, current_user_id)
+        return ticket_schema.jsonify(ticket), 200
+    except ValueError:
+        return jsonify({"error": "Ticket not found"}), 404
+    except Exception as e:
+        logger.error(f"Error rejecting ticket: {e}")
+        return jsonify({"error": str(e)}), 400
+
+
+@ticket_bp.route("/<string:ticket_id>/set-pending", methods=["PUT"])
+@token_required
+def set_pending_ticket(current_user_id, ticket_id):
+    try:
+        ticket = TicketService.set_pending_ticket(ticket_id, current_user_id)
+        return ticket_schema.jsonify(ticket), 200
+    except ValueError:
+        return jsonify({"error": "Ticket not found"}), 404
+    except Exception as e:
+        logger.error(f"Error setting ticket to pending: {e}")
+        return jsonify({"error": str(e)}), 400

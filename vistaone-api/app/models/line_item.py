@@ -2,9 +2,10 @@ from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy.sql import func
 import uuid
 from app.extensions import db
+from app.models.audit_mixin import AuditMixin
 
 
-class LineItem(db.Model):
+class LineItem(db.Model, AuditMixin):
     __tablename__ = "line_item"
 
     id = mapped_column(
@@ -17,10 +18,6 @@ class LineItem(db.Model):
     rate = mapped_column(db.Numeric, nullable=False)
     amount = mapped_column(db.Numeric, nullable=False)
     description = mapped_column(db.Text, nullable=True)
-    created_by = mapped_column(db.String(100))
-    created_date = mapped_column(db.DateTime, server_default=func.now())
-    last_modified_by = mapped_column(db.String(100))
-    last_modified_date = mapped_column(db.DateTime)
 
     ## Relationships
     invoice = relationship("Invoice", back_populates="line_items")

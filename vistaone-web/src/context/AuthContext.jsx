@@ -1,56 +1,99 @@
-// AuthContext - this is where we manage whether a user is logged in or not
-// React Context lets us share this state with any component without passing props
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
-// create the context object - this is like a container that holds our auth data
 const AuthContext = createContext();
 
-// custom hook so components can easily access the auth state
-// instead of writing useContext(AuthContext) everywhere we just write useAuth()
-export function useAuth() {
+export function useAuthContext() {
   return useContext(AuthContext);
 }
 
-// the provider wraps the entire app and makes auth state available everywhere
 export function AuthProvider({ children }) {
-  // check localStorage on load to see if user was already logged in
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
+  const [token, setToken] = useState(localStorage.getItem("authToken"));
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("userProfile")) || null;
+    } catch {
+      return null;
+    }
+  });
+  // true once we have fresh permissions from the server (or confirmed no token)
+  const [profileReady, setProfileReady] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("userProfile"));
+      return !!(stored?.permissions);
+    } catch {
+      return false;
+    }
+  });
 
-  // login function - saves the token and user info
-  // called from the Login page when the form is submitted
-  const login = (newToken, userData) => {
+  const setAuth = useCallback((newToken, userProfile) => {
     setToken(newToken);
-    setUser(userData);
-    // persist to localStorage so the user stays logged in on page refresh
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("user", JSON.stringify(userData));
-  };
+    setUser(userProfile);
+    localStorage.setItem("authToken", newToken);
+    localStorage.setItem("userProfile", JSON.stringify(userProfile));
+  }, []);
 
-  // logout function - clears everything
-  // called from the sidebar sign out button
-  const logout = () => {
+  const clearAuth = useCallback(() => {
     setToken(null);
     setUser(null);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userProfile");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-  };
+  }, []);
 
-  // isAuthenticated is true when we have a token
-  const isAuthenticated = !!token;
+  const hasRole = useCallback(
+    (...roles) => {
+      if (!user?.roles) return false;
+      return roles.some((r) => user.roles.includes(r));
+    },
+    [user]
+  );
 
-  // value is the object that gets shared with every component that uses useAuth()
-  const value = {
-    token,
-    user,
-    isAuthenticated,
-    login,
-    logout,
-  };
+  /**
+   * Check if the user has a given action on a resource.
+   * action: "read" | "write" | "delete"
+   */
+  const hasPermission = useCallback(
+    (resource, action = "read") => {
+      if (!user) return false;
+      // MASTER has all permissions
+      if (user.roles?.includes("MASTER")) return true;
+      return user.permissions?.[resource]?.[action] === true;
+    },
+    [user]
+  );
+
+  // Re-fetch profile on every app load so permissions are always fresh from the server.
+  // This ensures that when MASTER changes a user's role/permissions, it takes effect
+  // on the next page load without requiring the user to log out and back in.
+  useEffect(() => {
+    const storedToken = localStorage.getItem("authToken");
+    if (!storedToken) {
+      setProfileReady(true);
+      return;
+    }
+
+    fetch("/api/users/me", {
+      headers: { Authorization: `Bearer ${storedToken}` },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((profile) => {
+        if (profile) {
+          setUser(profile);
+          localStorage.setItem("userProfile", JSON.stringify(profile));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setProfileReady(true));
+  }, []);
+
+  const isMaster = hasRole("MASTER");
+  const isAdmin = hasRole("MASTER", "ADMIN");
 
   return (
-    // anything inside AuthProvider can now call useAuth() to get these values
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{ token, user, setAuth, clearAuth, hasRole, hasPermission, isMaster, isAdmin, profileReady }}
+    >
       {children}
     </AuthContext.Provider>
   );

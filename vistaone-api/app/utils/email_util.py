@@ -5,6 +5,7 @@ from flask import current_app
 
 def send_verification_email(user, token):
     subject = "Verify your email address"
+    # verify_url = f"{current_app.config.get('FRONTEND_URL', 'https://client-web-dashboard-q67uq3u77-dhanushkas-projects-bab7974e.vercel.app')}/verify-email?token={token}"
     verify_url = f"{current_app.config.get('FRONTEND_URL', 'http://localhost:5173')}/verify-email?token={token}"
     # Support both dict and object
     if isinstance(user, dict):
