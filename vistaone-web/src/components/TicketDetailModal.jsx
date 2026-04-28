@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ticketService } from "../services/ticketService";
+import { useAuthContext } from "../context/AuthContext";
 
 const formatDateTime = (s) => {
   if (!s) return "—";
@@ -55,10 +56,33 @@ function estimatedDurationToSeconds(value) {
   return null;
 }
 
-export default function TicketDetailModal({ ticketId, onClose }) {
+export default function TicketDetailModal({ ticketId, onClose, onStatusChange }) {
+  const { isAdmin, isMaster } = useAuthContext();
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionMessage, setActionMessage] = useState("");
+
+  const runAction = async (fn, successMessage) => {
+    setActionLoading(true);
+    setActionMessage("");
+    try {
+      const updated = await fn(ticketId);
+      setTicket(updated);
+      setActionMessage(successMessage);
+      if (onStatusChange) onStatusChange(updated);
+    } catch (err) {
+      setActionMessage(err.message || "Action failed");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleApprove = () => runAction(ticketService.approve, "Ticket approved");
+  const handleReject = () => runAction(ticketService.reject, "Ticket rejected");
+  const handleUndo = () =>
+    runAction(ticketService.setPending, "Ticket set to pending approval");
 
   useEffect(() => {
     let cancelled = false;
@@ -328,6 +352,89 @@ export default function TicketDetailModal({ ticketId, onClose }) {
                     )}
                   </dl>
                 </section>
+              )}
+
+              {actionMessage && (
+                <div className="ticket-detail-action-message">{actionMessage}</div>
+              )}
+
+              {ticket.status === "PENDING_APPROVAL" && (
+                <div className="ticket-detail-actions">
+                  <button
+                    className="ticket-btn-approve"
+                    onClick={handleApprove}
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? "Processing..." : "Approve Ticket"}
+                  </button>
+                  <button
+                    className="ticket-btn-reject"
+                    onClick={handleReject}
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? "Processing..." : "Reject Ticket"}
+                  </button>
+                </div>
+              )}
+
+              {ticket.status === "APPROVED" && (
+                <>
+                  <p className="ticket-detail-note ticket-detail-note-success">
+                    This ticket has been approved.
+                  </p>
+                  {isAdmin && (
+                    <div className="ticket-detail-actions">
+                      <button
+                        className="ticket-btn-undo"
+                        onClick={handleUndo}
+                        disabled={actionLoading}
+                      >
+                        {actionLoading
+                          ? "Processing..."
+                          : "Undo Approval (set Pending)"}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {ticket.status === "REJECTED" && (
+                <>
+                  <p className="ticket-detail-note ticket-detail-note-error">
+                    This ticket was rejected.
+                  </p>
+                  {isAdmin && (
+                    <div className="ticket-detail-actions">
+                      <button
+                        className="ticket-btn-undo"
+                        onClick={handleUndo}
+                        disabled={actionLoading}
+                      >
+                        {actionLoading
+                          ? "Processing..."
+                          : "Undo Rejection (set Pending)"}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {ticket.status === "COMPLETED" && isMaster && (
+                <>
+                  <p className="ticket-detail-note">
+                    This ticket is marked completed. Master can reopen it for
+                    approval review.
+                  </p>
+                  <div className="ticket-detail-actions">
+                    <button
+                      className="ticket-btn-undo"
+                      onClick={handleUndo}
+                      disabled={actionLoading}
+                    >
+                      {actionLoading ? "Processing..." : "Reopen for Approval"}
+                    </button>
+                  </div>
+                </>
               )}
             </>
           )}

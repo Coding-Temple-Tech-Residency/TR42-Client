@@ -22,6 +22,9 @@ import {
   vendorTicketStats,
   vendorsBySharedService,
   invoicesOutstandingByVendor,
+  invoicePipelineStats,
+  invoiceApprovalByVendor,
+  costByService,
   workOrdersByStatus,
   msasExpiringSoon,
 } from "../services/analyticsHelpers";
@@ -104,6 +107,21 @@ export default function Analytics() {
     [data.invoices, data.vendors],
   );
 
+  const invoicePipeline = useMemo(
+    () => invoicePipelineStats(data.invoices),
+    [data.invoices],
+  );
+
+  const invoiceByVendor = useMemo(
+    () => invoiceApprovalByVendor(data.invoices, data.vendors),
+    [data.invoices, data.vendors],
+  );
+
+  const serviceCosts = useMemo(
+    () => costByService(data.invoices, data.workOrders),
+    [data.invoices, data.workOrders],
+  );
+
   const woStatus = useMemo(
     () => workOrdersByStatus(data.workOrders),
     [data.workOrders],
@@ -158,6 +176,45 @@ export default function Analytics() {
         <div className="analytics-kpi">
           <div className="analytics-kpi-label">Active work orders</div>
           <div className="analytics-kpi-value">{totals.activeWO}</div>
+        </div>
+      </section>
+
+      <section className="analytics-kpi-row">
+        <div className="analytics-kpi analytics-kpi-pending">
+          <div className="analytics-kpi-label">Invoices pending</div>
+          <div className="analytics-kpi-value">
+            {invoicePipeline.pending.count}
+          </div>
+          <div className="analytics-kpi-sub">
+            {formatCurrency(invoicePipeline.pending.amount)}
+          </div>
+        </div>
+        <div className="analytics-kpi analytics-kpi-approved">
+          <div className="analytics-kpi-label">Invoices approved</div>
+          <div className="analytics-kpi-value">
+            {invoicePipeline.approved.count}
+          </div>
+          <div className="analytics-kpi-sub">
+            {formatCurrency(invoicePipeline.approved.amount)}
+          </div>
+        </div>
+        <div className="analytics-kpi analytics-kpi-rejected">
+          <div className="analytics-kpi-label">Invoices rejected</div>
+          <div className="analytics-kpi-value">
+            {invoicePipeline.rejected.count}
+          </div>
+          <div className="analytics-kpi-sub">
+            {formatCurrency(invoicePipeline.rejected.amount)}
+          </div>
+        </div>
+        <div className="analytics-kpi">
+          <div className="analytics-kpi-label">Invoices paid</div>
+          <div className="analytics-kpi-value">
+            {invoicePipeline.paid.count}
+          </div>
+          <div className="analytics-kpi-sub">
+            {formatCurrency(invoicePipeline.paid.amount)}
+          </div>
         </div>
       </section>
 
@@ -264,6 +321,66 @@ export default function Analytics() {
                 ))}
               </tbody>
             </table>
+          )}
+        </div>
+
+        <div className="analytics-card analytics-wide">
+          <h3>Cost by service</h3>
+          {serviceCosts.length === 0 ? (
+            <div className="analytics-empty">No invoiced services yet.</div>
+          ) : (
+            <table className="analytics-table">
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Invoices</th>
+                  <th>Approved</th>
+                  <th>Pending</th>
+                  <th>Rejected</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {serviceCosts.map((s) => (
+                  <tr key={s.service}>
+                    <td>{s.service}</td>
+                    <td>{s.invoiceCount}</td>
+                    <td>{formatCurrency(s.approved)}</td>
+                    <td>{formatCurrency(s.pending)}</td>
+                    <td>{formatCurrency(s.rejected)}</td>
+                    <td>
+                      <strong>{formatCurrency(s.total)}</strong>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="analytics-card analytics-wide">
+          <h3>Invoice approvals by vendor</h3>
+          {invoiceByVendor.length === 0 ? (
+            <div className="analytics-empty">No invoices yet.</div>
+          ) : (
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={invoiceByVendor}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#eef1f5" />
+                <XAxis
+                  dataKey="vendorName"
+                  tick={{ fontSize: 11 }}
+                  angle={-15}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="approved" stackId="i" fill="#10b981" name="Approved" />
+                <Bar dataKey="rejected" stackId="i" fill="#ef4444" name="Rejected" />
+                <Bar dataKey="pending" stackId="i" fill="#f59e0b" name="Pending" />
+              </BarChart>
+            </ResponsiveContainer>
           )}
         </div>
 

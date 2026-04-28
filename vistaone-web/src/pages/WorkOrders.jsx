@@ -16,9 +16,126 @@ const statusOptions = [
   { value: "CLOSED", label: "Closed" },
 ];
 
+const STATUS_RANK = {
+  IN_PROGRESS: 0,
+  ASSIGNED: 1,
+  UNASSIGNED: 2,
+  APPROVED: 3,
+  COMPLETED: 4,
+  CLOSED: 5,
+  CANCELLED: 6,
+};
+
+const HEADER_SORT_DEFAULTS = {
+  order_id: "asc",
+  vendor: "asc",
+  job_type: "asc",
+  location_type: "asc",
+  date: "desc",
+  status: "asc",
+};
+
+function dateValue(value) {
+  if (!value) return 0;
+  const t = new Date(value).getTime();
+  return Number.isNaN(t) ? 0 : t;
+}
+
+function vendorLabel(o) {
+  return (o.vendor?.name || "").toLowerCase();
+}
+
+function jobTypeLabel(o) {
+  return (o.service_type?.service || "").toLowerCase();
+}
+
+function locationTypeLabel(o) {
+  return (o.location_type || "").toLowerCase();
+}
+
+function orderIdValue(o) {
+  const n = Number(o.work_order_id);
+  return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+}
+
+function effectiveStatus(o) {
+  return o.display_status || o.status || "";
+}
+
+function parseSort(sortBy) {
+  const m = sortBy?.match(/^(.*)_(asc|desc)$/);
+  if (!m) return { column: null, direction: null };
+  return { column: m[1], direction: m[2] };
+}
+
+function nextSortFor(column, sortBy) {
+  const current = parseSort(sortBy);
+  const def = HEADER_SORT_DEFAULTS[column] || "asc";
+  if (current.column !== column) return `${column}_${def}`;
+  return current.direction === "asc" ? `${column}_desc` : `${column}_asc`;
+}
+
+function sortOrders(list, sortBy) {
+  const sorted = [...list];
+  switch (sortBy) {
+    case "order_id_asc":
+      sorted.sort((a, b) => orderIdValue(a) - orderIdValue(b));
+      break;
+    case "order_id_desc":
+      sorted.sort((a, b) => orderIdValue(b) - orderIdValue(a));
+      break;
+    case "vendor_asc":
+      sorted.sort((a, b) => vendorLabel(a).localeCompare(vendorLabel(b)));
+      break;
+    case "vendor_desc":
+      sorted.sort((a, b) => vendorLabel(b).localeCompare(vendorLabel(a)));
+      break;
+    case "job_type_asc":
+      sorted.sort((a, b) => jobTypeLabel(a).localeCompare(jobTypeLabel(b)));
+      break;
+    case "job_type_desc":
+      sorted.sort((a, b) => jobTypeLabel(b).localeCompare(jobTypeLabel(a)));
+      break;
+    case "location_type_asc":
+      sorted.sort((a, b) =>
+        locationTypeLabel(a).localeCompare(locationTypeLabel(b)),
+      );
+      break;
+    case "location_type_desc":
+      sorted.sort((a, b) =>
+        locationTypeLabel(b).localeCompare(locationTypeLabel(a)),
+      );
+      break;
+    case "date_asc":
+      sorted.sort((a, b) => dateValue(a.created_at) - dateValue(b.created_at));
+      break;
+    case "date_desc":
+      sorted.sort((a, b) => dateValue(b.created_at) - dateValue(a.created_at));
+      break;
+    case "status_asc":
+      sorted.sort(
+        (a, b) =>
+          (STATUS_RANK[effectiveStatus(a)] ?? 99) -
+          (STATUS_RANK[effectiveStatus(b)] ?? 99),
+      );
+      break;
+    case "status_desc":
+      sorted.sort(
+        (a, b) =>
+          (STATUS_RANK[effectiveStatus(b)] ?? 99) -
+          (STATUS_RANK[effectiveStatus(a)] ?? 99),
+      );
+      break;
+    default:
+      break;
+  }
+  return sorted;
+}
+
 export default function WorkOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("date_desc");
   const [showModal, setShowModal] = useState(false);
   const [detailOrder, setDetailOrder] = useState(null);
   const {
@@ -36,7 +153,7 @@ export default function WorkOrders() {
 
   const filteredOrders = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
-    return workOrders.filter((order) => {
+    const matched = workOrders.filter((order) => {
       const matchesStatus =
         statusFilter === "ALL" ||
         (order.status && order.status === statusFilter);
@@ -44,10 +161,43 @@ export default function WorkOrders() {
       const matchesSearch =
         order.description?.toLowerCase().includes(normalizedSearch) ||
         order.location_type?.toLowerCase().includes(normalizedSearch) ||
-        order.work_order_id?.toLowerCase().includes(normalizedSearch);
+        String(order.work_order_id ?? "").toLowerCase().includes(normalizedSearch);
       return matchesStatus && matchesSearch;
     });
-  }, [workOrders, searchTerm, statusFilter]);
+    return sortOrders(matched, sortBy);
+  }, [workOrders, searchTerm, statusFilter, sortBy]);
+
+  const activeSort = parseSort(sortBy);
+  const handleHeaderSort = (column) => setSortBy(nextSortFor(column, sortBy));
+  const sortIndicator = (column) => {
+    if (activeSort.column !== column) return null;
+    return (
+      <span className="workorders-sort-arrow" aria-hidden="true">
+        {activeSort.direction === "asc" ? "▲" : "▼"}
+      </span>
+    );
+  };
+  const headerProps = (column, label) => ({
+    onClick: () => handleHeaderSort(column),
+    onKeyDown: (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleHeaderSort(column);
+      }
+    },
+    tabIndex: 0,
+    role: "button",
+    className: `workorders-th-sortable ${
+      activeSort.column === column ? "is-active" : ""
+    }`,
+    "aria-sort":
+      activeSort.column === column
+        ? activeSort.direction === "asc"
+          ? "ascending"
+          : "descending"
+        : "none",
+    "aria-label": `Sort by ${label}`,
+  });
 
   const handleOpenModal = () => setShowModal(true);
 
@@ -118,17 +268,28 @@ export default function WorkOrders() {
         ) : filteredOrders.length === 0 ? (
           <div className="workorders-state">No work orders found</div>
         ) : (
-          <table className="workorders-table">
+          <table className="workorders-table workorders-table-flat">
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Vendor</th>
-                <th>Job Type</th>
-                <th>Location Type</th>
+                <th {...headerProps("order_id", "order id")}>
+                  Order ID {sortIndicator("order_id")}
+                </th>
+                <th {...headerProps("vendor", "vendor")}>
+                  Vendor {sortIndicator("vendor")}
+                </th>
+                <th {...headerProps("job_type", "job type")}>
+                  Job Type {sortIndicator("job_type")}
+                </th>
+                <th {...headerProps("location_type", "location type")}>
+                  Location Type {sortIndicator("location_type")}
+                </th>
                 <th>Location</th>
-                <th>Date</th>
-                <th>Status</th>
-                {/* <th>Actions</th> */}
+                <th {...headerProps("date", "date")}>
+                  Date {sortIndicator("date")}
+                </th>
+                <th {...headerProps("status", "status")}>
+                  Status {sortIndicator("status")}
+                </th>
               </tr>
             </thead>
             <tbody>

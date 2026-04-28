@@ -10,6 +10,9 @@ const STATUS_OPTIONS = [
   { value: "UNASSIGNED", label: "Unassigned" },
   { value: "ASSIGNED", label: "Assigned" },
   { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "PENDING_APPROVAL", label: "Pending Approval" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
   { value: "COMPLETED", label: "Completed" },
 ];
 
@@ -53,10 +56,13 @@ const HEADER_SORT_DEFAULTS = {
 
 const PRIORITY_RANK = { HIGH: 0, MEDIUM: 1, LOW: 2 };
 const STATUS_RANK = {
-  IN_PROGRESS: 0,
-  ASSIGNED: 1,
-  UNASSIGNED: 2,
-  COMPLETED: 3,
+  PENDING_APPROVAL: 0,
+  IN_PROGRESS: 1,
+  ASSIGNED: 2,
+  UNASSIGNED: 3,
+  APPROVED: 4,
+  REJECTED: 5,
+  COMPLETED: 6,
 };
 
 function dateValue(value) {
@@ -319,13 +325,6 @@ export default function Tickets() {
     >
       {error && <div className="tickets-error">{error}</div>}
 
-      {selectedTicketId && (
-        <TicketDetailModal
-          ticketId={selectedTicketId}
-          onClose={() => setSelectedTicketId(null)}
-        />
-      )}
-
       <section className="tickets-controls">
         <input
           type="search"
@@ -414,7 +413,9 @@ export default function Tickets() {
                 return (
                   <tr
                     key={t.id}
-                    className="tickets-row tickets-row-clickable"
+                    className={`tickets-row tickets-row-clickable ${
+                      selectedTicketId === t.id ? "tickets-row-selected" : ""
+                    }`}
                     onClick={() => setSelectedTicketId(t.id)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
@@ -428,7 +429,12 @@ export default function Tickets() {
                   >
                     <td className="tickets-cell-wo">{woLabel}</td>
                     <td>
-                      <div className="tickets-description">{t.description}</div>
+                      <div
+                        className="tickets-description"
+                        title={t.description || ""}
+                      >
+                        {t.description}
+                      </div>
                     </td>
                     <td>{t.vendor?.company_name || t.vendor?.name || "—"}</td>
                     <td>{t.assigned_contractor || "—"}</td>
@@ -465,6 +471,18 @@ export default function Tickets() {
           </table>
         )}
       </section>
+
+      {selectedTicketId && (
+        <TicketDetailModal
+          ticketId={selectedTicketId}
+          onClose={() => setSelectedTicketId(null)}
+          onStatusChange={(updated) => {
+            setTickets((prev) =>
+              prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t)),
+            );
+          }}
+        />
+      )}
     </AppShell>
   );
 }

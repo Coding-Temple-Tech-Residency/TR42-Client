@@ -47,3 +47,37 @@ class TicketService:
         saved = TicketRepository.update(ticket)
         logger.info(f"Ticket updated: {saved.id}")
         return saved
+
+    @staticmethod
+    def _set_status(ticket_id, new_status, current_user_id):
+        ticket = TicketRepository.get_by_id(ticket_id)
+        if not ticket:
+            raise ValueError("Ticket not found")
+        ticket.status = new_status
+        ticket.updated_by = current_user_id
+        saved = TicketRepository.update(ticket)
+        return saved
+
+    @staticmethod
+    def approve_ticket(ticket_id, current_user_id):
+        saved = TicketService._set_status(
+            ticket_id, TicketStatusEnum.APPROVED, current_user_id
+        )
+        logger.info(f"Ticket approved: {saved.id}")
+        return saved
+
+    @staticmethod
+    def reject_ticket(ticket_id, current_user_id):
+        saved = TicketService._set_status(
+            ticket_id, TicketStatusEnum.REJECTED, current_user_id
+        )
+        logger.info(f"Ticket rejected: {saved.id}")
+        return saved
+
+    @staticmethod
+    def set_pending_ticket(ticket_id, current_user_id):
+        saved = TicketService._set_status(
+            ticket_id, TicketStatusEnum.PENDING_APPROVAL, current_user_id
+        )
+        logger.info(f"Ticket set to pending approval: {saved.id}")
+        return saved
