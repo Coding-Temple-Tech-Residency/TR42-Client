@@ -26,7 +26,7 @@ class UserProfileService:
             "last_name",
             "contact_number",
             "alternate_number",
-            "profile_photo_url",
+            "profile_photo",
             "date_of_birth"
         ]
 

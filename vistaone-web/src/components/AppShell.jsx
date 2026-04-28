@@ -14,7 +14,7 @@ function AppShell({
     loading = false,
     loadingText = "Loading...",
 }) {
-    const { isMaster, isAdmin, user } = useAuthContext();
+    const { isMaster, isAdmin, user, hasPermission } = useAuthContext();
 
     const adminSection = [];
     if (isAdmin) {
@@ -37,8 +37,12 @@ function AppShell({
         });
     }
 
+    const filterNav = (items) =>
+        items.filter((item) => !item.permission || hasPermission(item.permission, "read"));
+
     const navData = {
-        ...sidebarNav,
+        main: filterNav(sidebarNav.main),
+        account: filterNav(sidebarNav.account),
         admin: adminSection,
         userName: user ? `${user.first_name} ${user.last_name}` : "User",
         userRole: user?.roles?.[0] ?? "",

@@ -115,20 +115,21 @@ export const recentInvoices = [
 ];
 
 // sidebar menu items split into main and account sections
+// permission: backend resource name — if set, item is hidden when user lacks can_read on that resource
 export const sidebarNav = {
   main: [
-    { to: '/dashboard', label: "Dashboard", icon: "grid", active: true },
-    { to: '/wells', label: "Oil Wells", icon: "list", active: false },
-    { to: '/workorders', label: "Work Orders", icon: "clipboard", active: false },
-    { to: "/tickets", label: "Tickets", icon: "clipboard", active: false },
-    { to: "/invoices", label: "Invoices", icon: "file", active: false },
-    { to: "/vendor-favorites", label: "Vendors", icon: "users", active: false },
+    { to: '/dashboard', label: "Dashboard", icon: "grid", permission: "dashboard" },
+    { to: '/wells', label: "Oil Wells", icon: "list", permission: "wells" },
+    { to: '/workorders', label: "Work Orders", icon: "clipboard", permission: "workorders" },
+    { to: "/tickets", label: "Tickets", icon: "clipboard", permission: "workorders" },
+    { to: "/invoices", label: "Invoices", icon: "file", permission: "invoices" },
+    { to: "/vendor-favorites", label: "Vendors", icon: "users", permission: "vendors" },
   ],
   account: [
-    { to: "/vendor-marketplace", label: "Vendor Marketplace", icon: "users", active: false },
-    { to: "/contracts", label: "Contracts / MSA", icon: "folder", active: false },
-    { to: "/analytics", label: "Analytics", icon: "grid", active: false },
-    { to: "/fraud", label: "Fraud & Anomalies", icon: "file", active: false },
+    { to: "/vendor-marketplace", label: "Vendor Marketplace", icon: "users", permission: "vendor_marketplace" },
+    { to: "/contracts", label: "Contracts / MSA", icon: "folder", permission: "contracts" },
+    { to: "/analytics", label: "Analytics", icon: "grid" },
+    { to: "/fraud", label: "Fraud & Anomalies", icon: "file" },
   ],
 };
 

@@ -21,7 +21,7 @@ class UserProfileSchema(ma.SQLAlchemySchema):
     contact_number = ma.auto_field()
     alternate_number = ma.auto_field()
 
-    profile_photo_url = ma.auto_field()
+    profile_photo = ma.auto_field()
     date_of_birth = ma.auto_field()
 
     address = fields.Nested(AddressSchema)

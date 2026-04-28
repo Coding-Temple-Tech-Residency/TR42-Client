@@ -99,8 +99,8 @@ function CreateWorkOrderModal({ setShowModal, fetchWorkOrders, prefilledVendorId
       wells.map((w) => ({
         id: w.id,
         label: w.well_name
-          ? `${w.well_name} - ${w.well_number}`
-          : w.well_number,
+          ? `${w.well_name} - ${w.api_number}`
+          : w.api_number,
         gps: w.latitude && w.longitude ? `${w.latitude}, ${w.longitude}` : "",
       })),
     );

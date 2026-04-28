@@ -12,6 +12,6 @@ class Address(db.Model, AuditMixin):
     )
     street: Mapped[str] = mapped_column(db.String(255), nullable=False)
     city: Mapped[str] = mapped_column(db.String(100), nullable=False)
-    state: Mapped[str] = mapped_column(db.String(50))
-    zip: Mapped[str] = mapped_column(db.String(20), nullable=False)
+    state: Mapped[str] = mapped_column(db.String(20))
+    zip: Mapped[str] = mapped_column(db.String(10), nullable=False)
     country: Mapped[str] = mapped_column(db.String(100), nullable=False)

@@ -29,7 +29,7 @@ export default function Wells() {
     return wells.filter(
       (well) =>
         well.well_name?.toLowerCase().includes(normalized) ||
-        well.well_number?.toLowerCase().includes(normalized),
+        well.api_number?.toLowerCase().includes(normalized),
     );
   }, [wells, searchTerm]);
 
@@ -95,7 +95,7 @@ export default function Wells() {
                     setShowModal(true);
                   }}
                 >
-                  <td>{well.well_number}</td>
+                  <td>{well.api_number}</td>
                   <td>{well.well_name}</td>
                   <td>{well.latitude}</td>
                   <td>{well.longitude}</td>

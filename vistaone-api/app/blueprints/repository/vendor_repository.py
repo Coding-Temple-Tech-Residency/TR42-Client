@@ -13,7 +13,7 @@ class VendorRepository:
     def get_all(status=None, compliance=None):
         """Return all vendors with optional status and compliance filters."""
         query = select(Vendor).options(
-            joinedload(Vendor.vendor_services).joinedload(VendorService.service_type)
+            joinedload(Vendor.vendor_services).joinedload(VendorService.service)
         )
 
         if status:
@@ -31,9 +31,7 @@ class VendorRepository:
             select(Vendor)
             .where(Vendor.id == vendor_id)
             .options(
-                joinedload(Vendor.vendor_services).joinedload(
-                    VendorService.service_type
-                )
+                joinedload(Vendor.vendor_services).joinedload(VendorService.service)
             )
         )
         return db.session.execute(query).unique().scalars().first()

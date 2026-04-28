@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/sidebar.css";
 import {
@@ -11,6 +11,8 @@ import {
     FiLogOut,
     FiSettings,
     FiShield,
+    FiMenu,
+    FiX,
 } from "react-icons/fi";
 import { useAuth } from "../hooks/useAuth";
 
@@ -18,6 +20,7 @@ function SideBar({ navData }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { logout } = useAuth();
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleLogout = () => {
         logout();
@@ -37,11 +40,30 @@ function SideBar({ navData }) {
               .slice(0, 2)
         : "??";
 
+    const handleNavigate = (to) => {
+        if (to) {
+            navigate(to);
+            setIsOpen(false);
+        }
+    };
+
     return (
-        <aside className="sidebar">
+        <>
+            {!isOpen && (
+                <button className="sidebar-hamburger" onClick={() => setIsOpen(true)} aria-label="Open menu">
+                    <FiMenu size={22} />
+                </button>
+            )}
+
+            {isOpen && <div className="sidebar-overlay" onClick={() => setIsOpen(false)} />}
+
+        <aside className={`sidebar${isOpen ? " open" : ""}`}>
             <div className="sidebar-brand">
                 <h2 className="sidebar-title">FieldPortal</h2>
                 <p className="sidebar-subtitle">Permian Basin Operations</p>
+                <button className="sidebar-close" onClick={() => setIsOpen(false)} aria-label="Close menu">
+                    <FiX size={20} />
+                </button>
             </div>
 
             <nav className="sidebar-nav">
@@ -51,7 +73,7 @@ function SideBar({ navData }) {
                         <li
                             key={item.label}
                             className={`sidebar-item ${isActive(item.to) ? "active" : ""}`}
-                            onClick={() => item.to && navigate(item.to)}
+                            onClick={() => handleNavigate(item.to)}
                             style={{ cursor: item.to ? "pointer" : "default" }}
                         >
                             <span className="sidebar-icon">
@@ -68,7 +90,7 @@ function SideBar({ navData }) {
                         <li
                             key={item.label}
                             className={`sidebar-item ${isActive(item.to) ? "active" : ""}`}
-                            onClick={() => item.to && navigate(item.to)}
+                            onClick={() => handleNavigate(item.to)}
                             style={{ cursor: item.to ? "pointer" : "default" }}
                         >
                             <span className="sidebar-icon">
@@ -87,7 +109,7 @@ function SideBar({ navData }) {
                                 <li
                                     key={item.label}
                                     className={`sidebar-item ${isActive(item.to) ? "active" : ""}`}
-                                    onClick={() => item.to && navigate(item.to)}
+                                    onClick={() => handleNavigate(item.to)}
                                     style={{
                                         cursor: item.to ? "pointer" : "default",
                                     }}
@@ -122,6 +144,7 @@ function SideBar({ navData }) {
                 </button>
             </div>
         </aside>
+        </>
     );
 }
 

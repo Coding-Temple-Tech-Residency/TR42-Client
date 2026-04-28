@@ -22,7 +22,7 @@ class WorkOrder(db.Model, AuditMixin):
     client_id = mapped_column(db.String(36), db.ForeignKey("client.id"), nullable=False)
     vendor_id = mapped_column(db.String(36), db.ForeignKey("vendor.id"), nullable=False)
     service_type_id = mapped_column(
-        db.String(36), db.ForeignKey("service_type.id"), nullable=False
+        db.String(36), db.ForeignKey("service.id"), nullable=False
     )
 
     description = mapped_column(db.String(500))
@@ -36,7 +36,7 @@ class WorkOrder(db.Model, AuditMixin):
     latitude = mapped_column(db.Float, nullable=True)
     longitude = mapped_column(db.Float, nullable=True)
 
-    units = mapped_column(db.String(100))
+    units = mapped_column(db.String(15))
     estimated_quantity = mapped_column(db.Float, nullable=True)
     estimated_cost = mapped_column(db.Numeric, nullable=True)
     estimated_duration = mapped_column(db.Interval, nullable=True)
@@ -54,7 +54,7 @@ class WorkOrder(db.Model, AuditMixin):
     estimated_end_date = mapped_column(db.DateTime, nullable=True)
     assigned_at = mapped_column(db.DateTime(timezone=True), nullable=True)
     completed_at = mapped_column(db.DateTime(timezone=True), nullable=True)
-    cancelled_by = mapped_column(db.String(100))
+    cancelled_by = mapped_column(db.String(36))
     cancelled_at = mapped_column(db.DateTime(timezone=True))
     cancellation_reason = mapped_column(db.String(255), nullable=True)
 
@@ -65,7 +65,7 @@ class WorkOrder(db.Model, AuditMixin):
     ## Relationships
     client = relationship("Client", back_populates="workorders")
     vendor = relationship("Vendor", back_populates="workorders")
-    service_type = relationship("ServiceType")
+    service_type = relationship("Service")
     well = relationship("Well")
     address = relationship("Address")
     tickets = relationship(

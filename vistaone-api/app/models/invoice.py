@@ -3,9 +3,10 @@ from sqlalchemy.sql import func
 from app.blueprints.enum.enums import InvoiceStatusEnum
 import uuid
 from app.extensions import db
+from app.models.audit_mixin import AuditMixin
 
 
-class Invoice(db.Model):
+class Invoice(db.Model, AuditMixin):
     __tablename__ = "invoice"
 
     id = mapped_column(
@@ -27,13 +28,10 @@ class Invoice(db.Model):
     paid_at = mapped_column(db.DateTime(timezone=True), nullable=True)
     approved_at = mapped_column(db.DateTime(timezone=True), nullable=True)
     rejected_at = mapped_column(db.DateTime(timezone=True), nullable=True)
-    created_by = mapped_column(db.String(100))
-    created_date = mapped_column(db.DateTime, server_default=func.now())
-    last_modified_by = mapped_column(db.String(100))
-    last_modified_date = mapped_column(db.DateTime)
 
     ## Relationships
     work_order = relationship("WorkOrder")
     vendor = relationship("Vendor")
     client = relationship("Client")
     line_items = relationship("LineItem", back_populates="invoice")
+    tickets = relationship("Ticket", back_populates="invoice")

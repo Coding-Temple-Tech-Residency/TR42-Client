@@ -12,8 +12,6 @@ class Vendor(db.Model, AuditMixin):
         db.String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
 
-    # "name" kept from original stub for work order relationship compatibility
-    name = mapped_column(db.String(255), nullable=False)
     company_name = mapped_column(db.String(80), unique=True, nullable=True)
     company_code = mapped_column(db.String(50), nullable=True)
 
