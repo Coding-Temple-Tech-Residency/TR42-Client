@@ -1,4 +1,5 @@
-const API_BASE = "/api";
+import { API_BASE } from "../config/api";
+
 const MSA_ENDPOINT = "/msa";
 
 /** Helper to get auth headers - omits Content-Type for multipart uploads */

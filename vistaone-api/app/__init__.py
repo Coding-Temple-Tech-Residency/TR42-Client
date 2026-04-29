@@ -61,7 +61,7 @@ def _register_audit_hooks(db_instance):
                 obj.updated_by = current_user_id
 
 
-def create_app(config_name="ProductionConfig"):
+def create_app(config_name="DevelopmentConfig"):
     app = Flask(__name__)
     app.config.from_object(f"config.{config_name}")
 
@@ -76,25 +76,22 @@ def create_app(config_name="ProductionConfig"):
 
     _register_audit_hooks(db)
 
-    app.register_blueprint(users_bp, url_prefix="/users")
-    app.register_blueprint(profile_bp, url_prefix="/users/profile")
-    app.register_blueprint(workorder_bp, url_prefix="/workorders")
-    app.register_blueprint(well_bp, url_prefix="/wells")
-    app.register_blueprint(vendor_bp, url_prefix="/vendors")
-    app.register_blueprint(msa_bp, url_prefix="/msa")
-    app.register_blueprint(invoice_bp, url_prefix="/invoices")
-    app.register_blueprint(clients_bp, url_prefix="/clients")
-    app.register_blueprint(admin_bp, url_prefix="/admin")
-    app.register_blueprint(role_bp, url_prefix="/admin/roles")
-    app.register_blueprint(ticket_bp, url_prefix="/tickets")
+    app.register_blueprint(users_bp, url_prefix="/api/users")
+    app.register_blueprint(profile_bp, url_prefix="/api/users/profile")
+    app.register_blueprint(workorder_bp, url_prefix="/api/workorders")
+    app.register_blueprint(well_bp, url_prefix="/api/wells")
+    app.register_blueprint(vendor_bp, url_prefix="/api/vendors")
+    app.register_blueprint(msa_bp, url_prefix="/api/msa")
+    app.register_blueprint(invoice_bp, url_prefix="/api/invoices")
+    app.register_blueprint(clients_bp, url_prefix="/api/clients")
+    app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    app.register_blueprint(role_bp, url_prefix="/api/admin/roles")
+    app.register_blueprint(ticket_bp, url_prefix="/api/tickets")
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     CORS(
         app,
-        origins=[
-            "http://localhost:5173",
-            "https://client-web-dashboard-q67uq3u77-dhanushkas-projects-bab7974e.vercel.app",
-        ],
+        origins=app.config.get("CORS_ORIGINS", ["http://localhost:5173"]),
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     )

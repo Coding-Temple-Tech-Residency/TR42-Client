@@ -1,10 +1,13 @@
+import os
 from app import create_app
 from app.extensions import db
 
-app = create_app("ProductionConfig")
+config_name = os.getenv("FLASK_CONFIG", "DevelopmentConfig")
+app = create_app(config_name)
 
 with app.app_context():
-   # db.drop_all()
+    # db.drop_all()
     db.create_all()
 
-# app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=app.config.get("DEBUG", False))
