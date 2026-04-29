@@ -14,7 +14,7 @@ const RESOURCES = [
     { key: 'contracts',          label: 'Contracts / MSA' },
     { key: 'invoices',           label: 'Invoices' },
     { key: 'users',              label: 'User Management' },
-    { key: 'promote_admin',      label: 'Can Assign Admin Role' },
+    { key: 'promote_admin',      label: 'Can Assign Admin Role', action: true },
 ];
 
 function buildPermMap(permissions) {
@@ -75,20 +75,35 @@ function PermissionMatrix({ roleId, roleName, isDefault, initialPermissions, onS
                         </tr>
                     </thead>
                     <tbody>
-                        {RESOURCES.map(({ key, label }) => (
+                        {RESOURCES.map(({ key, label, action }) => (
                             <tr key={key}>
                                 <td className="align-middle small">{label}</td>
-                                {['can_read', 'can_write', 'can_delete'].map((field) => (
-                                    <td key={field} className="text-center align-middle">
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            checked={isMasterRole ? true : map[key][field]}
-                                            disabled={isMasterRole || saving}
-                                            onChange={() => toggle(key, field)}
-                                        />
+                                {action ? (
+                                    <td colSpan={3} className="text-center align-middle">
+                                        <div className="d-flex align-items-center justify-content-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                checked={isMasterRole ? true : map[key]['can_write']}
+                                                disabled={isMasterRole || saving}
+                                                onChange={() => toggle(key, 'can_write')}
+                                            />
+                                            <span className="small text-muted">Allow</span>
+                                        </div>
                                     </td>
-                                ))}
+                                ) : (
+                                    ['can_read', 'can_write', 'can_delete'].map((field) => (
+                                        <td key={field} className="text-center align-middle">
+                                            <input
+                                                type="checkbox"
+                                                className="form-check-input"
+                                                checked={isMasterRole ? true : map[key][field]}
+                                                disabled={isMasterRole || saving}
+                                                onChange={() => toggle(key, field)}
+                                            />
+                                        </td>
+                                    ))
+                                )}
                             </tr>
                         ))}
                     </tbody>
