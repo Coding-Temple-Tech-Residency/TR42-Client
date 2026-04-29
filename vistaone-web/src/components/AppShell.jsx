@@ -30,11 +30,6 @@ function AppShell({
             label: "Role Management",
             icon: "shield",
         });
-        adminSection.push({
-            to: "/settings",
-            label: "Company Settings",
-            icon: "settings",
-        });
     }
 
     const filterNav = (items) =>

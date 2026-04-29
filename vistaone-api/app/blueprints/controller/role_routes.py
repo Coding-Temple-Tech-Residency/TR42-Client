@@ -69,7 +69,7 @@ def update_role(user_id, role_id):
 @role_bp.route("/<role_id>", methods=["DELETE"])
 @role_required(MASTER)
 def delete_role(user_id, role_id):
-    """Delete a custom (non-default) role."""
+    """Delete a custom role. Optionally migrate users to another role first."""
     user = User.query.get(user_id)
     role = RoleRepository.get_role_by_id(role_id)
 
@@ -77,6 +77,17 @@ def delete_role(user_id, role_id):
         return jsonify({"message": "Role not found"}), 404
     if role.name in BUILT_IN_ROLE_NAMES:
         return jsonify({"message": "Built-in roles cannot be deleted"}), 403
+
+    data = request.get_json() or {}
+    migrate_to_role_id = data.get("migrate_to_role_id")
+
+    if migrate_to_role_id:
+        target_role = RoleRepository.get_role_by_id(migrate_to_role_id)
+        if not target_role or target_role.client_id != user.client_id:
+            return jsonify({"message": "Target role not found"}), 404
+        if target_role.id == role.id:
+            return jsonify({"message": "Cannot migrate to the same role"}), 400
+        RoleRepository.migrate_users_from_role(role, target_role)
 
     RoleRepository.delete_role(role)
     return jsonify({"message": "Role deleted"}), 200

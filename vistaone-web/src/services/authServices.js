@@ -17,6 +17,14 @@ function authHeader() {
 
 async function handleResponse(res) {
     const data = await res.json().catch(() => ({}));
+    if (res.status === 401) {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userProfile');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
+    }
     if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
     return data;
 }
@@ -197,10 +205,11 @@ export const authService = {
         return handleResponse(res);
     },
 
-    deleteRole: async (roleId) => {
+    deleteRole: async (roleId, migrateToRoleId = null) => {
         const res = await fetch(`${ADMIN_ROLES_ENDPOINT}/${roleId}`, {
             method: 'DELETE',
-            headers: authHeader(),
+            headers: { 'Content-Type': 'application/json', ...authHeader() },
+            body: JSON.stringify(migrateToRoleId ? { migrate_to_role_id: migrateToRoleId } : {}),
         });
         return handleResponse(res);
     },

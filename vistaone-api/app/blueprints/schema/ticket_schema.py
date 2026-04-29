@@ -4,7 +4,7 @@ from app.models.ticket import Ticket
 from app.models.workorder import WorkOrder
 from app.blueprints.enum.enums import TicketStatusEnum, PriorityEnum
 from app.blueprints.schema.invoice_schema import InvoiceSchema
-from app.blueprints.schema.service_type_schema import ServiceTypeSchema
+from app.blueprints.schema.service_schema import ServiceSchema
 
 
 class WorkOrderSummarySchema(ma.SQLAlchemyAutoSchema):
@@ -61,12 +61,10 @@ class TicketSchema(ma.SQLAlchemyAutoSchema):
 
     vendor = fields.Nested("VendorSchema", dump_only=True)
     invoice = fields.Nested(InvoiceSchema, dump_only=True)
-    service = fields.Nested(ServiceTypeSchema, dump_only=True)
+    service = fields.Nested(ServiceSchema, dump_only=True)
     work_order = fields.Nested(WorkOrderSummarySchema, dump_only=True)
 
-    actual_duration_seconds = fields.Method(
-        "_actual_duration_seconds", dump_only=True
-    )
+    actual_duration_seconds = fields.Method("_actual_duration_seconds", dump_only=True)
 
     def _actual_duration_seconds(self, obj):
         start = getattr(obj, "start_time", None)
