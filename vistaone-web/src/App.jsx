@@ -21,7 +21,6 @@ import RegisterUser from "./pages/RegisterUser";
 import RegisterClient from "./pages/RegisterClient";
 import VerifyEmail from "./pages/VerifyEmail";
 import UserManagement from "./pages/UserManagement";
-import Settings from "./pages/Settings";
 import RoleManagement from "./pages/RoleManagement";
 import Profile from "./pages/UserProfile";
 
@@ -117,14 +116,6 @@ function App() {
                 element={
                     <RoleProtectedRoute roles={["MASTER"]}>
                         <RoleManagement />
-                    </RoleProtectedRoute>
-                }
-            />
-            <Route
-                path="/settings"
-                element={
-                    <RoleProtectedRoute roles={["MASTER"]}>
-                        <Settings />
                     </RoleProtectedRoute>
                 }
             />
