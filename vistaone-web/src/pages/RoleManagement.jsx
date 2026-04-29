@@ -3,6 +3,8 @@ import { PlusCircle, Trash2, Edit2, Save, X, ChevronDown, ChevronRight, ShieldCh
 import { authService } from '../services/authServices';
 import AppShell from '../components/AppShell';
 
+const BUILT_IN_ROLES = new Set(['MASTER', 'ADMIN', 'USER']);
+
 const RESOURCES = [
     { key: 'dashboard',          label: 'Dashboard' },
     { key: 'wells',              label: 'Oil Wells' },
@@ -285,7 +287,7 @@ export default function RoleManagement() {
                                 </div>
 
                                 <div className="d-flex gap-1">
-                                    {!role.is_default && editId !== role.id && (
+                                    {!BUILT_IN_ROLES.has(role.name) && editId !== role.id && (
                                         <>
                                             <button className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" onClick={() => startEdit(role)}>
                                                 <Edit2 size={13} /> Edit
