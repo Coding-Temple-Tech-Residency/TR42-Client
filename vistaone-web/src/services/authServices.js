@@ -205,10 +205,11 @@ export const authService = {
         return handleResponse(res);
     },
 
-    deleteRole: async (roleId) => {
+    deleteRole: async (roleId, migrateToRoleId = null) => {
         const res = await fetch(`${ADMIN_ROLES_ENDPOINT}/${roleId}`, {
             method: 'DELETE',
-            headers: authHeader(),
+            headers: { 'Content-Type': 'application/json', ...authHeader() },
+            body: JSON.stringify(migrateToRoleId ? { migrate_to_role_id: migrateToRoleId } : {}),
         });
         return handleResponse(res);
     },

@@ -129,6 +129,11 @@ export default function RoleManagement() {
     const [editDesc, setEditDesc] = useState('');
     const [editSaving, setEditSaving] = useState(false);
 
+    // Delete with migration
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [migrateToRoleId, setMigrateToRoleId] = useState('');
+    const [deleting, setDeleting] = useState(false);
+
     const reload = () => {
         setLoading(true);
         authService.getRoles()
@@ -159,14 +164,29 @@ export default function RoleManagement() {
         }
     };
 
-    const handleDelete = async (roleId) => {
-        if (!window.confirm('Delete this role? Users assigned to it will lose this role.')) return;
+    const openDeletePanel = (role) => {
+        setDeleteTarget(role);
+        setMigrateToRoleId('');
+        setEditId(null);
+    };
+
+    const cancelDelete = () => {
+        setDeleteTarget(null);
+        setMigrateToRoleId('');
+    };
+
+    const confirmDelete = async (roleId) => {
+        setDeleting(true);
         setError('');
         try {
-            await authService.deleteRole(roleId);
+            await authService.deleteRole(roleId, migrateToRoleId || null);
             setRoles((prev) => prev.filter((r) => r.id !== roleId));
+            setDeleteTarget(null);
+            setMigrateToRoleId('');
         } catch (e) {
             setError(e.message);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -287,12 +307,12 @@ export default function RoleManagement() {
                                 </div>
 
                                 <div className="d-flex gap-1">
-                                    {!BUILT_IN_ROLES.has(role.name) && editId !== role.id && (
+                                    {!BUILT_IN_ROLES.has(role.name) && editId !== role.id && deleteTarget?.id !== role.id && (
                                         <>
                                             <button className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" onClick={() => startEdit(role)}>
                                                 <Edit2 size={13} /> Edit
                                             </button>
-                                            <button className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" onClick={() => handleDelete(role.id)}>
+                                            <button className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1" onClick={() => openDeletePanel(role)}>
                                                 <Trash2 size={13} />
                                             </button>
                                         </>
@@ -306,6 +326,39 @@ export default function RoleManagement() {
                                     </button>
                                 </div>
                             </div>
+
+                            {deleteTarget?.id === role.id && (
+                                <div className="mt-3 p-3 rounded border border-danger-subtle bg-danger-subtle">
+                                    <p className="small fw-semibold text-danger mb-2">
+                                        Where should users assigned to "{role.name}" be moved?
+                                    </p>
+                                    <div className="d-flex gap-2 flex-wrap align-items-center">
+                                        <select
+                                            className="form-select form-select-sm"
+                                            style={{ maxWidth: 240 }}
+                                            value={migrateToRoleId}
+                                            onChange={(e) => setMigrateToRoleId(e.target.value)}
+                                            disabled={deleting}
+                                        >
+                                            <option value="">— Remove role only (no migration) —</option>
+                                            {roles.filter((r) => r.id !== role.id && r.name !== 'MASTER').map((r) => (
+                                                <option key={r.id} value={r.id}>{r.name}</option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            className="btn btn-sm btn-danger d-inline-flex align-items-center gap-1"
+                                            onClick={() => confirmDelete(role.id)}
+                                            disabled={deleting}
+                                        >
+                                            <Trash2 size={13} />
+                                            {deleting ? 'Deleting…' : 'Confirm Delete'}
+                                        </button>
+                                        <button className="btn btn-sm btn-outline-secondary" onClick={cancelDelete} disabled={deleting}>
+                                            <X size={13} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
                             {expanded[role.id] && (
                                 <PermissionMatrix
