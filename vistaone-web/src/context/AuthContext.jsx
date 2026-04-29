@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { API_BASE } from "../config/api";
 
 const AuthContext = createContext();
 
@@ -73,7 +74,7 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    fetch("/api/users/me", {
+    fetch(`${API_BASE}/users/me`, {
       headers: { Authorization: `Bearer ${storedToken}` },
     })
       .then((res) => (res.ok ? res.json() : null))

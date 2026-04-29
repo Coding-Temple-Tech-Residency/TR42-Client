@@ -1,14 +1,16 @@
-const CLIENTS_ENDPOINT = '/api/clients';
-const LOGIN_ENDPOINT = '/api/users/login';
-const REGISTER_ENDPOINT = '/api/users/register';
-const VERIFY_EMAIL_ENDPOINT = '/api/users/verify-email';
-const REGISTER_CLIENT_ENDPOINT = '/api/clients/register';
-const ME_ENDPOINT = '/api/users/me';
-const ADMIN_USERS_ENDPOINT = '/api/admin/users';
-const ADMIN_ROLES_ENDPOINT = '/api/admin/roles';
-const MASTER_TRANSFER_ENDPOINT = '/api/admin/master/transfer';
-const CLIENT_SETTINGS_ENDPOINT = '/api/clients/settings';
-const PROFILE_ENDPOINT = '/api/users/profile/';
+import { API_BASE } from "../config/api";
+
+const CLIENTS_ENDPOINT = `${API_BASE}/clients`;
+const LOGIN_ENDPOINT = `${API_BASE}/users/login`;
+const REGISTER_ENDPOINT = `${API_BASE}/users/register`;
+const VERIFY_EMAIL_ENDPOINT = `${API_BASE}/users/verify-email`;
+const REGISTER_CLIENT_ENDPOINT = `${API_BASE}/clients/register`;
+const ME_ENDPOINT = `${API_BASE}/users/me`;
+const ADMIN_USERS_ENDPOINT = `${API_BASE}/admin/users`;
+const ADMIN_ROLES_ENDPOINT = `${API_BASE}/admin/roles`;
+const MASTER_TRANSFER_ENDPOINT = `${API_BASE}/admin/master/transfer`;
+const CLIENT_SETTINGS_ENDPOINT = `${API_BASE}/clients/settings`;
+const PROFILE_ENDPOINT = `${API_BASE}/users/profile/`;
 
 function authHeader() {
     const token = localStorage.getItem('authToken');
