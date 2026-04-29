@@ -122,7 +122,8 @@ export default function UserManagement() {
 
     const startRoleEdit = (user) => {
         setRoleEditId(user.id);
-        setSelectedRoles([...user.roles]);
+        const nonMasterRoles = user.roles.filter((r) => r !== 'MASTER');
+        setSelectedRoles(nonMasterRoles.length > 0 ? [nonMasterRoles[0]] : []);
     };
 
     const saveRoles = async (userId) => {
@@ -134,12 +135,6 @@ export default function UserManagement() {
         } catch (e) {
             setError(e.message);
         }
-    };
-
-    const toggleRole = (roleName) => {
-        setSelectedRoles((prev) =>
-            prev.includes(roleName) ? prev.filter((r) => r !== roleName) : [...prev, roleName]
-        );
     };
 
     const handleTransfer = async () => {
@@ -346,22 +341,17 @@ export default function UserManagement() {
                                         </td>
                                         <td className="px-3 py-3 align-middle">
                                             {roleEditId === user.id ? (
-                                                <div className="d-flex flex-wrap gap-1">
+                                                <select
+                                                    className="form-select form-select-sm"
+                                                    style={{ maxWidth: 180 }}
+                                                    value={selectedRoles[0] || ''}
+                                                    onChange={(e) => setSelectedRoles(e.target.value ? [e.target.value] : [])}
+                                                >
+                                                    <option value="" disabled>— No role —</option>
                                                     {assignableRoles(user).map((r) => (
-                                                        <div key={r.id} className="form-check form-check-inline me-0">
-                                                            <input
-                                                                className="form-check-input"
-                                                                type="checkbox"
-                                                                id={`role-${user.id}-${r.id}`}
-                                                                checked={selectedRoles.includes(r.name)}
-                                                                onChange={() => toggleRole(r.name)}
-                                                            />
-                                                            <label className="form-check-label small" htmlFor={`role-${user.id}-${r.id}`}>
-                                                                {r.name}
-                                                            </label>
-                                                        </div>
+                                                        <option key={r.id} value={r.name}>{r.name}</option>
                                                     ))}
-                                                </div>
+                                                </select>
                                             ) : (
                                                 <div className="d-flex flex-wrap gap-1">
                                                     {user.roles.length === 0 && <span className="text-muted small">No roles</span>}
