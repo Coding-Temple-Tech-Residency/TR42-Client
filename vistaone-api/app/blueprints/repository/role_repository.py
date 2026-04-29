@@ -42,6 +42,18 @@ class RoleRepository:
         return role
 
     @staticmethod
+    def migrate_users_from_role(from_role, to_role):
+        """Add to_role to every user who has from_role (before from_role is deleted)."""
+        for user in list(from_role.users):
+            if to_role not in user.roles:
+                user.roles.append(to_role)
+        try:
+            db.session.commit()
+        except SQLAlchemyError:
+            db.session.rollback()
+            raise
+
+    @staticmethod
     def delete_role(role):
         try:
             db.session.delete(role)
