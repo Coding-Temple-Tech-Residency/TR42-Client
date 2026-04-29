@@ -61,7 +61,7 @@ def _register_audit_hooks(db_instance):
                 obj.updated_by = current_user_id
 
 
-def create_app(config_name="ProductionConfig"):
+def create_app(config_name="DevelopmentConfig"):
     app = Flask(__name__)
     app.config.from_object(f"config.{config_name}")
 
@@ -91,10 +91,7 @@ def create_app(config_name="ProductionConfig"):
 
     CORS(
         app,
-        origins=[
-            "http://localhost:5173",
-            "https://client-web-dashboard.vercel.app",
-        ],
+        origins=app.config.get("CORS_ORIGINS", ["http://localhost:5173"]),
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     )
